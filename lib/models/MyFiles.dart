@@ -1,4 +1,4 @@
-import 'package:admin/constants.dart';
+import 'package:wp_b2b/constants.dart';
 import 'package:flutter/material.dart';
 
 class CloudStorageInfo {

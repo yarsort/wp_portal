@@ -13,23 +13,26 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        if (!Responsive.isDesktop(context))
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: context.read<MenuController>().controlMenu,
-          ),
-        if (!Responsive.isMobile(context))
-          Text(
-            "B2B кабінет клієнта",
-            style: Theme.of(context).textTheme.headline6,
-          ),
-        if (!Responsive.isMobile(context))
-          Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
-        Expanded(child: SearchField()),
-        ProfileCard()
-      ],
+    return SizedBox(
+      height: 40,
+      child: Row(
+        children: [
+          if (!Responsive.isDesktop(context))
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: context.read<MenuController>().controlMenu,
+            ),
+          if (!Responsive.isMobile(context))
+            Text(
+              "Переміщення товарів",
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          if (!Responsive.isMobile(context))
+            Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
+          Expanded(child: SearchField()),
+          ProfileCard()
+        ],
+      ),
     );
   }
 }
@@ -63,7 +66,7 @@ class ProfileCard extends StatelessWidget {
             if (!Responsive.isMobile(context))
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
                 child: Text("Angelina Jolie"),
               ),
             Icon(Icons.keyboard_arrow_down),
@@ -83,6 +86,7 @@ class SearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
         hintText: "Пошук",
         fillColor: secondaryColor,
         filled: true,
@@ -94,7 +98,7 @@ class SearchField extends StatelessWidget {
           onTap: () {},
           child: Container(
             padding: EdgeInsets.all(defaultPadding * 0.75),
-            margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+            //margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
             decoration: BoxDecoration(
               color: primaryColor,
               borderRadius: const BorderRadius.all(Radius.circular(10)),

@@ -1,4 +1,4 @@
-name: admin
+name: wp_b2b
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -26,13 +26,15 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.3
-
-  google_fonts: ^2.1.0
-  flutter_svg: ^0.22.0
-  fl_chart: ^0.36.1
-  provider: ^5.0.0
-  data_table_2: ^2.0.3
+  cupertino_icons: ^1.0.5
+  shared_preferences: ^2.0.13   # Для хранения настроек
+  google_fonts: ^3.0.1
+  flutter_svg: ^1.1.5
+  fl_chart: ^0.55.2
+  provider: ^6.0.3
+  data_table_2: ^2.3.7
+  intl: ^0.17.0
+  transparent_image: ^2.0.0
 
 dev_dependencies:
   flutter_test:

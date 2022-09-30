@@ -1,7 +1,7 @@
 
-import 'package:admin/responsive.dart';
+import 'package:wp_b2b/system.dart';
 import 'package:flutter/material.dart';
-import 'package:admin/models/MyFiles.dart';
+import 'package:wp_b2b/models/MyFiles.dart';
 import '../../../constants.dart';
 import 'file_info_card.dart';
 
