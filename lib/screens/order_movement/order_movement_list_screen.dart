@@ -13,10 +13,12 @@ import 'package:wp_b2b/screens/order_movement/order_movement_item_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
-import 'components/header.dart';
+import 'componen'
+    ''
+    'ts/header.dart';
 
 class OrderMovementScreen extends StatefulWidget {
-  static const routeName = '/orders_customers';
+  static const routeName = '/orders_movements';
 
   @override
   State<OrderMovementScreen> createState() => _OrderMovementScreenState();
@@ -139,14 +141,6 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                   flex: 4,
                   child: Text("Отримувач", textAlign: TextAlign.left),
                 ),
-                Expanded(
-                  flex: 3,
-                  child: Text("Тип ціни", textAlign: TextAlign.left),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text("Сума"),
-                ),
               ],
             ),
           ),
@@ -220,17 +214,6 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
               Expanded(
                 flex: 4,
                 child: Text(orderMovement.nameWarehouseReceiver!,
-                    style: TextStyle(color: Colors.white)),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(orderMovement.namePrice!,
-                    style: TextStyle(
-                        color: Colors.white, overflow: TextOverflow.fade)),
-              ),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(orderMovement.sum!),
                     style: TextStyle(color: Colors.white)),
               ),
             ],

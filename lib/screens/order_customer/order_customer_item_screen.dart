@@ -72,12 +72,13 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 1,
-              // default flex = 1
-              // and it takes 1/6 part of the screen
-              child: SideMenu(),
-            ),
+            if (Responsive.isDesktop(context))
+              Expanded(
+                flex: 1,
+                // default flex = 1
+                // and it takes 1/6 part of the screen
+                child: SideMenu(),
+              ),
             Expanded(
               flex: 5,
               child: SingleChildScrollView(
@@ -231,53 +232,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               SizedBox(
                 height: 50,
                 width: 50,
-                child: FutureBuilder(
-                  // Paste your image URL inside the htt.get method as a parameter
-                  future: http.get(
-                      Uri.parse(
-                          'https://rsvmoto.com.ua/files/resized/products/${item.uid}_1.55x55.png'),
-                      headers: {
-                        HttpHeaders.accessControlAllowOriginHeader: '*',
-                      }),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<http.Response> snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                        return Icon(
-                          Icons.two_wheeler,
-                          color: Colors.white24,
-                        );
-                      case ConnectionState.active:
-                        return SizedBox(
-                          child: CircularProgressIndicator(),
-                          height: 10,
-                          width: 10,
-                        );
-                      case ConnectionState.waiting:
-                        return SizedBox(
-                          child: CircularProgressIndicator(),
-                          height: 10,
-                          width: 10,
-                        );
-                      case ConnectionState.done:
-                        if (snapshot.hasError)
-                          return Icon(
-                            Icons.two_wheeler,
-                            color: Colors.white24,
-                          );
-
-                        // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
-                        if (snapshot.data!.statusCode == 200) {
-                          return Image.memory(snapshot.data!.bodyBytes);
-                        } else {
-                          return Icon(
-                            Icons.two_wheeler,
-                            color: Colors.white24,
-                          );
-                        }
-                    }
-                  },
-                ),
+                child: getItemSmallPicture(item),
               ),
               spaceBetweenColumn(),
               spaceBetweenColumn(),
@@ -332,6 +287,64 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
           Divider(color: Colors.white24, thickness: 0.5),
         ],
       ),
+    );
+  }
+
+  Widget getItemSmallPicture(ItemOrderCustomer item) {
+    return FutureBuilder(
+      // Paste your image URL inside the htt.get method as a parameter
+      future: http.get(
+          Uri.parse(
+              'https://rsvmoto.com.ua/files/resized/products/${item.uid}_1.55x55.png'),
+          headers: {
+            HttpHeaders.accessControlAllowOriginHeader: '*',
+          }),
+      builder: (BuildContext context,
+          AsyncSnapshot<http.Response> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Icon(
+              Icons.two_wheeler,
+              color: Colors.white24,
+            );
+          case ConnectionState.active:
+            return Center(
+              child: SizedBox(
+                child: CircularProgressIndicator(
+                  color: Colors.blueGrey,
+                ),
+                height: 20,
+                width: 20,
+              ),
+            );
+          case ConnectionState.waiting:
+            return Center(
+              child: SizedBox(
+                child: CircularProgressIndicator(
+                  color: Colors.blueGrey,
+                ),
+                height: 20,
+                width: 20,
+              ),
+            );
+          case ConnectionState.done:
+            if (snapshot.hasError)
+              return Icon(
+                Icons.two_wheeler,
+                color: Colors.white24,
+              );
+
+            // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
+            if (snapshot.data!.statusCode == 200) {
+              return Image.memory(snapshot.data!.bodyBytes);
+            } else {
+              return Icon(
+                Icons.two_wheeler,
+                color: Colors.white24,
+              );
+            }
+        }
+      },
     );
   }
 }

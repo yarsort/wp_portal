@@ -33,7 +33,6 @@ class OrderCustomer {
   OrderCustomer({this.date, this.nameOrganization, this.namePartner, this.nameWarehouse, this.namePrice, this.sum});
 
   OrderCustomer.fromJson(Map<String, dynamic> json) {
-    id = json['id'] ?? 0;
     status = json['status'] ?? '';
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
@@ -63,9 +62,6 @@ class OrderCustomer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (id != 0) {
-      data['id'] = id;
-    }
     data['status'] = status;
     data['date'] = date?.toIso8601String();
     data['uid'] = uid;

@@ -13,11 +13,22 @@ class AuthList extends StatefulWidget {
 
 class _AuthListState extends State<AuthList> {
 
-  // editing controller
+  // Editing controller
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   void _loginUser() async {
+    if (emailController.text.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Логін не заповнено.')
+      ));
+    }
+    if (passwordController.text.isEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Пароль не заповнено.')
+      ));
+    }
+
     ApiResponse response = await login(emailController.text, passwordController.text);
     if (response.error == null){
       Navigator.restorablePushNamed(context, OrderCustomerScreen.routeName);
@@ -32,7 +43,7 @@ class _AuthListState extends State<AuthList> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.3,
+      width: MediaQuery.of(context).size.width * 0.4,
       padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: secondaryColor,
@@ -43,14 +54,14 @@ class _AuthListState extends State<AuthList> {
         children: [
           Row(
             children: [
-              Expanded(flex: 1, child: Text('Логін')),
+              Expanded(flex: 2, child: Text('Логін')),
               Expanded(flex: 5, child: emailField()),
             ],
           ),
           SizedBox(height: 16,),
           Row(
             children: [
-              Expanded(flex: 1, child: Text('Пароль')),
+              Expanded(flex: 2, child: Text('Пароль')),
               Expanded(flex: 5, child: passwordField()),
             ],
           ),

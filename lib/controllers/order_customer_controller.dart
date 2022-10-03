@@ -79,6 +79,7 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
     }
   }
   catch (e){
+    debugPrint(e.toString());
     apiResponse.error = serverError;
   }
   return apiResponse;

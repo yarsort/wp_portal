@@ -13,6 +13,14 @@ const registerURL = '$baseURL/register';
 
 Future<ApiResponse> login (String email, String password) async {
   ApiResponse apiResponse = ApiResponse();
+  if(email.isEmpty){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
+  if(password.isEmpty){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   String basicAuth = 'Basic ' + base64Encode(utf8.encode('$email:$password'));
 

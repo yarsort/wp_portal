@@ -73,12 +73,13 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 1,
-              // default flex = 1
-              // and it takes 1/6 part of the screen
-              child: SideMenu(),
-            ),
+            if (Responsive.isDesktop(context))
+              Expanded(
+                flex: 1,
+                // default flex = 1
+                // and it takes 1/6 part of the screen
+                child: SideMenu(),
+              ),
             Expanded(
               flex: 5,
               child: SingleChildScrollView(

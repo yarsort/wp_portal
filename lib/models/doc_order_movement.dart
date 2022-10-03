@@ -1,35 +1,16 @@
 class OrderMovement {
-  String status = '';
+  String? status = '';
   DateTime? date = DateTime.now(); // Дата создания замовлення
   String uid = ''; // UID для 1С и связи с ТЧ
   String uidOrganization = ''; // Посилання на организацию
   String? nameOrganization = ''; // Имя организации
-  String uidPartner = ''; // Посилання на контрагента
-  String? namePartner = ''; // Имя контрагента
-  String uidContract = ''; // Посилання на договір контрагента
-  String? nameContract = ''; // Имя контрагента
   String uidStore = ''; // Посилання на магазин
   String? nameStore = ''; // Имя магазина
-  String uidPrice =
-      ''; // Посилання на тип цены номенклатуры продажи контрагенту
-  String? namePrice = ''; // Наименование типа цены номенклатуры
   String uidWarehouseSender = ''; // Посилання на склад отправителя
   String? nameWarehouseSender = ''; // Наименование склада отправителя
   String uidWarehouseReceiver = ''; // Посилання на склад получателя
   String? nameWarehouseReceiver = ''; // Наименование склада получателя
-  String uidCurrency = ''; // Посилання на валюту замовлення
-  String? nameCurrency = ''; // Наименование валюты замовлення
-  String uidCashbox = ''; // Посилання на кассу
-  String? nameCashbox = ''; // Наименование кассы
-  double? sum = 0.0; // Сума документа
   String comment = ''; // Коментар замовлення
-  String coordinates = ''; // Координаты создания записи
-  DateTime? dateSending =
-      DateTime(1900, 1, 1); // Дата планируемой відгрузки замовлення
-  DateTime? datePaying =
-      DateTime(1900, 1, 1); // Дата планируемой оплати замовлення
-  int sendYesTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
-  int sendNoTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
   DateTime dateSendingTo1C = DateTime(
       1900, 1, 1); // Дата отправки замовлення в 1С из мобильного устройства
   String numberFrom1C = '';
@@ -40,8 +21,7 @@ class OrderMovement {
       this.nameOrganization,
       this.nameWarehouseSender,
       this.nameWarehouseReceiver,
-      this.namePrice,
-      this.sum});
+      this.status});
 
   OrderMovement.fromJson(Map<String, dynamic> json) {
     status = json['status'] ?? '';
@@ -49,29 +29,13 @@ class OrderMovement {
     uid = json['uid'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
     nameOrganization = json['nameOrganization'] ?? '';
-    uidPartner = json['uidPartner'] ?? '';
-    namePartner = json['namePartner'] ?? '';
-    uidContract = json['uidContract'] ?? '';
-    nameContract = json['nameContract'] ?? '';
     uidStore = json['uidStore'] ?? '';
     nameStore = json['nameStore'] ?? '';
-    uidPrice = json['uidPrice'] ?? '';
-    namePrice = json['namePrice'] ?? '';
     uidWarehouseSender = json['uidWarehouseSender'] ?? '';
     nameWarehouseSender = json['nameWarehouseSender'] ?? '';
     uidWarehouseReceiver = json['uidWarehouseReceiver'] ?? '';
     nameWarehouseReceiver = json['nameWarehouseReceiver'] ?? '';
-    uidCurrency = json['uidCurrency'] ?? '';
-    nameCurrency = json['nameCurrency'] ?? '';
-    uidCashbox = json['uidCashbox'] ?? '';
-    nameCashbox = json['nameCashbox'] ?? '';
-    sum = json["sum"] ?? 0.0;
     comment = json['comment'] ?? '';
-    coordinates = json['coordinates'] ?? '';
-    dateSending = DateTime.parse(json['dateSending']);
-    datePaying = DateTime.parse(json['datePaying']);
-    sendYesTo1C = json['sendYesTo1C'] ?? 0;
-    sendNoTo1C = json['sendNoTo1C'] ?? 0;
     dateSendingTo1C = DateTime.parse(json['dateSendingTo1C']);
     numberFrom1C = json['numberFrom1C'] ?? '';
     countItems = json['countItems'] ?? 0;
@@ -86,20 +50,9 @@ class OrderMovement {
         ? uidOrganization
         : '00000-0000-0000-0000-000000000000000';
     data['nameOrganization'] = nameOrganization;
-    data['uidPartner'] = uidPartner.isNotEmpty
-        ? uidPartner
-        : '00000-0000-0000-0000-000000000000000';
-    data['namePartner'] = namePartner;
-    data['uidContract'] = uidContract.isNotEmpty
-        ? uidContract
-        : '00000-0000-0000-0000-000000000000000';
-    data['nameContract'] = nameContract;
     data['uidStore'] =
         uidStore.isNotEmpty ? uidStore : '00000-0000-0000-0000-000000000000000';
     data['nameStore'] = nameStore;
-    data['uidPrice'] =
-        uidPrice.isNotEmpty ? uidPrice : '00000-0000-0000-0000-000000000000000';
-    data['namePrice'] = namePrice;
     data['uidWarehouseSender'] = uidWarehouseSender.isNotEmpty
         ? uidWarehouseSender
         : '00000-0000-0000-0000-000000000000000';
@@ -108,21 +61,7 @@ class OrderMovement {
         ? uidWarehouseReceiver
         : '00000-0000-0000-0000-000000000000000';
     data['nameWarehouseReceiver'] = nameWarehouseReceiver;
-    data['uidCurrency'] = uidCurrency.isNotEmpty
-        ? uidCurrency
-        : '00000-0000-0000-0000-000000000000000';
-    data['nameCurrency'] = nameCurrency;
-    data['uidCashbox'] = uidCashbox.isNotEmpty
-        ? uidCashbox
-        : '00000-0000-0000-0000-000000000000000';
-    data['nameCashbox'] = nameCashbox;
-    data['sum'] = sum;
     data['comment'] = comment;
-    data['coordinates'] = coordinates;
-    data['dateSending'] = dateSending?.toIso8601String();
-    data['datePaying'] = datePaying?.toIso8601String();
-    data['sendYesTo1C'] = sendYesTo1C;
-    data['sendNoTo1C'] = sendNoTo1C;
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
     data['countItems'] = countItems;
