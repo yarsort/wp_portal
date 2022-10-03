@@ -1,27 +1,72 @@
 
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
-import 'package:wp_b2b/models/doc_order_customer.dart';
+import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-const orderMovementURL = '$baseURL/orders_movements';
+const ordersMovementsURL = '$baseURL/orders_movements';
+const orderMovementURL = '$baseURL/order_movement';
 
-// Get all order movement
+// Get all order customer
 Future<ApiResponse> getOrdersMovements() async {
   ApiResponse apiResponse = ApiResponse();
+
+  // Authorization
+  String basicAuth = await getToken();
+
+  // Get data from server
   try {
-    String token = await getToken();
-    final response = await http.get(Uri.parse(orderMovementURL),
+    final response = await http.get(Uri.parse(ordersMovementsURL),
         headers: {
-          'Accept': 'application/json',
-          'Authorization': 'Basic $token'
+          HttpHeaders.accessControlAllowOriginHeader: '*',
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: basicAuth,
         });
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'].map((p) => OrderCustomer.fromJson(p)).toList();
+        apiResponse.data = jsonDecode(response.body)['data'].map((p) => OrderMovement.fromJson(p)).toList();
+        // We get list of order customer, so we need to map each item to OrderCustomer model
+        apiResponse.data as List<dynamic>;
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
+  }
+  catch (e){
+    debugPrint(e.toString());
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}
+
+// Get order customer
+Future<ApiResponse> getItemsOrderMovementByUID(uidOrderCustomer) async {
+  ApiResponse apiResponse = ApiResponse();
+
+  // Authorization
+  String basicAuth = await getToken();
+
+  // Get data from server
+  try {
+    final response = await http.get(Uri.parse(orderMovementURL+'/'+uidOrderCustomer),
+        headers: {
+          HttpHeaders.accessControlAllowOriginHeader: '*',
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: basicAuth,
+        });
+
+    switch(response.statusCode){
+      case 200:
+        apiResponse.data = jsonDecode(response.body)['data'][0]['items'].map((p) => ItemOrderMovement.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;

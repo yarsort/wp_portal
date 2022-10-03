@@ -4,37 +4,37 @@ import 'package:provider/provider.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
-import 'package:wp_b2b/controllers/order_customer_controller.dart';
+import 'package:wp_b2b/controllers/order_movement_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:wp_b2b/models/doc_order_customer.dart';
+import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
-import 'package:wp_b2b/screens/order_customer/order_customer_item_screen.dart';
+import 'package:wp_b2b/screens/order_movement/order_movement_item_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
 import 'components/header.dart';
 
-class OrderCustomerScreen extends StatefulWidget {
+class OrderMovementScreen extends StatefulWidget {
   static const routeName = '/orders_customers';
 
   @override
-  State<OrderCustomerScreen> createState() => _OrderCustomerScreenState();
+  State<OrderMovementScreen> createState() => _OrderMovementScreenState();
 }
 
-class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
+class _OrderMovementScreenState extends State<OrderMovementScreen> {
   bool loadingData = false;
-  List<OrderCustomer> listOrderCustomer = [];
+  List<OrderMovement> listOrderMovement = [];
 
   loadListOrdersCustomers() async {
     // Request to server
-    ApiResponse response = await getOrdersCustomers();
+    ApiResponse response = await getOrdersMovements();
 
     // Read response
     if (response.error == null) {
       setState(() {
         for (var item in response.data as List<dynamic>) {
-          listOrderCustomer.add(item);
+          listOrderMovement.add(item);
         }
 
         loadingData = loadingData ? !loadingData : loadingData;
@@ -60,7 +60,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: context.read<MenuController>().scaffoldOrderCustomerKey,
+      key: context.read<MenuController>().scaffoldOrderMovementKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(
@@ -133,7 +133,11 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                 ),
                 Expanded(
                   flex: 4,
-                  child: Text("Контрагент", textAlign: TextAlign.left),
+                  child: Text("Відправник", textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: Text("Отримувач", textAlign: TextAlign.left),
                 ),
                 Expanded(
                   flex: 3,
@@ -155,10 +159,10 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     padding: EdgeInsets.all(0.0),
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: listOrderCustomer.length,
+                    itemCount: listOrderMovement.length,
                     itemBuilder: (context, index) {
-                      final orderCustomer = listOrderCustomer[index];
-                      return recentOrderCustomerDataRow(orderCustomer);
+                      final orderCustomer = listOrderMovement[index];
+                      return recentOrderMovementDataRow(orderCustomer);
                     }),
               )
             ],
@@ -168,14 +172,14 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     );
   }
 
-  Widget recentOrderCustomerDataRow(OrderCustomer orderCustomer) {
+  Widget recentOrderMovementDataRow(OrderMovement orderMovement) {
     return ListTile(
       onTap: () async {
         await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                OrderCustomerItemScreen(orderCustomer: orderCustomer),
+                OrderMovementItemScreen(orderMovement: orderMovement),
           ),
         );
       },
@@ -198,30 +202,35 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                 child: Row(
                   children: [
                     Flexible(
-                        child: Text(fullDateToString(orderCustomer.date!),
+                        child: Text(fullDateToString(orderMovement.date!),
                             style: TextStyle(color: Colors.white))),
                   ],
                 ),
               ),
               Expanded(
                 flex: 3,
-                child: Text(orderCustomer.nameOrganization!,
+                child: Text(orderMovement.nameOrganization!,
                     style: TextStyle(color: Colors.white)),
               ),
               Expanded(
                 flex: 4,
-                child: Text(orderCustomer.namePartner!,
+                child: Text(orderMovement.nameWarehouseSender!,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              Expanded(
+                flex: 4,
+                child: Text(orderMovement.nameWarehouseReceiver!,
                     style: TextStyle(color: Colors.white)),
               ),
               Expanded(
                 flex: 3,
-                child: Text(orderCustomer.namePrice!,
+                child: Text(orderMovement.namePrice!,
                     style: TextStyle(
                         color: Colors.white, overflow: TextOverflow.fade)),
               ),
               Expanded(
                 flex: 1,
-                child: Text(doubleToString(orderCustomer.sum!),
+                child: Text(doubleToString(orderMovement.sum!),
                     style: TextStyle(color: Colors.white)),
               ),
             ],

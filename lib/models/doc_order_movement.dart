@@ -1,40 +1,50 @@
 class OrderMovement {
-  int id = 0;                   // Инкремент
-  int status = 1;               // 1 - новый, 2 - отправлено, 3 - удален
+  String status = '';
   DateTime? date = DateTime.now(); // Дата создания замовлення
-  String uid = '';              // UID для 1С и связи с ТЧ
-  String uidOrganization = '';  // Посилання на организацию
+  String uid = ''; // UID для 1С и связи с ТЧ
+  String uidOrganization = ''; // Посилання на организацию
   String? nameOrganization = ''; // Имя организации
-  String uidPartner = '';       // Посилання на контрагента
-  String? namePartner = '';      // Имя контрагента
-  String uidContract = '';      // Посилання на договір контрагента
-  String? nameContract = '';     // Имя контрагента
-  String uidStore = '';         // Посилання на магазин
-  String? nameStore = '';        // Имя магазина
-  String uidPrice = '';         // Посилання на тип цены номенклатуры продажи контрагенту
-  String? namePrice = '';        // Наименование типа цены номенклатуры
-  String uidWarehouse = '';     // Посилання на склад
-  String? nameWarehouse = '';    // Наименование склада
-  String uidCurrency = '';      // Посилання на валюту замовлення
-  String? nameCurrency = '';     // Наименование валюты замовлення
-  String uidCashbox = '';       // Посилання на кассу
-  String? nameCashbox = '';      // Наименование кассы
-  double? sum = 0.0;             // Сума документа
-  String comment = '';          // Коментар замовлення
-  String coordinates = '';      // Координаты создания записи
-  DateTime? dateSending = DateTime(1900, 1, 1);      // Дата планируемой відгрузки замовлення
-  DateTime? datePaying = DateTime(1900, 1, 1);       // Дата планируемой оплати замовлення
+  String uidPartner = ''; // Посилання на контрагента
+  String? namePartner = ''; // Имя контрагента
+  String uidContract = ''; // Посилання на договір контрагента
+  String? nameContract = ''; // Имя контрагента
+  String uidStore = ''; // Посилання на магазин
+  String? nameStore = ''; // Имя магазина
+  String uidPrice =
+      ''; // Посилання на тип цены номенклатуры продажи контрагенту
+  String? namePrice = ''; // Наименование типа цены номенклатуры
+  String uidWarehouseSender = ''; // Посилання на склад отправителя
+  String? nameWarehouseSender = ''; // Наименование склада отправителя
+  String uidWarehouseReceiver = ''; // Посилання на склад получателя
+  String? nameWarehouseReceiver = ''; // Наименование склада получателя
+  String uidCurrency = ''; // Посилання на валюту замовлення
+  String? nameCurrency = ''; // Наименование валюты замовлення
+  String uidCashbox = ''; // Посилання на кассу
+  String? nameCashbox = ''; // Наименование кассы
+  double? sum = 0.0; // Сума документа
+  String comment = ''; // Коментар замовлення
+  String coordinates = ''; // Координаты создания записи
+  DateTime? dateSending =
+      DateTime(1900, 1, 1); // Дата планируемой відгрузки замовлення
+  DateTime? datePaying =
+      DateTime(1900, 1, 1); // Дата планируемой оплати замовлення
   int sendYesTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
-  int sendNoTo1C = 0;  // Булево: "Отправлено в 1С" - для фильтрации в списках
-  DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки замовлення в 1С из мобильного устройства
+  int sendNoTo1C = 0; // Булево: "Отправлено в 1С" - для фильтрации в списках
+  DateTime dateSendingTo1C = DateTime(
+      1900, 1, 1); // Дата отправки замовлення в 1С из мобильного устройства
   String numberFrom1C = '';
-  int countItems = 0;           // Количество товарів
+  int countItems = 0; // Количество товарів
 
-  OrderMovement({this.date, this.nameOrganization, this.namePartner, this.nameWarehouse, this.namePrice, this.sum});
+  OrderMovement(
+      {this.date,
+      this.nameOrganization,
+      this.nameWarehouseSender,
+      this.nameWarehouseReceiver,
+      this.namePrice,
+      this.sum});
 
   OrderMovement.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    status = json['status'] ?? 0;
+    status = json['status'] ?? '';
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
     uidOrganization = json['uidOrganization'] ?? '';
@@ -47,8 +57,10 @@ class OrderMovement {
     nameStore = json['nameStore'] ?? '';
     uidPrice = json['uidPrice'] ?? '';
     namePrice = json['namePrice'] ?? '';
-    uidWarehouse = json['uidWarehouse'] ?? '';
-    nameWarehouse = json['nameWarehouse'] ?? '';
+    uidWarehouseSender = json['uidWarehouseSender'] ?? '';
+    nameWarehouseSender = json['nameWarehouseSender'] ?? '';
+    uidWarehouseReceiver = json['uidWarehouseReceiver'] ?? '';
+    nameWarehouseReceiver = json['nameWarehouseReceiver'] ?? '';
     uidCurrency = json['uidCurrency'] ?? '';
     nameCurrency = json['nameCurrency'] ?? '';
     uidCashbox = json['uidCashbox'] ?? '';
@@ -67,27 +79,42 @@ class OrderMovement {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (id != 0) {
-      data['id'] = id;
-    }
     data['status'] = status;
     data['date'] = date?.toIso8601String();
     data['uid'] = uid;
-    data['uidOrganization'] = uidOrganization.isNotEmpty?uidOrganization:'00000-0000-0000-0000-000000000000000';
+    data['uidOrganization'] = uidOrganization.isNotEmpty
+        ? uidOrganization
+        : '00000-0000-0000-0000-000000000000000';
     data['nameOrganization'] = nameOrganization;
-    data['uidPartner'] = uidPartner.isNotEmpty?uidPartner:'00000-0000-0000-0000-000000000000000';
+    data['uidPartner'] = uidPartner.isNotEmpty
+        ? uidPartner
+        : '00000-0000-0000-0000-000000000000000';
     data['namePartner'] = namePartner;
-    data['uidContract'] = uidContract.isNotEmpty?uidContract:'00000-0000-0000-0000-000000000000000';
+    data['uidContract'] = uidContract.isNotEmpty
+        ? uidContract
+        : '00000-0000-0000-0000-000000000000000';
     data['nameContract'] = nameContract;
-    data['uidStore'] = uidStore.isNotEmpty?uidStore:'00000-0000-0000-0000-000000000000000';
+    data['uidStore'] =
+        uidStore.isNotEmpty ? uidStore : '00000-0000-0000-0000-000000000000000';
     data['nameStore'] = nameStore;
-    data['uidPrice'] = uidPrice.isNotEmpty?uidPrice:'00000-0000-0000-0000-000000000000000';
+    data['uidPrice'] =
+        uidPrice.isNotEmpty ? uidPrice : '00000-0000-0000-0000-000000000000000';
     data['namePrice'] = namePrice;
-    data['uidWarehouse'] = uidWarehouse.isNotEmpty?uidWarehouse:'00000-0000-0000-0000-000000000000000';
-    data['nameWarehouse'] = nameWarehouse;
-    data['uidCurrency'] = uidCurrency.isNotEmpty?uidCurrency:'00000-0000-0000-0000-000000000000000';
+    data['uidWarehouseSender'] = uidWarehouseSender.isNotEmpty
+        ? uidWarehouseSender
+        : '00000-0000-0000-0000-000000000000000';
+    data['nameWarehouseSender'] = nameWarehouseSender;
+    data['uidWarehouseReceiver'] = uidWarehouseReceiver.isNotEmpty
+        ? uidWarehouseReceiver
+        : '00000-0000-0000-0000-000000000000000';
+    data['nameWarehouseReceiver'] = nameWarehouseReceiver;
+    data['uidCurrency'] = uidCurrency.isNotEmpty
+        ? uidCurrency
+        : '00000-0000-0000-0000-000000000000000';
     data['nameCurrency'] = nameCurrency;
-    data['uidCashbox'] = uidCashbox.isNotEmpty?uidCashbox:'00000-0000-0000-0000-000000000000000';
+    data['uidCashbox'] = uidCashbox.isNotEmpty
+        ? uidCashbox
+        : '00000-0000-0000-0000-000000000000000';
     data['nameCashbox'] = nameCashbox;
     data['sum'] = sum;
     data['comment'] = comment;
@@ -105,18 +132,18 @@ class OrderMovement {
 
 /// ТЧ Товары, Документы.ЗаказПокупателя
 class ItemOrderMovement {
-  int id = 0;                   // Инкремент
-  int idOrderCustomer = 0;      // ID владельца ТЧ (документ)
-  String uid = '';              // UID для 1С и связи с ТЧ
-  String name = '';             // Название товара
+  int id = 0; // Инкремент
+  int idOrderCustomer = 0; // ID владельца ТЧ (документ)
+  String uid = ''; // UID для 1С и связи с ТЧ
+  String name = ''; // Название товара
   String uidCharacteristic = ''; // UID для 1С и связи с ТЧ
-  String nameCharacteristic = '';// Название товара
-  String uidUnit = '';          // Посилання на единицу измерения товарв
-  String nameUnit = '';         // Название единицы измерения
-  double count = 0.0;           // Количество товара
-  double price = 0.0;           // Цена товара
-  double discount = 0.0;        // Скидка/наценка на товар
-  double sum = 0.0;             // Сума товарів
+  String nameCharacteristic = ''; // Название товара
+  String uidUnit = ''; // Посилання на единицу измерения товарв
+  String nameUnit = ''; // Название единицы измерения
+  double count = 0.0; // Количество товара
+  double price = 0.0; // Цена товара
+  double discount = 0.0; // Скидка/наценка на товар
+  double sum = 0.0; // Сума товарів
 
 //<editor-fold desc="Data Methods">
 
@@ -138,12 +165,12 @@ class ItemOrderMovement {
   ItemOrderMovement.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     idOrderCustomer = json['idOrderCustomer'];
-    uid = json['uid']??'';
-    name = json['name']??'';
-    uidCharacteristic = json['uidCharacteristic']??'';
-    nameCharacteristic = json['nameCharacteristic']??'';
-    uidUnit = json['uidUnit']??'';
-    nameUnit = json['nameUnit']??'';
+    uid = json['uid'] ?? '';
+    name = json['name'] ?? '';
+    uidCharacteristic = json['uidCharacteristic'] ?? '';
+    nameCharacteristic = json['nameCharacteristic'] ?? '';
+    uidUnit = json['uidUnit'] ?? '';
+    nameUnit = json['nameUnit'] ?? '';
     count = json['count'];
     price = json['price'];
     discount = json['discount'];

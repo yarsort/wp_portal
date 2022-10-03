@@ -6,41 +6,42 @@ import 'package:provider/provider.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
-import 'package:wp_b2b/controllers/order_customer_controller.dart';
+import 'package:wp_b2b/controllers/order_movement_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_customer.dart';
+import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
-class OrderCustomerItemScreen extends StatefulWidget {
-  final OrderCustomer orderCustomer;
+class OrderMovementItemScreen extends StatefulWidget {
+  final OrderMovement orderMovement;
 
-  const OrderCustomerItemScreen({Key? key, required this.orderCustomer})
+  const OrderMovementItemScreen({Key? key, required this.orderMovement})
       : super(key: key);
 
   static const routeName = '/order_customer';
 
   @override
-  State<OrderCustomerItemScreen> createState() =>
-      _OrderCustomerItemScreenState();
+  State<OrderMovementItemScreen> createState() =>
+      _OrderMovementItemScreenState();
 }
 
-class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
+class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   bool loadingData = false;
-  List<ItemOrderCustomer> listItemsOrderCustomer = [];
+  List<ItemOrderCustomer> listItemsOrderMovement = [];
 
   loadOneOrderCustomer() async {
     // Request to server
     ApiResponse response =
-        await getItemsOrderCustomerByUID(widget.orderCustomer.uid);
+        await getItemsOrderMovementByUID(widget.orderMovement.uid);
 
     // Read response
     if (response.error == null) {
       setState(() {
         for (var item in response.data as List<dynamic>) {
-          listItemsOrderCustomer.add(item);
+          listItemsOrderMovement.add(item);
         }
 
         loadingData = loadingData ? !loadingData : loadingData;
@@ -97,7 +98,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           width: 20,
                         ),
                         Text(
-                          "Замовлення №" + widget.orderCustomer.numberFrom1C,
+                          "Переміщення товарів №" + widget.orderMovement.numberFrom1C,
                           style: Theme.of(context).textTheme.headline6,
                         ),
                       ],
@@ -197,9 +198,9 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                     padding: EdgeInsets.all(0.0),
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: listItemsOrderCustomer.length,
+                    itemCount: listItemsOrderMovement.length,
                     itemBuilder: (context, index) {
-                      final item = listItemsOrderCustomer[index];
+                      final item = listItemsOrderMovement[index];
                       return recentOrderCustomerDataRow(item);
                     }),
               )
@@ -233,9 +234,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                 width: 50,
                 child: FutureBuilder(
                   // Paste your image URL inside the htt.get method as a parameter
-                  future: http.get(
-                      Uri.parse(
-                          'https://rsvmoto.com.ua/files/resized/products/${item.uid}_1.55x55.png'),
+                  future: http.get(Uri.parse(
+                      'https://rsvmoto.com.ua/files/resized/products/${item.uid}_1.55x55.png'),
                       headers: {
                         HttpHeaders.accessControlAllowOriginHeader: '*',
                       }),
@@ -243,10 +243,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                       AsyncSnapshot<http.Response> snapshot) {
                     switch (snapshot.connectionState) {
                       case ConnectionState.none:
-                        return Icon(
-                          Icons.two_wheeler,
-                          color: Colors.white24,
-                        );
+                        return Icon(Icons.two_wheeler, color: Colors.white24,);
                       case ConnectionState.active:
                         return SizedBox(
                           child: CircularProgressIndicator(),
@@ -260,20 +257,13 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           width: 10,
                         );
                       case ConnectionState.done:
-                        if (snapshot.hasError)
-                          return Icon(
-                            Icons.two_wheeler,
-                            color: Colors.white24,
-                          );
+                        if (snapshot.hasError) return Icon(Icons.two_wheeler, color: Colors.white24,);
 
                         // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
-                        if (snapshot.data!.statusCode == 200) {
+                        if (snapshot.data!.statusCode == 200){
                           return Image.memory(snapshot.data!.bodyBytes);
                         } else {
-                          return Icon(
-                            Icons.two_wheeler,
-                            color: Colors.white24,
-                          );
+                          return Icon(Icons.two_wheeler, color: Colors.white24,);
                         }
                     }
                   },
@@ -288,10 +278,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               spaceBetweenColumn(),
               Expanded(
                 flex: 1,
-                child: Text(
-                    item.nameCharacteristic.isNotEmpty
-                        ? item.nameCharacteristic
-                        : '-',
+                child: Text(item.nameCharacteristic,
                     style: TextStyle(color: Colors.white)),
               ),
               spaceBetweenColumn(),

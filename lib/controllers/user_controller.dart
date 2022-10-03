@@ -1,4 +1,6 @@
 
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
@@ -6,35 +8,39 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:wp_b2b/models/user.dart';
 
+const authURL = '$baseURL/auth';
+const registerURL = '$baseURL/register';
+
 Future<ApiResponse> login (String email, String password) async {
   ApiResponse apiResponse = ApiResponse();
-  try{
-    final response = await http.post(
-        Uri.parse(loginURL),
-        headers: {'Accept': 'application/json'},
-        body: {'email': email, 'password': password}
-    );
+
+  String basicAuth = 'Basic ' + base64Encode(utf8.encode('$email:$password'));
+
+  // Get data from server
+  try {
+    final response = await http.get(Uri.parse(authURL),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: basicAuth,
+        });
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = User.fromJson(jsonDecode(response.body));
+        SharedPreferences pref = await SharedPreferences.getInstance();
+        await pref.setString('token', basicAuth);
         break;
-      case 422:
-        final errors = jsonDecode(response.body)['errors'];
-        apiResponse.error = errors[errors.keys.elementAt(0)][0];
-        break;
-      case 403:
-        apiResponse.error = jsonDecode(response.body)['message'];
+      case 401:
+        apiResponse.error = unauthorized;
         break;
       default:
         apiResponse.error = somethingWentWrong;
         break;
     }
   }
-  catch(e){
+  catch (e){
+    debugPrint(e.toString());
     apiResponse.error = serverError;
   }
-
   return apiResponse;
 }
 
@@ -73,10 +79,14 @@ Future<ApiResponse> register(String name, String email, String password) async {
 
 // Get token
 Future<String> getToken() async {
-  String username = 'Администратор';
-  String password = 'Lofege74';
-  String basicAuth = 'Basic ' + base64Encode(utf8.encode('$username:$password'));
-  return basicAuth;
+
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  return pref.getString('token') ?? '';
+
+  // String username = 'Администратор';
+  // String password = 'Lofege74';
+  // String basicAuth = 'Basic ' + base64Encode(utf8.encode('$username:$password'));
+  // return basicAuth;
 }
 
 // logout

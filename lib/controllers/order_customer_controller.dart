@@ -22,6 +22,7 @@ Future<ApiResponse> getOrdersCustomers() async {
   try {
     final response = await http.get(Uri.parse(ordersCustomersURL),
         headers: {
+          HttpHeaders.accessControlAllowOriginHeader: '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
         });

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wp_b2b/constants.dart';
 
-import 'components/autorization_list.dart';
+import 'components/authorization_list.dart';
 import 'components/header.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -26,24 +26,28 @@ class _LoginScreenState extends State<LoginScreen> {
               child: SingleChildScrollView(
                 primary: false,
                 padding: EdgeInsets.all(defaultPadding),
-                child: Column(
-                  children: [
-                    Header(),
-                    SizedBox(height: defaultPadding),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: Column(
-                            children: [
-                              AuthList(),
-                            ],
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height* 0.8,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Header(),
+                      SizedBox(height: defaultPadding),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Column(
+                              children: [
+                                AuthList(),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    )
-                  ],
+                        ],
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

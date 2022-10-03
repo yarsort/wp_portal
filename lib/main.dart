@@ -3,8 +3,10 @@ import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
-import 'package:wp_b2b/screens/order_movement/order_movement_screen.dart';
+import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
+import 'package:wp_b2b/screens/settings/settings_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -34,12 +36,16 @@ class MyApp extends StatelessWidget {
             settings: routeSettings,
             builder: (BuildContext context) {
               switch (routeSettings.name) {
+                case LoginScreen.routeName:
+                  return LoginScreen();
+                case SettingsScreen.routeName:
+                  return SettingsScreen();
                 case OrderCustomerScreen.routeName:
                   return OrderCustomerScreen();
                 case OrderMovementScreen.routeName:
                   return OrderMovementScreen();
                 default:
-                  return OrderCustomerScreen();
+                  return LoginScreen();
               }
             },
           );

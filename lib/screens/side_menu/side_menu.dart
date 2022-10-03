@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
-import 'package:wp_b2b/screens/order_movement/order_movement_screen.dart';
+import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
+import 'package:wp_b2b/screens/settings/settings_screen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({
@@ -58,14 +59,11 @@ class _SideMenuState extends State<SideMenu> {
             press: () {},
           ),
           DrawerListTile(
-            title: "Профіль",
-            svgSrc: "assets/icons/menu_profile.svg",
-            press: () {},
-          ),
-          DrawerListTile(
             title: "Налаштування",
             svgSrc: "assets/icons/menu_setting.svg",
-            press: () {},
+            press: () {
+              Navigator.restorablePushNamed(context, SettingsScreen.routeName);
+            },
           ),
         ],
       ),
@@ -92,7 +90,7 @@ class DrawerListTile extends StatelessWidget {
       horizontalTitleGap: 0.0,
       leading: SvgPicture.asset(
         svgSrc,
-        color: Colors.lightBlue,
+          color: Colors.lightBlue,
         height: 22,
       ),
       title: Text(
