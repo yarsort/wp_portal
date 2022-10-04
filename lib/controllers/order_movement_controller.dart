@@ -29,7 +29,13 @@ Future<ApiResponse> getOrdersMovements() async {
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'].map((p) => OrderMovement.fromJson(p)).toList();
+
+        var bodyResponse = jsonDecode(response.body);
+
+        apiResponse.data = bodyResponse['data'].map((p) => OrderMovement.fromJson(p)).toList();
+
+        debugPrint('Отримано елементів: ' + bodyResponse['count'].toString());
+
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;
@@ -49,7 +55,7 @@ Future<ApiResponse> getOrdersMovements() async {
 }
 
 // Get order customer
-Future<ApiResponse> getItemsOrderMovementByUID(uidOrderCustomer) async {
+Future<ApiResponse> getItemsOrderMovementByUID(uidOrderMovement) async {
   ApiResponse apiResponse = ApiResponse();
 
   // Authorization
@@ -57,7 +63,7 @@ Future<ApiResponse> getItemsOrderMovementByUID(uidOrderCustomer) async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(orderMovementURL+'/'+uidOrderCustomer),
+    final response = await http.get(Uri.parse(orderMovementURL+'/'+uidOrderMovement),
         headers: {
           HttpHeaders.accessControlAllowOriginHeader: '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -66,7 +72,13 @@ Future<ApiResponse> getItemsOrderMovementByUID(uidOrderCustomer) async {
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'][0]['items'].map((p) => ItemOrderMovement.fromJson(p)).toList();
+
+        var bodyResponse = jsonDecode(response.body);
+
+        apiResponse.data = bodyResponse['data'][0]['items'].map((p) => ItemOrderMovement.fromJson(p)).toList();
+
+        debugPrint('Отримано елементів: ' + bodyResponse['count'].toString());
+
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;

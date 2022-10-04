@@ -20,7 +20,13 @@ class _SideMenuState extends State<SideMenu> {
       child: ListView(
         children: [
           DrawerHeader(
-            child: Image.asset("assets/images/logo.png"),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('RSV MOTO', style:  Theme.of(context).textTheme.headline5,),
+                Text('Race, Save, Velocity', style:  Theme.of(context).textTheme.labelSmall,),
+              ],
+            ),
           ),
           DrawerListTile(
             title: "Головна",

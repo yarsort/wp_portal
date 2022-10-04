@@ -98,7 +98,7 @@ class OrderCustomer {
 /// ТЧ Товары, Документы.ЗаказПокупателя
 class ItemOrderCustomer {
   int numberRow = 0;                   // Инкремент
-  int idOrderCustomer = 0;      // ID владельца ТЧ (документ)
+  String uidOrderCustomer = '';      // ID владельца ТЧ (документ)
   String uid = '';              // UID для 1С и связи с ТЧ
   String name = '';             // Название товара
   String uidCharacteristic = ''; // UID для 1С и связи с ТЧ
@@ -112,7 +112,7 @@ class ItemOrderCustomer {
 
   ItemOrderCustomer({
     required this.numberRow,
-    required this.idOrderCustomer,
+    required this.uidOrderCustomer,
     required this.uid,
     required this.name,
     required this.uidCharacteristic,
@@ -127,6 +127,7 @@ class ItemOrderCustomer {
 
   ItemOrderCustomer.fromJson(Map<String, dynamic> json) {
     numberRow = int.parse(json['numberRow']??'0.0');
+    uidOrderCustomer = json['uidOrderCustomer']??'';
     uid = json['uid']??'';
     name = json['name']??'';
     uidCharacteristic = json['uidCharacteristic']??'';
@@ -142,6 +143,7 @@ class ItemOrderCustomer {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['numberRow'] = numberRow;
+    data['uidOrderCustomer'] = uidOrderCustomer;
     data['uid'] = uid;
     data['name'] = name;
     data['uidCharacteristic'] = uidCharacteristic;

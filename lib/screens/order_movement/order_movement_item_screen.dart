@@ -30,7 +30,7 @@ class OrderMovementItemScreen extends StatefulWidget {
 
 class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   bool loadingData = false;
-  List<ItemOrderCustomer> listItemsOrderMovement = [];
+  List<ItemOrderMovement> listItemsOrderMovement = [];
 
   loadOneOrderCustomer() async {
     // Request to server
@@ -165,28 +165,24 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Кількість"),
-                ),
-                spaceBetweenColumn(),
-                Expanded(
-                  flex: 1,
                   child: Text("Од. вим."),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Ціна"),
+                  child: Text("Заплановано"),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Знижка"),
+                  child: Text("Відправлено"),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Сума"),
+                  child: Text("Отримано"),
                 ),
+                spaceBetweenColumn(),
               ],
             ),
           ),
@@ -202,7 +198,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                     itemCount: listItemsOrderMovement.length,
                     itemBuilder: (context, index) {
                       final item = listItemsOrderMovement[index];
-                      return recentOrderCustomerDataRow(item);
+                      return recentOrderMovementDataRow(item);
                     }),
               )
             ],
@@ -216,7 +212,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
     return SizedBox(width: 5);
   }
 
-  Widget recentOrderCustomerDataRow(ItemOrderCustomer item) {
+  Widget recentOrderMovementDataRow(ItemOrderMovement item) {
     return ListTile(
       onTap: () {},
       contentPadding: EdgeInsets.all(0.0),
@@ -233,42 +229,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
               SizedBox(
                 height: 50,
                 width: 50,
-                child: FutureBuilder(
-                  // Paste your image URL inside the htt.get method as a parameter
-                  future: http.get(Uri.parse(
-                      'https://rsvmoto.com.ua/files/resized/products/${item.uid}_1.55x55.png'),
-                      headers: {
-                        HttpHeaders.accessControlAllowOriginHeader: '*',
-                      }),
-                  builder: (BuildContext context,
-                      AsyncSnapshot<http.Response> snapshot) {
-                    switch (snapshot.connectionState) {
-                      case ConnectionState.none:
-                        return Icon(Icons.two_wheeler, color: Colors.white24,);
-                      case ConnectionState.active:
-                        return SizedBox(
-                          child: CircularProgressIndicator(),
-                          height: 10,
-                          width: 10,
-                        );
-                      case ConnectionState.waiting:
-                        return SizedBox(
-                          child: CircularProgressIndicator(),
-                          height: 10,
-                          width: 10,
-                        );
-                      case ConnectionState.done:
-                        if (snapshot.hasError) return Icon(Icons.two_wheeler, color: Colors.white24,);
-
-                        // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
-                        if (snapshot.data!.statusCode == 200){
-                          return Image.memory(snapshot.data!.bodyBytes);
-                        } else {
-                          return Icon(Icons.two_wheeler, color: Colors.white24,);
-                        }
-                    }
-                  },
-                ),
+                child: getItemSmallPicture(item),
               ),
               spaceBetweenColumn(),
               spaceBetweenColumn(),
@@ -285,31 +246,25 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
               spaceBetweenColumn(),
               Expanded(
                 flex: 1,
-                child: Text(doubleToString(item.count),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
                 child:
                     Text(item.nameUnit, style: TextStyle(color: Colors.white)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 1,
-                child: Text(doubleToString(item.price),
+                child: Text(doubleToString(item.countPrepare),
                     style: TextStyle(color: Colors.white)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 1,
-                child: Text(doubleToString(item.discount),
+                child: Text(doubleToString(item.countSend),
                     style: TextStyle(color: Colors.white)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 1,
-                child: Text(doubleToString(item.sum),
+                child: Text(doubleToString(item.countReceived),
                     style: TextStyle(color: Colors.white)),
               ),
             ],
@@ -320,6 +275,64 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
           Divider(color: Colors.white24, thickness: 0.5),
         ],
       ),
+    );
+  }
+
+  Widget getItemSmallPicture(ItemOrderMovement item) {
+    return FutureBuilder(
+      // Paste your image URL inside the htt.get method as a parameter
+      future: http.get(
+          Uri.parse(
+              'https://rsvmoto.com.ua/files/resized/products/${item.uid}_1.55x55.png'),
+          headers: {
+            HttpHeaders.accessControlAllowOriginHeader: '*',
+          }),
+      builder: (BuildContext context,
+          AsyncSnapshot<http.Response> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Icon(
+              Icons.two_wheeler,
+              color: Colors.white24,
+            );
+          case ConnectionState.active:
+            return Center(
+              child: SizedBox(
+                child: CircularProgressIndicator(
+                  color: Colors.blueGrey,
+                ),
+                height: 20,
+                width: 20,
+              ),
+            );
+          case ConnectionState.waiting:
+            return Center(
+              child: SizedBox(
+                child: CircularProgressIndicator(
+                  color: Colors.blueGrey,
+                ),
+                height: 20,
+                width: 20,
+              ),
+            );
+          case ConnectionState.done:
+            if (snapshot.hasError)
+              return Icon(
+                Icons.two_wheeler,
+                color: Colors.white24,
+              );
+
+            // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
+            if (snapshot.data!.statusCode == 200) {
+              return Image.memory(snapshot.data!.bodyBytes);
+            } else {
+              return Icon(
+                Icons.two_wheeler,
+                color: Colors.white24,
+              );
+            }
+        }
+      },
     );
   }
 }

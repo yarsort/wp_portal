@@ -36,7 +36,6 @@ class OrderMovement {
     uidWarehouseReceiver = json['uidWarehouseReceiver'] ?? '';
     nameWarehouseReceiver = json['nameWarehouseReceiver'] ?? '';
     comment = json['comment'] ?? '';
-    dateSendingTo1C = DateTime.parse(json['dateSendingTo1C']);
     numberFrom1C = json['numberFrom1C'] ?? '';
     countItems = json['countItems'] ?? 0;
   }
@@ -71,67 +70,58 @@ class OrderMovement {
 
 /// ТЧ Товары, Документы.ЗаказПокупателя
 class ItemOrderMovement {
-  int id = 0; // Инкремент
-  int idOrderCustomer = 0; // ID владельца ТЧ (документ)
+  int numberRow = 0; //
+  String uidOrderMovement = ''; // UID для 1С и связи с ТЧ
   String uid = ''; // UID для 1С и связи с ТЧ
   String name = ''; // Название товара
   String uidCharacteristic = ''; // UID для 1С и связи с ТЧ
   String nameCharacteristic = ''; // Название товара
   String uidUnit = ''; // Посилання на единицу измерения товарв
   String nameUnit = ''; // Название единицы измерения
-  double count = 0.0; // Количество товара
-  double price = 0.0; // Цена товара
-  double discount = 0.0; // Скидка/наценка на товар
-  double sum = 0.0; // Сума товарів
-
-//<editor-fold desc="Data Methods">
+  double countPrepare = 0.0; // Количество товара запланировано
+  double countSend = 0.0; //  Количество товара отправлено
+  double countReceived = 0.0; // Количество товара получено
 
   ItemOrderMovement({
-    required this.id,
-    required this.idOrderCustomer,
+    required this.numberRow,
+    required this.uidOrderMovement,
     required this.uid,
     required this.name,
     required this.uidCharacteristic,
     required this.nameCharacteristic,
     required this.uidUnit,
     required this.nameUnit,
-    required this.count,
-    required this.price,
-    required this.discount,
-    required this.sum,
+    required this.countPrepare,
+    required this.countSend,
+    required this.countReceived,
   });
 
   ItemOrderMovement.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    idOrderCustomer = json['idOrderCustomer'];
+    numberRow = int.parse(json['numberRow']??'0.0');
+    uidOrderMovement = json['uidOrderMovement'];
     uid = json['uid'] ?? '';
     name = json['name'] ?? '';
     uidCharacteristic = json['uidCharacteristic'] ?? '';
     nameCharacteristic = json['nameCharacteristic'] ?? '';
     uidUnit = json['uidUnit'] ?? '';
     nameUnit = json['nameUnit'] ?? '';
-    count = json['count'];
-    price = json['price'];
-    discount = json['discount'];
-    sum = json['sum'];
+    countPrepare = double.parse(json['countPrepare']??'0.0');
+    countSend = double.parse(json['countSend']??'0.0');
+    countReceived = double.parse(json['countReceived']??'0.0');
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (id != 0) {
-      data['id'] = id;
-    }
-    data['idOrderCustomer'] = idOrderCustomer;
+    data['uidOrderMovement'] = uidOrderMovement;
     data['uid'] = uid;
     data['name'] = name;
     data['uidCharacteristic'] = uidCharacteristic;
     data['nameCharacteristic'] = nameCharacteristic;
     data['uidUnit'] = uidUnit;
     data['nameUnit'] = nameUnit;
-    data['count'] = count;
-    data['price'] = price;
-    data['discount'] = discount;
-    data['sum'] = sum;
+    data['countPrepare'] = countPrepare;
+    data['countSend'] = countSend;
+    data['countReceived'] = countReceived;
     return data;
   }
 }

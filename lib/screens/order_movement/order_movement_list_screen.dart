@@ -131,14 +131,18 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                 ),
                 Expanded(
                   flex: 3,
+                  child: Text("Статус", textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 3,
                   child: Text("Організація", textAlign: TextAlign.left),
                 ),
                 Expanded(
-                  flex: 4,
+                  flex: 3,
                   child: Text("Відправник", textAlign: TextAlign.left),
                 ),
                 Expanded(
-                  flex: 4,
+                  flex: 3,
                   child: Text("Отримувач", textAlign: TextAlign.left),
                 ),
               ],
@@ -203,16 +207,21 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
               ),
               Expanded(
                 flex: 3,
+                child: Text(orderMovement.status!,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              Expanded(
+                flex: 3,
                 child: Text(orderMovement.nameOrganization!,
                     style: TextStyle(color: Colors.white)),
               ),
               Expanded(
-                flex: 4,
+                flex: 3,
                 child: Text(orderMovement.nameWarehouseSender!,
                     style: TextStyle(color: Colors.white)),
               ),
               Expanded(
-                flex: 4,
+                flex: 3,
                 child: Text(orderMovement.nameWarehouseReceiver!,
                     style: TextStyle(color: Colors.white)),
               ),
