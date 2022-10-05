@@ -12,10 +12,7 @@ import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/order_movement/order_movement_item_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
-
-import 'componen'
-    ''
-    'ts/header.dart';
+import 'components/header.dart';
 
 class OrderMovementScreen extends StatefulWidget {
   static const routeName = '/orders_movements';
@@ -55,8 +52,8 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
 
   @override
   void initState() {
-    super.initState();
     loadListOrdersCustomers();
+    super.initState();
   }
 
   @override

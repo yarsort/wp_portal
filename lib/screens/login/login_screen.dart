@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:wp_b2b/constants.dart';
 
 import 'components/authorization_list.dart';
-import 'components/header.dart';
 
 class LoginScreen extends StatefulWidget {
 
@@ -31,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Header(),
+                      //Header(),
                       SizedBox(height: defaultPadding),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,

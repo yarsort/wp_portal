@@ -14,14 +14,11 @@ class AccumProductPrice {
     uidProduct = json["uidProduct"]??'';
     uidProductCharacteristic = json["uidProductCharacteristic"]??'';
     uidUnit = json["uidUnit"]??'';
-    price = json["price"].toDouble()??0.0;
+    price = double.parse(json["price"]??0.0);
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (id != 0) {
-      data['id'] = id;
-    }
     data['uidPrice'] = uidPrice;
     data['uidProduct'] = uidProduct;
     data['uidProductCharacteristic'] = uidProductCharacteristic;

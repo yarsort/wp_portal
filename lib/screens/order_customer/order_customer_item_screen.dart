@@ -2,9 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:wp_b2b/constants.dart';
-import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/order_customer_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
@@ -31,7 +29,35 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   bool loadingData = false;
   List<ItemOrderCustomer> listItemsOrderCustomer = [];
 
-  loadOneOrderCustomer() async {
+  /// Поле ввода: Дата документа
+  TextEditingController textFieldDateController = TextEditingController();
+
+  /// Поле ввода: Организация
+  TextEditingController textFieldOrganizationController =
+      TextEditingController();
+
+  /// Поле ввода: Партнер
+  TextEditingController textFieldPartnerController = TextEditingController();
+
+  /// Поле ввода: Договір (Торговая точка)
+  TextEditingController textFieldContractController = TextEditingController();
+
+  /// Поле ввода: Магазин (Торговая точка)
+  TextEditingController textFieldStoreController = TextEditingController();
+
+  /// Поле ввода: Тип цены
+  TextEditingController textFieldPriceController = TextEditingController();
+
+  /// Поле ввода: Склад
+  TextEditingController textFieldWarehouseController = TextEditingController();
+
+  /// Поле ввода: Сума документа
+  TextEditingController textFieldSumController = TextEditingController();
+
+  /// Поле ввода: Вага документа
+  TextEditingController textFieldWeightController = TextEditingController();
+
+  _loadOneOrderCustomer() async {
     // Request to server
     ApiResponse response =
         await getItemsOrderCustomerByUID(widget.orderCustomer.uid);
@@ -57,16 +83,30 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     });
   }
 
+  _updateHeader() async {
+    textFieldDateController.text = fullDateToString(widget.orderCustomer.date??DateTime.parse(''));
+    textFieldOrganizationController.text =
+        widget.orderCustomer.nameOrganization!;
+    textFieldPartnerController.text = widget.orderCustomer.namePartner!;
+    textFieldContractController.text = widget.orderCustomer.nameContract!;
+    textFieldStoreController.text = widget.orderCustomer.nameStore!;
+    textFieldPriceController.text = widget.orderCustomer.namePrice!;
+    textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse!;
+    textFieldSumController.text =
+        doubleToString(widget.orderCustomer.sum ?? 0.0);
+  }
+
   @override
   void initState() {
+    _updateHeader();
+    _loadOneOrderCustomer();
     super.initState();
-    loadOneOrderCustomer();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
+      //key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(
@@ -111,6 +151,11 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           flex: 5,
                           child: Column(
                             children: [
+                              if (Responsive.isDesktop(context) || Responsive.isTablet(context))
+                                textFieldsDocumentDesktop(),
+                              if (Responsive.isMobile(context))
+                                textFieldsDocumentMobile(),
+                              SizedBox(height: defaultPadding),
                               itemsOrderCustomerList(),
                             ],
                           ),
@@ -123,6 +168,111 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget textFieldsDocumentDesktop() {
+    return Container(
+      //width: MediaQuery.of(context).size.width*0.5,
+      padding: EdgeInsets.all(defaultPadding),
+      decoration: BoxDecoration(
+        color: secondaryColor,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              /// Date
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Дата документа',
+                    textEditingController: textFieldDateController),
+              ),
+
+              /// Organization
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Організація',
+                    textEditingController: textFieldOrganizationController),
+              ),
+
+              /// Partner
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Партнер',
+                    textEditingController: textFieldPartnerController),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              /// Sum
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Сума документа',
+                    textEditingController: textFieldSumController),
+              ),
+              /// Warehouse
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Склад відвантаження',
+                    textEditingController: textFieldWarehouseController),
+              ),
+              /// Price
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Тип ціни',
+                    textEditingController: textFieldPriceController),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget textFieldsDocumentMobile() {
+    return Container(
+      padding: EdgeInsets.all(defaultPadding),
+      decoration: BoxDecoration(
+        color: secondaryColor,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Column(
+        children: [
+          TextFieldWithText(
+              textLabel: 'Дата документа',
+              textEditingController: textFieldDateController),
+
+          /// Organization
+          TextFieldWithText(
+              textLabel: 'Організація',
+              textEditingController: textFieldOrganizationController),
+
+          /// Partner
+          TextFieldWithText(
+              textLabel: 'Партнер',
+              textEditingController: textFieldPartnerController),
+          /// Warehouse
+          TextFieldWithText(
+              textLabel: 'Склад відвантаження',
+              textEditingController: textFieldWarehouseController),
+          /// Price
+          TextFieldWithText(
+              textLabel: 'Тип ціни',
+              textEditingController: textFieldPriceController),
+          TextFieldWithText(
+              textLabel: 'Сума документа',
+              textEditingController: textFieldSumController),
+        ],
       ),
     );
   }
@@ -154,37 +304,37 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 2,
-                  child: Text("Товар"),
+                  child: Text("Товар", overflow: TextOverflow.fade),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Варіант"),
+                  child: Text("Варіант", overflow: TextOverflow.fade),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Кількість"),
+                  child: Text("Кількість", overflow: TextOverflow.fade),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Од. вим."),
+                  child: Text("Од. вим.", overflow: TextOverflow.fade),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Ціна"),
+                  child: Text("Ціна", overflow: TextOverflow.fade),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Знижка"),
+                  child: Text("Знижка", overflow: TextOverflow.fade),
                 ),
                 spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Сума"),
+                  child: Text("Сума", overflow: TextOverflow.fade),
                 ),
               ],
             ),
@@ -299,8 +449,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
           headers: {
             HttpHeaders.accessControlAllowOriginHeader: '*',
           }),
-      builder: (BuildContext context,
-          AsyncSnapshot<http.Response> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Icon(
@@ -345,6 +494,46 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
             }
         }
       },
+    );
+  }
+}
+
+class TextFieldWithText extends StatelessWidget {
+  final TextEditingController textEditingController;
+  final String textLabel;
+  final bool readOnly = true;
+
+  const TextFieldWithText({
+    Key? key,
+    bool? readOnly,
+    required this.textLabel,
+    required this.textEditingController,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+      child: IntrinsicHeight(
+        child: TextField(
+          keyboardType: TextInputType.text,
+          readOnly: readOnly,
+          controller: textEditingController,
+          decoration: InputDecoration(
+            isDense: true,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 2,
+              minHeight: 2,
+            ),
+            //contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+            border: const OutlineInputBorder(),
+            labelStyle: const TextStyle(
+              color: Colors.blueGrey,
+            ),
+            labelText: textLabel,
+          ),
+        ),
+      ),
     );
   }
 }

@@ -9,7 +9,6 @@ import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/order_movement_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:wp_b2b/models/doc_order_customer.dart';
 import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
@@ -32,7 +31,25 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   bool loadingData = false;
   List<ItemOrderMovement> listItemsOrderMovement = [];
 
-  loadOneOrderCustomer() async {
+  /// Поле ввода: Дата документа
+  TextEditingController textFieldDateController = TextEditingController();
+
+  /// Поле ввода: Организация
+  TextEditingController textFieldOrganizationController = TextEditingController();
+
+  /// Поле ввода: Склад отправитель
+  TextEditingController textFieldWarehouseSenderController = TextEditingController();
+
+  /// Поле ввода: Склад получатель
+  TextEditingController textFieldWarehouseReceiverController = TextEditingController();
+
+  /// Поле ввода: Сума документа
+  TextEditingController textFieldSumController = TextEditingController();
+
+  /// Поле ввода: Вага документа
+  TextEditingController textFieldWeightController = TextEditingController();
+
+  _loadOneOrderCustomer() async {
     // Request to server
     ApiResponse response =
         await getItemsOrderMovementByUID(widget.orderMovement.uid);
@@ -58,10 +75,19 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
     });
   }
 
+  _updateHeader() async {
+    textFieldDateController.text = fullDateToString(widget.orderMovement.date??DateTime.parse(''));
+    textFieldOrganizationController.text =
+    widget.orderMovement.nameOrganization!;
+    textFieldWarehouseSenderController.text = widget.orderMovement.nameWarehouseSender!;
+    textFieldWarehouseReceiverController.text = widget.orderMovement.nameWarehouseReceiver!;
+  }
+
   @override
   void initState() {
+    _updateHeader();
+    _loadOneOrderCustomer();
     super.initState();
-    loadOneOrderCustomer();
   }
 
   @override
@@ -112,6 +138,11 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                           flex: 5,
                           child: Column(
                             children: [
+                              if (Responsive.isDesktop(context) || Responsive.isTablet(context))
+                                textFieldsDocumentDesktop(),
+                              if (Responsive.isMobile(context))
+                                textFieldsDocumentMobile(),
+                              SizedBox(height: defaultPadding),
                               itemsOrderCustomerList(),
                             ],
                           ),
@@ -124,6 +155,99 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget textFieldsDocumentDesktop() {
+    return Container(
+      //width: MediaQuery.of(context).size.width*0.5,
+      padding: EdgeInsets.all(defaultPadding),
+      decoration: BoxDecoration(
+        color: secondaryColor,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              /// Date
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Дата документа',
+                    textEditingController: textFieldDateController),
+              ),
+
+              /// Organization
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Організація',
+                    textEditingController: textFieldOrganizationController),
+              ),
+
+              /// Empty
+              Expanded(
+                flex: 1,
+                child: Container()),
+            ],
+          ),
+          Row(
+            children: [
+              /// Warehouse-sender
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Склад-відправник',
+                    textEditingController: textFieldWarehouseSenderController),
+              ),
+              /// Warehouse-receiver
+              Expanded(
+                flex: 1,
+                child: TextFieldWithText(
+                    textLabel: 'Склад-отримувач',
+                    textEditingController: textFieldWarehouseReceiverController),
+              ),
+              /// Empty
+              Expanded(
+                  flex: 1,
+                  child: Container()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget textFieldsDocumentMobile() {
+    return Container(
+      padding: EdgeInsets.all(defaultPadding),
+      decoration: BoxDecoration(
+        color: secondaryColor,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+      ),
+      child: Column(
+        children: [
+          TextFieldWithText(
+              textLabel: 'Дата документа',
+              textEditingController: textFieldDateController),
+
+          /// Organization
+          TextFieldWithText(
+              textLabel: 'Організація',
+              textEditingController: textFieldOrganizationController),
+
+          /// Warehouse-sender
+          TextFieldWithText(
+              textLabel: 'Склад-відправник',
+              textEditingController: textFieldWarehouseSenderController),
+
+          /// Warehouse-receiver
+          TextFieldWithText(
+              textLabel: 'Склад-отримувач',
+              textEditingController: textFieldWarehouseReceiverController),
+        ],
       ),
     );
   }
@@ -333,6 +457,46 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
             }
         }
       },
+    );
+  }
+}
+
+class TextFieldWithText extends StatelessWidget {
+  final TextEditingController textEditingController;
+  final String textLabel;
+  final bool readOnly = true;
+
+  const TextFieldWithText({
+    Key? key,
+    bool? readOnly,
+    required this.textLabel,
+    required this.textEditingController,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(7, 7, 7, 7),
+      child: IntrinsicHeight(
+        child: TextField(
+          keyboardType: TextInputType.text,
+          readOnly: readOnly,
+          controller: textEditingController,
+          decoration: InputDecoration(
+            isDense: true,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 2,
+              minHeight: 2,
+            ),
+            //contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
+            border: const OutlineInputBorder(),
+            labelStyle: const TextStyle(
+              color: Colors.blueGrey,
+            ),
+            labelText: textLabel,
+          ),
+        ),
+      ),
     );
   }
 }

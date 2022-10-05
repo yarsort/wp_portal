@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
 import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
+import 'package:wp_b2b/screens/products/products_list_screen.dart';
 import 'package:wp_b2b/screens/settings/settings_screen.dart';
 
 class SideMenu extends StatefulWidget {
@@ -58,7 +59,9 @@ class _SideMenuState extends State<SideMenu> {
           DrawerListTile(
             title: "Товари",
             svgSrc: "assets/icons/menu_store.svg",
-            press: () {},
+            press: () {
+              Navigator.restorablePushNamed(context, ProductListScreen.routeName);
+            },
           ),
           DrawerListTile(
             title: "Нагадування",

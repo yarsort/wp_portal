@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 import 'package:wp_b2b/constants.dart';
-import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/order_customer_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
@@ -53,14 +51,14 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
 
   @override
   void initState() {
-    super.initState();
     loadListOrdersCustomers();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: context.read<MenuController>().scaffoldOrderCustomerKey,
+      //key: context.read<MenuController>().scaffoldOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(

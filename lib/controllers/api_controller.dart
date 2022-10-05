@@ -1,6 +1,4 @@
 
-import 'package:shared_preferences/shared_preferences.dart';
-
 const baseURL = 'http://91.218.88.160:35844/moto/hs/portal';
 
 // Errors

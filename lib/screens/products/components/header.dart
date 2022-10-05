@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/system.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 
 class Header extends StatefulWidget {
   const Header({
@@ -42,7 +42,7 @@ class _HeaderState extends State<Header> {
             ),
           if (!Responsive.isMobile(context))
             Text(
-              "",
+              "Каталог товарів",
               style: Theme.of(context).textTheme.headline6,
             ),
           if (!Responsive.isMobile(context))
@@ -77,7 +77,7 @@ class _HeaderState extends State<Header> {
             if (!Responsive.isMobile(context))
               Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
                 child: Text(profileName),
               ),
             Icon(Icons.keyboard_arrow_down),

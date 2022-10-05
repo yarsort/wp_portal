@@ -1,7 +1,6 @@
 
 /// Справочник.Товары
 class Product {
-  int id = 0;                     // Инкремент
   int isGroup = 0;                // Пометка удаления
   String uid = '';                // UID для 1С и связи с ТЧ
   String code = '';               // Код для 1С
@@ -22,8 +21,7 @@ class Product {
   Product();
 
   Product.fromJson(Map<String, dynamic> json) {
-    id = json['id'] ?? 0;
-    isGroup = json['isGroup'];
+    isGroup = int.parse(json['isGroup']??0);
     uid = json['uid'] ?? '';
     code = json['code'] ?? '';
     name = json['name'] ?? '';
@@ -43,9 +41,6 @@ class Product {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    if (id != 0) {
-      data['id'] = id;
-    }
     data['isGroup'] = isGroup;
     data['uid'] = uid;
     data['code'] = code;

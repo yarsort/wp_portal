@@ -28,6 +28,7 @@ Future<ApiResponse> login (String email, String password) async {
   try {
     final response = await http.get(Uri.parse(authURL),
         headers: {
+          HttpHeaders.accessControlAllowOriginHeader: '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
         });

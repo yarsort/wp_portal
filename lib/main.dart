@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
 import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
+import 'package:wp_b2b/screens/products/products_list_screen.dart';
 import 'package:wp_b2b/screens/settings/settings_screen.dart';
 
 void main() {
@@ -44,8 +45,12 @@ class MyApp extends StatelessWidget {
                   return OrderCustomerScreen();
                 case OrderMovementScreen.routeName:
                   return OrderMovementScreen();
+                case ProductListScreen.routeName:
+                  return ProductListScreen();
                 default:
-                  return LoginScreen();
+                  //return LoginScreen();
+                  //return OrderCustomerScreen();
+                  return ProductListScreen();
               }
             },
           );
