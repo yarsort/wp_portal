@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -55,7 +56,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   // Количество элементов в автозагрузке списка
   int _currentMax = 0;
-  int countLoadItems = 20;
+  int countLoadItems = 35;
 
   Future<List<Product>> _getProductsByParent(uidParentProduct) async {
     List<Product> listToReturn = [];
@@ -345,7 +346,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Widget productList() {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -427,7 +428,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           elevation: 5,
                           child: (productItem.uid == '')
                               ? MoreItemListView(
-                                  textItem: 'Показать больше',
+                                  textItem: 'Показати більше позицій',
                                   tap: () {
                                     // Удалим пункт "Показать больше"
                                     _currentMax--; // Для пункта "Показать больше"
@@ -555,7 +556,6 @@ class MoreItemListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      //tileColor: const Color.fromRGBO(227, 242, 253, 1.0),
       onTap: () => tap(),
       title: Center(
         child: Text(
@@ -639,30 +639,18 @@ class ProductItemListView extends StatelessWidget {
             );
           case ConnectionState.done:
             if (snapshot.hasError)
-              return SizedBox(
-                child: Icon(
-                  Icons.two_wheeler,
-                  color: Colors.white24,
-                ),
-                height: 45,
-                width: 45,
+              return Icon(
+                Icons.two_wheeler,
+                color: Colors.white24,
               );
 
             // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
             if (snapshot.data!.statusCode == 200) {
-              return SizedBox(
-                child: Image.memory(snapshot.data!.bodyBytes),
-                height: 45,
-                width: 45,
-              );
+              return Image.memory(snapshot.data!.bodyBytes);
             } else {
-              return SizedBox(
-                child: Icon(
-                  Icons.two_wheeler,
-                  color: Colors.white24,
-                ),
-                height: 45,
-                width: 45,
+              return Icon(
+                Icons.two_wheeler,
+                color: Colors.white24,
               );
             }
         }
@@ -673,15 +661,14 @@ class ProductItemListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      onTap: () => tap(),
-      //onLongPress: popTap == null ? null : popTap,
       contentPadding: const EdgeInsets.all(0),
-      leading: Padding(
-        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-        child: getItemSmallPicture(),
-      ),
       title: Row(
         children: [
+          SizedBox(
+            height: 60,
+            width: 70,
+            child: getItemSmallPicture(),
+          ),
           Expanded(
             flex: 10,
             child: Text(product.name, textAlign: TextAlign.left),

@@ -36,6 +36,7 @@ dependencies:
   data_table_2: ^2.3.7
   intl: ^0.17.0
   transparent_image: ^2.0.0
+  dio: ^4.0.6
 
 dev_dependencies:
   flutter_test:

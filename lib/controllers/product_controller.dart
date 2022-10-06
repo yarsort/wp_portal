@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/accum_product_prices.dart';
@@ -23,16 +23,18 @@ Future<ApiResponse> getProductsByParent(uidParentProduct) async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(productsURL+'/'+uidParentProduct),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+
+    var dio = Dio();
+    final response = await dio.get(productsURL+'/'+uidParentProduct,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }));
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'].map((p) => Product.fromJson(p)).toList();
+        apiResponse.data = response.data['data'].map((p) => Product.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;
@@ -40,7 +42,7 @@ Future<ApiResponse> getProductsByParent(uidParentProduct) async {
         apiResponse.error = unauthorized;
         break;
       default:
-        apiResponse.error = somethingWentWrong;
+        apiResponse.error = 'Помилка отримання списку товарів';
         break;
     }
   }
@@ -61,18 +63,25 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
   /// Get data from server
   try {
 
-    String param =  '?uidPrices='+jsonEncode(listPricesUID)+'&uidProducts='+jsonEncode(listProductsUID);
+    Map dataMap = {
+      'uidPrices' : listPricesUID,
+      'uidProducts' : listProductsUID,
+    };
 
-    final response = await http.get(Uri.parse(products_pricesURL + param),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+    var dio = Dio();
+    final response = await dio.post(products_pricesURL,
+        options: Options(
+            headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }),
+        data: jsonEncode(dataMap)
+    );
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'].map((p) => AccumProductPrice.fromJson(p)).toList();
+        apiResponse.data = response.data['data'].map((p) => AccumProductPrice.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;
@@ -80,7 +89,7 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
         apiResponse.error = unauthorized;
         break;
       default:
-        apiResponse.error = somethingWentWrong;
+        apiResponse.error = 'Помилка отримання цін';
         break;
     }
   }
@@ -101,18 +110,23 @@ Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehouses
   // Get data from server
   try {
 
-    String param =  '?uidWarehouses='+jsonEncode(listWarehousesUID)+'&uidProducts='+jsonEncode(listProductsUID);
+    Map dataMap = {
+      'uidWarehouses' : listWarehousesUID,
+      'uidProducts' : listProductsUID,
+    };
 
-    final response = await http.get(Uri.parse(products_restsURL + param),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+    var dio = Dio();
+    final response = await dio.post(products_restsURL,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }),
+        data: jsonEncode(dataMap));
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'].map((p) => AccumProductRest.fromJson(p)).toList();
+        apiResponse.data = response.data['data'].map((p) => AccumProductRest.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;
@@ -120,7 +134,7 @@ Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehouses
         apiResponse.error = unauthorized;
         break;
       default:
-        apiResponse.error = somethingWentWrong;
+        apiResponse.error = 'Помилка отримання залишків';
         break;
     }
   }

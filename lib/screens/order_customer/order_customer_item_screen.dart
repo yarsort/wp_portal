@@ -174,7 +174,6 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
   Widget textFieldsDocumentDesktop() {
     return Container(
-      //width: MediaQuery.of(context).size.width*0.5,
       padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: secondaryColor,
@@ -279,7 +278,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
   Widget itemsOrderCustomerList() {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -292,49 +291,50 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
             child: Row(
               children: [
                 SizedBox(
-                  width: 50,
-                  child: Text("N"),
+                  width: 15,
+                  child: Text(""),
                 ),
-                spaceBetweenColumn(),
+                SizedBox(
+                  width: 40,
+                  child: Text("N",
+                    textAlign: TextAlign.center,),
+                ),
                 SizedBox(
                   width: 50,
                   child: Text(""),
                 ),
                 spaceBetweenColumn(),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 2,
                   child: Text("Товар", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
                   child: Text("Варіант", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
                   child: Text("Кількість", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
                   child: Text("Од. вим.", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
                   child: Text("Ціна", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
                   child: Text("Знижка", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
                   child: Text("Сума", overflow: TextOverflow.fade),
+                ),
+                SizedBox(
+                  width: 14,
+                  child: Text(""),
                 ),
               ],
             ),
@@ -366,76 +366,72 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   }
 
   Widget recentOrderCustomerDataRow(ItemOrderCustomer item) {
-    return ListTile(
-      onTap: () {},
-      contentPadding: EdgeInsets.all(0.0),
-      subtitle: Column(
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 50,
-                child: Text(item.numberRow.toString(),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              SizedBox(
-                height: 50,
-                width: 50,
-                child: getItemSmallPicture(item),
-              ),
-              spaceBetweenColumn(),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 2,
-                child: Text(item.name, style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(
-                    item.nameCharacteristic.isNotEmpty
-                        ? item.nameCharacteristic
-                        : '-',
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.count),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child:
-                    Text(item.nameUnit, style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.price),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.discount),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.sum),
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 1,
-          ),
-          Divider(color: Colors.white24, thickness: 0.5),
-        ],
+    return Card(
+      color: tileColor,
+      elevation: 5,
+      child: ListTile(
+        onTap: () {},
+        contentPadding: EdgeInsets.all(10.0),
+        subtitle: Row(
+          children: [
+            SizedBox(
+              width: 40,
+              child: Text(item.numberRow.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white)),
+            ),
+            SizedBox(
+              height: 50,
+              width: 50,
+              child: getItemSmallPicture(item),
+            ),
+            spaceBetweenColumn(),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(item.name, style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(
+                  item.nameCharacteristic.isNotEmpty
+                      ? item.nameCharacteristic
+                      : '-',
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.count),
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child:
+                  Text(item.nameUnit, style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.price),
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.discount),
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.sum),
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }

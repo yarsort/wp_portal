@@ -107,7 +107,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
 
   Widget orderCustomerList() {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -122,6 +122,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                 SizedBox(
                   width: 50,
                 ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 3,
                   child: Text("Дата", textAlign: TextAlign.left),
@@ -168,68 +169,72 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
   }
 
   Widget recentOrderMovementDataRow(OrderMovement orderMovement) {
-    return ListTile(
-      onTap: () async {
-        await Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                OrderMovementItemScreen(orderMovement: orderMovement),
-          ),
-        );
-      },
-      contentPadding: EdgeInsets.all(0.0),
-      subtitle: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 50,
-                child: SvgPicture.asset(
-                  'assets/icons/menu_doc.svg',
-                  height: 25,
-                  color: Colors.lightBlue,
-                ),
+    return Card(
+      color: tileColor,
+      elevation: 5,
+      child: ListTile(
+        onTap: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  OrderMovementItemScreen(orderMovement: orderMovement),
+            ),
+          );
+        },
+        contentPadding: EdgeInsets.all(5.0),
+        title: Row(
+          children: [
+            SizedBox(
+              width: 50,
+              child: SvgPicture.asset(
+                'assets/icons/menu_doc.svg',
+                height: 25,
+                color: Colors.lightBlue,
               ),
-              Expanded(
-                flex: 3,
-                child: Row(
-                  children: [
-                    Flexible(
-                        child: Text(fullDateToString(orderMovement.date!),
-                            style: TextStyle(color: Colors.white))),
-                  ],
-                ),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 3,
+              child: Row(
+                children: [
+                  Flexible(
+                      child: Text(fullDateToString(orderMovement.date!),
+                          style: TextStyle(color: Colors.white))),
+                ],
               ),
-              Expanded(
-                flex: 3,
-                child: Text(orderMovement.status!,
-                    style: TextStyle(color: Colors.white)),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(orderMovement.nameOrganization!,
-                    style: TextStyle(color: Colors.white)),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(orderMovement.nameWarehouseSender!,
-                    style: TextStyle(color: Colors.white)),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(orderMovement.nameWarehouseReceiver!,
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 1,
-          ),
-          Divider(color: Colors.white24, thickness: 0.5),
-        ],
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 3,
+              child: Text(orderMovement.status!,
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 3,
+              child: Text(orderMovement.nameOrganization!,
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 3,
+              child: Text(orderMovement.nameWarehouseSender!,
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 3,
+              child: Text(orderMovement.nameWarehouseReceiver!,
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget spaceBetweenColumn() {
+    return SizedBox(width: 5);
   }
 }

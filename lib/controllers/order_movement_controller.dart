@@ -5,7 +5,7 @@ import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'dart:convert';
 
 const ordersMovementsURL = '$baseURL/orders_movements';
@@ -20,21 +20,18 @@ Future<ApiResponse> getOrdersMovements() async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(ordersMovementsURL),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+
+    var dio = Dio();
+    final response = await dio.get(ordersMovementsURL,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }));
 
     switch(response.statusCode){
       case 200:
-
-        var bodyResponse = jsonDecode(response.body);
-
-        apiResponse.data = bodyResponse['data'].map((p) => OrderMovement.fromJson(p)).toList();
-
-        debugPrint('Отримано елементів: ' + bodyResponse['count'].toString());
+        apiResponse.data = response.data['data'].map((p) => OrderMovement.fromJson(p)).toList();
 
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
@@ -63,21 +60,18 @@ Future<ApiResponse> getItemsOrderMovementByUID(uidOrderMovement) async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(orderMovementURL+'/'+uidOrderMovement),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+
+    var dio = Dio();
+    final response = await dio.get(orderMovementURL+'/'+uidOrderMovement,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }));
 
     switch(response.statusCode){
       case 200:
-
-        var bodyResponse = jsonDecode(response.body);
-
-        apiResponse.data = bodyResponse['data'][0]['items'].map((p) => ItemOrderMovement.fromJson(p)).toList();
-
-        debugPrint('Отримано елементів: ' + bodyResponse['count'].toString());
+        apiResponse.data = response.data['data'][0]['items'].map((p) => ItemOrderMovement.fromJson(p)).toList();
 
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;

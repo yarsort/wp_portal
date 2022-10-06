@@ -1,12 +1,11 @@
 
 import 'dart:io';
-import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/doc_order_customer.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 const ordersCustomersURL = '$baseURL/orders_customers';
 const orderCustomerURL = '$baseURL/order_customer';
@@ -20,16 +19,18 @@ Future<ApiResponse> getOrdersCustomers() async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(ordersCustomersURL),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+
+    var dio = Dio();
+    final response = await dio.get(ordersCustomersURL,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }));
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'].map((p) => OrderCustomer.fromJson(p)).toList();
+        apiResponse.data = response.data['data'].map((p) => OrderCustomer.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;
@@ -57,16 +58,17 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(orderCustomerURL+'/'+uidOrderCustomer),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+    var dio = Dio();
+    final response = await dio.get(orderCustomerURL+'/'+uidOrderCustomer,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }));
 
     switch(response.statusCode){
       case 200:
-        apiResponse.data = jsonDecode(response.body)['data'][0]['items'].map((p) => ItemOrderCustomer.fromJson(p)).toList();
+        apiResponse.data = response.data['data'][0]['items'].map((p) => ItemOrderCustomer.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
         apiResponse.data as List<dynamic>;
         break;

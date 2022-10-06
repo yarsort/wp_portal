@@ -254,7 +254,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
 
   Widget itemsOrderCustomerList() {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -267,46 +267,47 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
             child: Row(
               children: [
                 SizedBox(
-                  width: 50,
-                  child: Text("N"),
+                  width: 15,
+                  child: Text(""),
                 ),
-                spaceBetweenColumn(),
+                SizedBox(
+                  width: 40,
+                  child: Text("N",
+                    textAlign: TextAlign.center,),
+                ),
                 SizedBox(
                   width: 50,
                   child: Text(""),
                 ),
                 spaceBetweenColumn(),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 2,
-                  child: Text("Товар"),
+                  child: Text("Товар", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Варіант"),
+                  child: Text("Варіант", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Од. вим."),
+                  child: Text("Од. вим.", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Заплановано"),
+                  child: Text("Заплановано", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Відправлено"),
+                  child: Text("Відправлено", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
                 Expanded(
                   flex: 1,
-                  child: Text("Отримано"),
+                  child: Text("Отримано", overflow: TextOverflow.fade),
                 ),
-                spaceBetweenColumn(),
+                SizedBox(
+                  width: 14,
+                  child: Text(""),
+                ),
               ],
             ),
           ),
@@ -337,67 +338,63 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   }
 
   Widget recentOrderMovementDataRow(ItemOrderMovement item) {
-    return ListTile(
-      onTap: () {},
-      contentPadding: EdgeInsets.all(0.0),
-      subtitle: Column(
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 50,
-                child: Text(item.numberRow.toString(),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              SizedBox(
-                height: 50,
-                width: 50,
-                child: getItemSmallPicture(item),
-              ),
-              spaceBetweenColumn(),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 2,
-                child: Text(item.name, style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(item.nameCharacteristic,
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child:
-                    Text(item.nameUnit, style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.countPrepare),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.countSend),
-                    style: TextStyle(color: Colors.white)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 1,
-                child: Text(doubleToString(item.countReceived),
-                    style: TextStyle(color: Colors.white)),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 1,
-          ),
-          Divider(color: Colors.white24, thickness: 0.5),
-        ],
+    return Card(
+      color: tileColor,
+      elevation: 5,
+      child: ListTile(
+        onTap: () {},
+        contentPadding: EdgeInsets.all(10.0),
+        subtitle: Row(
+          children: [
+            SizedBox(
+              width: 40,
+              child: Text(item.numberRow.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            SizedBox(
+              height: 50,
+              width: 50,
+              child: getItemSmallPicture(item),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(item.name, style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(item.nameCharacteristic,
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child:
+                  Text(item.nameUnit, style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.countPrepare),
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.countSend),
+                  style: TextStyle(color: Colors.white)),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Text(doubleToString(item.countReceived),
+                  style: TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
       ),
     );
   }

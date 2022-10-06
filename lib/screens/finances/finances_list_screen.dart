@@ -1,38 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:wp_b2b/constants.dart';
+import 'package:wp_b2b/controllers/accum_partner_debts_controller.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
-import 'package:wp_b2b/controllers/order_customer_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
+import 'package:wp_b2b/models/accum_partner_depts.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:wp_b2b/models/doc_order_customer.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
-import 'package:wp_b2b/screens/order_customer/order_customer_item_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
 import 'components/header.dart';
 
-class OrderCustomerScreen extends StatefulWidget {
-  static const routeName = '/orders_customers';
+class FinancesScreen extends StatefulWidget {
+  static const routeName = '/finances';
 
   @override
-  State<OrderCustomerScreen> createState() => _OrderCustomerScreenState();
+  State<FinancesScreen> createState() => _FinancesScreenState();
 }
 
-class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
+class _FinancesScreenState extends State<FinancesScreen> {
   bool loadingData = false;
-  List<OrderCustomer> listOrderCustomer = [];
+  List<AccumPartnerDept> listAccumPartnerDept = [];
 
-  loadListOrdersCustomers() async {
+  loadListAccumPartnerDebts() async {
     // Request to server
-    ApiResponse response = await getOrdersCustomers();
+    ApiResponse response = await getAccumPartnerDebts('00000000-0000-0000-0000-000000000000');
 
     // Read response
     if (response.error == null) {
       setState(() {
         for (var item in response.data as List<dynamic>) {
-          listOrderCustomer.add(item);
+          listAccumPartnerDept.add(item);
         }
 
         loadingData = loadingData ? !loadingData : loadingData;
@@ -51,7 +50,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
 
   @override
   void initState() {
-    loadListOrdersCustomers();
+    loadListAccumPartnerDebts();
     super.initState();
   }
 
@@ -88,7 +87,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                           flex: 5,
                           child: Column(
                             children: [
-                              orderCustomerList(),
+                              financesList(),
                             ],
                           ),
                         ),
@@ -104,9 +103,9 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     );
   }
 
-  Widget orderCustomerList() {
+  Widget financesList() {
     return Container(
-      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
+      padding: EdgeInsets.all(defaultPadding),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -122,28 +121,38 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   width: 50,
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Text("Дата", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Text("Організація", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
-                  flex: 4,
+                  flex: 2,
                   child: Text("Контрагент", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 2,
-                  child: Text("Склад", textAlign: TextAlign.left),
+                  child: Text("Договір", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
+                Expanded(
+                  flex: 4,
+                  child: Text("Документ", textAlign: TextAlign.left),
+                ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 2,
-                  child: Text("Тип ціни", textAlign: TextAlign.left),
+                  child: Text("Баланс (валюта)", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
-                  flex: 1,
-                  child: Text("Сума"),
+                  flex: 2,
+                  child: Text("Баланс (грн)"),
                 ),
               ],
             ),
@@ -157,10 +166,10 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     padding: EdgeInsets.all(0.0),
                     physics: BouncingScrollPhysics(),
                     shrinkWrap: true,
-                    itemCount: listOrderCustomer.length,
+                    itemCount: listAccumPartnerDept.length,
                     itemBuilder: (context, index) {
-                      final orderCustomer = listOrderCustomer[index];
-                      return recentOrderCustomerDataRow(orderCustomer);
+                      final accumPartnerDept = listAccumPartnerDept[index];
+                      return recentAccumPartnerDeptDataRow(accumPartnerDept);
                     }),
               )
             ],
@@ -170,74 +179,80 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     );
   }
 
-  Widget recentOrderCustomerDataRow(OrderCustomer orderCustomer) {
-    return Card(
-      color: tileColor,
-      elevation: 5,
-      child: ListTile(
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  OrderCustomerItemScreen(orderCustomer: orderCustomer),
-            ),
-          );
-        },
-        contentPadding: EdgeInsets.all(5.0),
-        title: Row(
-          children: [
-            SizedBox(
-              width: 50,
-              child: SvgPicture.asset(
-                'assets/icons/menu_doc.svg',
-                height: 25,
-                color: Colors.lightBlue,
+  Widget recentAccumPartnerDeptDataRow(AccumPartnerDept accumPartnerDept) {
+    return ListTile(
+      // onTap: () async {
+      //   await Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) =>
+      //           OrderCustomerItemScreen(orderCustomer: orderCustomer),
+      //     ),
+      //   );
+      // },
+      contentPadding: EdgeInsets.all(0.0),
+      subtitle: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              SizedBox(
+                width: 50,
+                child: SvgPicture.asset(
+                  'assets/icons/menu_doc.svg',
+                  height: 25,
+                  color: Colors.lightBlue,
+                ),
               ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Row(
-                children: [
-                  Flexible(
-                      child: Text(fullDateToString(orderCustomer.date!),
-                          style: TextStyle(color: Colors.white))),
-                ],
+              Expanded(
+                flex: 2,
+                child: Text(fullDateToString(accumPartnerDept.date),
+                    style: TextStyle(color: Colors.white)),
               ),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 3,
-              child: Text(orderCustomer.nameOrganization!,
-                  style: TextStyle(color: Colors.white)),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 4,
-              child: Text(orderCustomer.namePartner!,
-                  style: TextStyle(color: Colors.white)),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(orderCustomer.nameWarehouse!,
-                  style: TextStyle(color: Colors.white)),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(orderCustomer.namePrice!,
-                  style: TextStyle(
-                      color: Colors.white, overflow: TextOverflow.fade)),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 1,
-              child: Text(doubleToString(orderCustomer.sum!),
-                  style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(accumPartnerDept.nameOrganization,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(accumPartnerDept.namePartner,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(accumPartnerDept.nameContract,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 4,
+                child: Text(accumPartnerDept.nameDoc,
+                    style: TextStyle(color: Colors.white)),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(doubleToString(accumPartnerDept.balance),
+                    style: TextStyle(
+                        color: Colors.white, overflow: TextOverflow.fade)),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(doubleToString(accumPartnerDept.balanceUah),
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 1,
+          ),
+          Divider(color: Colors.white24, thickness: 0.5),
+        ],
       ),
     );
   }

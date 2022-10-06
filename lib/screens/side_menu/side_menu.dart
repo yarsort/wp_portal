@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:wp_b2b/screens/finances/finances_list_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
 import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
 import 'package:wp_b2b/screens/products/products_list_screen.dart';
@@ -54,7 +55,9 @@ class _SideMenuState extends State<SideMenu> {
           DrawerListTile(
             title: "Розрахунки",
             svgSrc: "assets/icons/menu_doc.svg",
-            press: () {},
+            press: () {
+              Navigator.restorablePushNamed(context, FinancesScreen.routeName);
+            },
           ),
           DrawerListTile(
             title: "Товари",

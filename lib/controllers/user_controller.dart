@@ -4,9 +4,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'dart:convert';
-import 'package:wp_b2b/models/user.dart';
 
 const authURL = '$baseURL/auth';
 const registerURL = '$baseURL/register';
@@ -26,12 +25,13 @@ Future<ApiResponse> login (String email, String password) async {
 
   // Get data from server
   try {
-    final response = await http.get(Uri.parse(authURL),
-        headers: {
-          HttpHeaders.accessControlAllowOriginHeader: '*',
+    var dio = Dio();
+    final response = await dio.get(authURL,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
-        });
+        }));
 
     switch(response.statusCode){
       case 200:
@@ -48,39 +48,6 @@ Future<ApiResponse> login (String email, String password) async {
   }
   catch (e){
     debugPrint(e.toString());
-    apiResponse.error = serverError;
-  }
-  return apiResponse;
-}
-
-// Register
-Future<ApiResponse> register(String name, String email, String password) async {
-  ApiResponse apiResponse = ApiResponse();
-  try {
-    final response = await http.post(
-        Uri.parse(registerURL),
-        headers: {'Accept': 'application/json'},
-        body: {
-          'name': name,
-          'email': email,
-          'password': password,
-          'password_confirmation': password
-        });
-
-    switch(response.statusCode) {
-      case 200:
-        apiResponse.data = User.fromJson(jsonDecode(response.body));
-        break;
-      case 422:
-        final errors = jsonDecode(response.body)['errors'];
-        apiResponse.error = errors[errors.keys.elementAt(0)][0];
-        break;
-      default:
-        apiResponse.error = somethingWentWrong;
-        break;
-    }
-  }
-  catch (e) {
     apiResponse.error = serverError;
   }
   return apiResponse;
