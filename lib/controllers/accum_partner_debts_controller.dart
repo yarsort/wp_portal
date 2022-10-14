@@ -15,6 +15,10 @@ Future<ApiResponse> getAccumPartnerDebts(String uidPartner) async {
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   // Get data from server
   try {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:wp_b2b/constants.dart';
+import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/order_customer_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
@@ -58,7 +60,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //key: context.read<MenuController>().scaffoldOrderCustomerKey,
+      key: context.read<MenuController>().scaffoldOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(
@@ -130,7 +132,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   child: Text("Організація", textAlign: TextAlign.left),
                 ),
                 Expanded(
-                  flex: 4,
+                  flex: 3,
                   child: Text("Контрагент", textAlign: TextAlign.left),
                 ),
                 Expanded(
@@ -213,7 +215,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
             ),
             spaceBetweenColumn(),
             Expanded(
-              flex: 4,
+              flex: 3,
               child: Text(orderCustomer.namePartner!,
                   style: TextStyle(color: Colors.white)),
             ),

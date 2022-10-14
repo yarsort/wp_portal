@@ -31,7 +31,7 @@ class _AuthListState extends State<AuthList> {
 
     ApiResponse response = await login(emailController.text, passwordController.text);
     if (response.error == null){
-      Navigator.restorablePushNamed(context, OrderCustomerScreen.routeName);
+      Navigator.pushNamedAndRemoveUntil(context, OrderCustomerScreen.routeName, (route) => false);
     }
     else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -103,6 +103,9 @@ class _AuthListState extends State<AuthList> {
         obscureText: true,
         onSaved: (value) {
           passwordController.text = value!;
+        },
+        onEditingComplete: () {
+          _loginUser();
         },
         textInputAction: TextInputAction.done,
         decoration: InputDecoration(

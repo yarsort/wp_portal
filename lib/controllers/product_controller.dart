@@ -11,16 +11,22 @@ import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/ref_product.dart';
 
 const productsURL = '$baseURL/products';
+const productCharacteristicsURL = '$baseURL/product_characteristics';
+const productsSearchURL = '$baseURL/products_search';
 const products_pricesURL = '$baseURL/products_prices';
 const products_restsURL = '$baseURL/products_rests';
 
-// Get all order customer
+// Get all products
 Future<ApiResponse> getProductsByParent(uidParentProduct) async {
   ApiResponse apiResponse = ApiResponse();
 
   // Authorization
   String basicAuth = await getToken();
-
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
+    
   // Get data from server
   try {
 
@@ -53,12 +59,105 @@ Future<ApiResponse> getProductsByParent(uidParentProduct) async {
   return apiResponse;
 }
 
-// Get prices
+// Get all items for search
+Future<ApiResponse> getProductsForSearch(searchString) async {
+  ApiResponse apiResponse = ApiResponse();
+
+  // Authorization
+  String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
+
+  // Get data from server
+  try {
+    // Екрануваня символів
+    //searchString = jsonEncode(searchString);
+
+    // Запит до сервера
+    var dio = Dio();
+    final response = await dio.get(productsSearchURL+'/'+searchString,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: basicAuth,
+        }));
+
+    switch(response.statusCode){
+      case 200:
+        apiResponse.data = response.data['data'].map((p) => Product.fromJson(p)).toList();
+        // We get list of order customer, so we need to map each item to OrderCustomer model
+        apiResponse.data as List<dynamic>;
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = 'Помилка отримання списку товарів';
+        break;
+    }
+  }
+  catch (e){
+    debugPrint(e.toString());
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}
+
+// Get all product characteristics
+Future<ApiResponse> getProductCharacteristic(uidProduct) async {
+  ApiResponse apiResponse = ApiResponse();
+
+  // Authorization
+  String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
+
+  // Get data from server
+  try {
+
+    var dio = Dio();
+    final response = await dio.get(productCharacteristicsURL+'/'+uidProduct,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: basicAuth,
+        }));
+
+    switch(response.statusCode){
+      case 200:
+        apiResponse.data = response.data['data'].map((p) => ProductCharacteristic.fromJson(p)).toList();
+        // We get list of order customer, so we need to map each item to OrderCustomer model
+        apiResponse.data as List<dynamic>;
+        break;
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = 'Помилка отримання списку характеристик товару';
+        break;
+    }
+  }
+  catch (e){
+    debugPrint(e.toString());
+    apiResponse.error = serverError;
+  }
+  return apiResponse;
+}
+
+// Get prices of products
 Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID, List<String> listProductsUID) async {
   ApiResponse apiResponse = ApiResponse();
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   /// Get data from server
   try {
@@ -100,12 +199,16 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
   return apiResponse;
 }
 
-// Get rests
+// Get rests of products
 Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehousesUID, List<String> listProductsUID) async {
   ApiResponse apiResponse = ApiResponse();
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   // Get data from server
   try {

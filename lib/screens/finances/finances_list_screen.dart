@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:wp_b2b/constants.dart';
+import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/accum_partner_debts_controller.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
@@ -57,7 +59,7 @@ class _FinancesScreenState extends State<FinancesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //key: context.read<MenuController>().scaffoldOrderCustomerKey,
+      key: context.read<MenuController>().scaffoldFinanceKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(

@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
@@ -17,8 +17,6 @@ import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
-import 'components/header.dart';
-
 // Ціни товарів
 List<AccumProductPrice> listProductPrice = [];
 
@@ -26,7 +24,9 @@ List<AccumProductPrice> listProductPrice = [];
 List<AccumProductRest> listProductRest = [];
 
 String uidPrice = 'fc605043-984d-11ea-89b3-180373c9c33b';
-String uidWarehouse = '5235ab40-9855-11ea-89b3-180373c9c33b';
+//String uidWarehouse = '5235ab40-9855-11ea-89b3-180373c9c33b';
+String uidWarehouse = '';
+bool showOnlyWithRests = false;
 
 class ProductListScreen extends StatefulWidget {
   static const routeName = '/products';
@@ -36,7 +36,11 @@ class ProductListScreen extends StatefulWidget {
 }
 
 class _ProductListScreenState extends State<ProductListScreen> {
+  String profileName = '';
   bool showProductHierarchy = true;
+
+  TextEditingController textFieldSearchCatalogController =
+      TextEditingController();
 
   // Список товарів для вывода на экран
   List<Product> listDataProducts = []; // Список всіх товарів з сервера
@@ -60,8 +64,32 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Future<List<Product>> _getProductsByParent(uidParentProduct) async {
     List<Product> listToReturn = [];
+
     // Request to server
     ApiResponse response = await getProductsByParent(uidParentProduct);
+
+    // Read response
+    if (response.error == null) {
+      setState(() {
+        for (var item in response.data as List<dynamic>) {
+          listToReturn.add(item);
+        }
+      });
+    } else if (response.error == unauthorized) {
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+    } else {
+      showErrorMessage('${response.error}', context);
+    }
+
+    return listToReturn;
+  }
+
+  Future<List<Product>> _getProductsForSearch(searchString) async {
+    List<Product> listToReturn = [];
+
+    // Request to server
+    ApiResponse response = await getProductsForSearch(searchString);
 
     // Read response
     if (response.error == null) {
@@ -107,19 +135,21 @@ class _ProductListScreenState extends State<ProductListScreen> {
     }
 
     /// Завантаження даних з сервера
-    //if (showProductHierarchy) {
-    // Покажем товары текущего родителя
-    listDataProducts = await _getProductsByParent(parentProduct.uid);
-    // } else {
-    //   String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
-    //   if (searchString.toLowerCase().length >= 3) {
-    //     // Покажем все товары для поиска
-    //     listDataProducts = await dbReadProductsForSearch(searchString);
-    //   } else {
-    //     // Покажем все товары
-    //     listDataProducts = await dbReadAllProducts();
-    //   }
-    // }
+    if (showProductHierarchy) {
+      // Покажем товары текущего родителя
+      listDataProducts = await _getProductsByParent(parentProduct.uid);
+    } else {
+      String searchString =
+          textFieldSearchCatalogController.text.trim().toLowerCase();
+      if (searchString.toLowerCase().length >= 3) {
+        // Покажем все товары для поиска
+        listDataProducts = await _getProductsForSearch(searchString);
+      } else {
+        // Покажем все товары
+        listDataProducts =
+            await _getProductsByParent('00000000-0000-0000-0000-000000000000');
+      }
+    }
 
     /// Сортировка списка: сначала каталоги, потом элементы
     listDataProducts.sort((a, b) => a.name.compareTo(b.name));
@@ -222,7 +252,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   _loadPriceAndRests() async {
     if (listProductsUID.isEmpty) {
-      debugPrint('Немає UIDs для виведення залишківс та цін...');
+      //debugPrint('Немає UIDs для виведення залишківс та цін...');
       return;
     }
 
@@ -239,13 +269,14 @@ class _ProductListScreenState extends State<ProductListScreen> {
         await _loadAccumProductPriceByUIDProducts(listPrices, listProductsUID);
 
     /// Залишки товарів
-    listProductRest = await _loadAccumProductRestByUIDProducts(listWarehouses, listProductsUID);
+    listProductRest = await _loadAccumProductRestByUIDProducts(
+        listWarehouses, listProductsUID);
 
-    debugPrint('Ціни товарів: ' + listProductPrice.length.toString());
-    debugPrint('Залишки товарів: ' + listProductRest.length.toString());
+    // debugPrint('Ціни товарів: ' + listProductPrice.length.toString());
+    // debugPrint('Залишки товарів: ' + listProductRest.length.toString());
 
     setState(() {
-      debugPrint('Оновлено...');
+      //debugPrint('Оновлено...');
     });
   }
 
@@ -254,7 +285,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     for (int i = _currentMax; i < _currentMax + countLoadItems; i++) {
       if (i < listProducts.length) {
         listProductsForListView.add(listProducts[i]);
-        debugPrint('Добавлен товар: ' + listProducts[i].name);
+        //debugPrint('Добавлен товар: ' + listProducts[i].name);
       }
     }
 
@@ -277,11 +308,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
     ///Немає даних - нет вывода на форму
     if (listProductsUID.isEmpty) {
-      debugPrint('Ні товарів для отображения цен и остатков! Товаров: ' +
-          listProductsForListView.length.toString());
+      // debugPrint('Ні товарів для отображения цен и остатков! Товаров: ' +
+      //     listProductsForListView.length.toString());
     } else {
-      debugPrint('Есть товары для отображения цен и остатков! Товаров: ' +
-          listProductsForListView.length.toString());
+      // debugPrint('Есть товары для отображения цен и остатков! Товаров: ' +
+      //     listProductsForListView.length.toString());
     }
 
     await _loadPriceAndRests();
@@ -289,16 +320,22 @@ class _ProductListScreenState extends State<ProductListScreen> {
     setState(() {});
   }
 
+  _loadProfileData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    profileName = pref.getString('profileName') ?? '';
+  }
+
   @override
   void initState() {
     super.initState();
     _renewItem();
+    _loadProfileData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: context.read<MenuController>().scaffoldOrderMovementKey,
+      key: context.read<MenuController>().scaffoldProductsKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(
@@ -319,7 +356,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 child: Column(
                   children: [
                     // Desktop view
-                    Header(),
+                    headerWidget(),
                     SizedBox(height: defaultPadding),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,6 +377,63 @@ class _ProductListScreenState extends State<ProductListScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget headerWidget() {
+    return SizedBox(
+      height: 40,
+      child: Row(
+        children: [
+          if (!Responsive.isDesktop(context))
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: context.read<MenuController>().controlMenu,
+            ),
+          if (!Responsive.isMobile(context))
+            Text(
+              "Каталог товарів",
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          if (!Responsive.isMobile(context))
+            Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
+          Checkbox(
+            activeColor: Colors.blue,
+            checkColor: secondaryColor,
+            value: showOnlyWithRests,
+            onChanged: (value) {
+              setState(() {
+                setState(() {
+                  showOnlyWithRests = !showOnlyWithRests;
+                });
+                //_renewItem();
+              });
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+            child: Text('В наявності'),
+          ),
+          Checkbox(
+            activeColor: Colors.blue,
+            checkColor: secondaryColor,
+            value: showProductHierarchy,
+            onChanged: (value) {
+              setState(() {
+                textFieldSearchCatalogController.text = '';
+                showProductHierarchy = !showProductHierarchy;
+                _renewItem();
+              });
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+            child: Text('Ієрархія'),
+          ),
+          Expanded(child: searchFieldWidget()),
+          //profileNameWidget(),
+        ],
       ),
     );
   }
@@ -387,108 +481,263 @@ class _ProductListScreenState extends State<ProductListScreen> {
             children: [
               Expanded(
                 flex: 1,
-                child: ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listProductsForListView.length,
-                    itemBuilder: (context, index) {
-                      var productItem = listProductsForListView[index];
-                      var price = 0.0;
-                      var countOnWarehouse = 0.0;
+                child: listProductsForListView.length != 0
+                    ? ListView.builder(
+                        padding: EdgeInsets.all(0.0),
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: listProductsForListView.length,
+                        itemBuilder: (context, index) {
+                          var productItem = listProductsForListView[index];
+                          var price = 0.0;
+                          var countOnWarehouse = 0.0;
 
-                      var indexItemPrice = listProductPrice.indexWhere(
-                          (element) =>
-                              element.uidProduct == productItem.uid &&
-                              element.uidPrice == uidPrice);
-                      if (indexItemPrice >= 0) {
-                        var itemList = listProductPrice[indexItemPrice];
-                        price = itemList.price;
-                      } else {
-                        price = 0.0;
-                      }
+                          var indexItemPrice = listProductPrice.indexWhere(
+                              (element) =>
+                                  element.uidProduct == productItem.uid &&
+                                  element.uidPrice == uidPrice);
+                          if (indexItemPrice >= 0) {
+                            var itemList = listProductPrice[indexItemPrice];
+                            price = itemList.price;
+                          } else {
+                            price = 0.0;
+                          }
 
-                      var indexItemRest = listProductRest.indexWhere(
-                          (element) =>
-                              element.uidProduct == productItem.uid &&
-                              element.uidWarehouse == uidWarehouse);
-                      if (indexItemRest >= 0) {
-                        var itemList = listProductRest[indexItemRest];
-                        countOnWarehouse = itemList.count;
-                      } else {
-                        countOnWarehouse = 0.000;
-                      }
+                          // Знайдемо загальні залишки
+                          var selectedListProductRest = listProductRest
+                              .where((element) =>
+                                  element.uidProduct == productItem.uid)
+                              .toList();
 
-                      return Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: Card(
-                          color: productItem.uid != parentProduct.uid
-                              ? tileColor
-                              : tileSelectedColor,
-                          elevation: 5,
-                          child: (productItem.uid == '')
-                              ? MoreItemListView(
-                                  textItem: 'Показати більше позицій',
-                                  tap: () {
-                                    // Удалим пункт "Показать больше"
-                                    _currentMax--; // Для пункта "Показать больше"
-                                    listProductsForListView
-                                        .remove(listProductsForListView[index]);
-                                    _loadAdditionalProductsToView();
-                                    setState(() {});
-                                  },
-                                )
-                              : (productItem.isGroup == 1)
-                                  ? DirectoryItemListView(
-                                      parentProduct: parentProduct,
-                                      product: productItem,
-                                      tap: () {
-                                        if (productItem.uid ==
-                                            parentProduct.uid) {
-                                          if (treeParentItems.isNotEmpty) {
-                                            // Назначим нового родителя выхода из узла дерева
-                                            parentProduct = treeParentItems[
-                                                treeParentItems.length - 1];
+                          for (var itemList in selectedListProductRest) {
+                            countOnWarehouse =
+                                countOnWarehouse + itemList.count;
+                          }
 
-                                            // Удалим старого родителя для будущего узла
-                                            treeParentItems.remove(
-                                                treeParentItems[
-                                                    treeParentItems.length -
-                                                        1]);
-                                          } else {
-                                            // Отправим дерево на его самый главный узел
-                                            parentProduct = Product();
-                                          }
-                                          _renewItem();
-                                        } else {
-                                          treeParentItems.add(parentProduct);
-                                          parentProduct = productItem;
-                                          _renewItem();
-                                        }
-                                      },
-                                      popTap: () {},
-                                    )
-                                  : ProductItemListView(
-                                      price: price,
-                                      countOnWarehouse: countOnWarehouse,
-                                      product: productItem,
-                                      tap: () async {
-                                        // await Navigator.push(
-                                        //   context,
-                                        //   MaterialPageRoute(
-                                        //     builder: (context) =>
-                                        //         ScreenProductItem(productItem: productItem),
-                                        //   ),
-                                        // );
-                                      },
-                                    ),
-                        ),
-                      );
-                    }),
+                          /// Якщо це головна попередня група товарів
+                          if (productItem.uid == '') {
+                            return Card(
+                              color: productItem.uid != parentProduct.uid
+                                  ? tileColor
+                                  : tileSelectedColor,
+                              elevation: 5,
+                              child: MoreItemListView(
+                                textItem: 'Показати більше позицій',
+                                tap: () {
+                                  // Удалим пункт "Показать больше"
+                                  _currentMax--; // Для пункта "Показать больше"
+                                  listProductsForListView
+                                      .remove(listProductsForListView[index]);
+                                  _loadAdditionalProductsToView();
+                                  setState(() {});
+                                },
+                              ),
+                            );
+                          }
+
+                          /// Якщо це група товарів
+                          if (productItem.isGroup == 1) {
+                            return Card(
+                              color: productItem.uid != parentProduct.uid
+                                  ? tileColor
+                                  : tileSelectedColor,
+                              elevation: 5,
+                              child: DirectoryItemListView(
+                                parentProduct: parentProduct,
+                                product: productItem,
+                                tap: () {
+                                  if (productItem.uid == parentProduct.uid) {
+                                    if (treeParentItems.isNotEmpty) {
+                                      // Назначим нового родителя выхода из узла дерева
+                                      parentProduct = treeParentItems[
+                                          treeParentItems.length - 1];
+
+                                      // Удалим старого родителя для будущего узла
+                                      treeParentItems.remove(treeParentItems[
+                                          treeParentItems.length - 1]);
+                                    } else {
+                                      // Отправим дерево на его самый главный узел
+                                      parentProduct = Product();
+                                    }
+                                    _renewItem();
+                                  } else {
+                                    treeParentItems.add(parentProduct);
+                                    parentProduct = productItem;
+                                    _renewItem();
+                                  }
+                                },
+                                popTap: () {},
+                              ),
+                            );
+                          }
+
+                          /// Якщо це товар і показувати тільки із залишком
+                          if (productItem.isGroup == 0 &&
+                              showOnlyWithRests &&
+                              countOnWarehouse == 0) {
+                            return Container();
+                          }
+
+                          /// Якщо це товар
+                          if (productItem.isGroup == 0) {
+                            return Card(
+                              color: productItem.uid != parentProduct.uid
+                                  ? tileColor
+                                  : tileSelectedColor,
+                              elevation: 5,
+                              child: ProductItemListView(
+                                price: price,
+                                countOnWarehouse: countOnWarehouse,
+                                product: productItem,
+                                tap: () async {
+                                  // await Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) =>
+                                  //         ScreenProductItem(productItem: productItem),
+                                  //   ),
+                                  // );
+                                },
+                              ),
+                            );
+                          }
+
+                          return Container();
+                        })
+                    : SizedBox(
+                        height: 50,
+                        child: Center(child: Text('Список даних порожній!'))),
               )
             ],
           )
         ],
+      ),
+    );
+  }
+
+  Widget profileNameWidget() {
+    return Container(
+      margin: EdgeInsets.only(left: defaultPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: defaultPadding,
+        vertical: defaultPadding / 2,
+      ),
+      decoration: BoxDecoration(
+        color: secondaryColor,
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: SizedBox(
+        height: 25,
+        child: Row(
+          children: [
+            Image.asset(
+              "assets/images/profile_pic.png",
+              height: 38,
+            ),
+            if (!Responsive.isMobile(context))
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                child: Text(profileName),
+              ),
+            Icon(Icons.keyboard_arrow_down),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget searchFieldWidget() {
+    return TextField(
+      controller: textFieldSearchCatalogController,
+      onSubmitted: (text) async {
+        if (textFieldSearchCatalogController.text == '') {
+          showProductHierarchy = true;
+          parentProduct = Product();
+          treeParentItems.clear();
+          await _renewItem();
+          return;
+        }
+
+        // Вимкнемо ієрархічний просмотр
+        if (showProductHierarchy) {
+          showProductHierarchy = false;
+          parentProduct = Product();
+          treeParentItems.clear();
+          //showMessage('Ієрархія товарів вимкнена.', context);
+        }
+        await _renewItem();
+      },
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+        hintText: "Пошук",
+        fillColor: secondaryColor,
+        filled: true,
+        border: OutlineInputBorder(
+          borderSide: BorderSide.none,
+          borderRadius: const BorderRadius.all(Radius.circular(10)),
+        ),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+          child: InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                showProductHierarchy = true;
+                parentProduct = Product();
+                treeParentItems.clear();
+                await _renewItem();
+                return;
+              }
+
+              // Выключим иерархический просмотр
+              if (showProductHierarchy) {
+                showProductHierarchy = false;
+                parentProduct = Product();
+                treeParentItems.clear();
+                //showMessage('Ієрархія товарів вимкнена.', context);
+              }
+              await _renewItem();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Icon(
+                Icons.search,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+          child: InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                return;
+              }
+              textFieldSearchCatalogController.text = '';
+              showProductHierarchy = true;
+              parentProduct = Product();
+              treeParentItems.clear();
+              await _renewItem();
+            },
+            child: Container(
+              //padding: EdgeInsets.all(defaultPadding * 0.75),
+              //margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -572,7 +821,7 @@ class MoreItemListView extends StatelessWidget {
   }
 }
 
-class ProductItemListView extends StatelessWidget {
+class ProductItemListView extends StatefulWidget {
   final Product product;
   final Function tap;
   final double countOnWarehouse;
@@ -586,8 +835,64 @@ class ProductItemListView extends StatelessWidget {
     required this.price,
   }) : super(key: key);
 
+  @override
+  State<ProductItemListView> createState() => _ProductItemListViewState();
+}
+
+class _ProductItemListViewState extends State<ProductItemListView> {
+  // Характеристики товарів
+  List<ProductCharacteristic> listProductCharacteristic = [];
+
+  // Залишки товарів по складам
+  List<AccumProductRest> listRestsByWarehouse = [];
+
+  _getCharacteristics() async {
+    if (listProductCharacteristic.length > 0) {
+      return;
+    }
+
+    // Request to server
+    ApiResponse response = await getProductCharacteristic(widget.product.uid);
+
+    // Read response
+    if (response.error == null) {
+      setState(() {
+        for (var item in response.data as List<dynamic>) {
+          listProductCharacteristic.add(item);
+        }
+      });
+    } else if (response.error == unauthorized) {
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+    } else {
+      showErrorMessage('${response.error}', context);
+    }
+  }
+
+  _getRestsByWarehouse(productCharacteristic) async {
+
+    listRestsByWarehouse.clear();
+
+    // Знайдемо загальні залишки
+    var selectedListProductRest = listProductRest
+        .where((element) =>
+    element.uidProductCharacteristic ==
+        productCharacteristic.uid)
+        .toList();
+
+    // Заповнимо список залишків по складу для вибраного виду товару
+    setState(() {
+      listRestsByWarehouse.addAll(selectedListProductRest);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   Widget getItemSmallPicture() {
-    if (product.isGroup == 1) {
+    if (widget.product.isGroup == 1) {
       return Icon(
         Icons.two_wheeler,
         color: Colors.white24,
@@ -598,7 +903,7 @@ class ProductItemListView extends StatelessWidget {
       // Paste your image URL inside the htt.get method as a parameter
       future: http.get(
           Uri.parse(
-              'https://rsvmoto.com.ua/files/resized/products/${product.uid}_1.55x55.png'),
+              'https://rsvmoto.com.ua/files/resized/products/${widget.product.uid}_1.55x55.png'),
           headers: {
             HttpHeaders.accessControlAllowOriginHeader: '*',
           }),
@@ -660,6 +965,10 @@ class ProductItemListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return (widget.product.useCharacteristic) ? expansionTile() : tile();
+  }
+
+  Widget tile() {
     return ListTile(
       contentPadding: const EdgeInsets.all(0),
       title: Row(
@@ -671,28 +980,28 @@ class ProductItemListView extends StatelessWidget {
           ),
           Expanded(
             flex: 10,
-            child: Text(product.name, textAlign: TextAlign.left),
+            child: Text(widget.product.name, textAlign: TextAlign.left),
           ),
           Expanded(
             flex: 3,
-            child: Text(product.nameUnit, textAlign: TextAlign.left),
+            child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
           ),
           Expanded(
             flex: 3,
             child: Text(
-              doubleToString(price),
+              doubleToString(widget.price),
               textAlign: TextAlign.left,
-              style: price > 0
-                   ? const TextStyle(fontSize: 15, color: Colors.white)
-                   : const TextStyle(fontSize: 15, color: Colors.blueGrey),
+              style: widget.price > 0
+                  ? const TextStyle(fontSize: 15, color: Colors.white)
+                  : const TextStyle(fontSize: 15, color: Colors.blueGrey),
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
-              doubleThreeToString(countOnWarehouse),
+              doubleThreeToString(widget.countOnWarehouse),
               textAlign: TextAlign.left,
-              style: countOnWarehouse > 0
+              style: widget.countOnWarehouse > 0
                   ? const TextStyle(fontSize: 15, color: Colors.white)
                   : const TextStyle(fontSize: 15, color: Colors.blueGrey),
             ),
@@ -703,6 +1012,202 @@ class ProductItemListView extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
         child: Icon(Icons.navigate_next),
       ),
+    );
+  }
+
+  Widget expansionTile() {
+    return ExpansionTile(
+      onExpansionChanged: (value) => {
+        if (value) {_getCharacteristics()}
+      },
+      title: Row(
+        children: [
+          SizedBox(
+            height: 60,
+            width: 70,
+            child: getItemSmallPicture(),
+          ),
+          Expanded(
+            flex: 10,
+            child: Text(widget.product.name, textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 3,
+            child: Icon(Icons.arrow_drop_down),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              doubleToString(widget.price),
+              textAlign: TextAlign.left,
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              doubleThreeToString(widget.countOnWarehouse),
+              textAlign: TextAlign.left,
+            ),
+          ),
+        ],
+      ),
+      trailing: const Padding(
+        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+        child: Icon(Icons.navigate_next),
+      ),
+      children: [
+        ListView.builder(
+            padding: EdgeInsets.all(0.0),
+            physics: BouncingScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: listProductCharacteristic.length,
+            itemBuilder: (context, index) {
+              var productCharacteristic = listProductCharacteristic[index];
+
+              var price = 0.0;
+              var countOnWarehouse = 0.0;
+
+              var indexItemPrice = listProductPrice.indexWhere((element) =>
+                  element.uidProductCharacteristic ==
+                      productCharacteristic.uid &&
+                  element.uidPrice == uidPrice);
+              if (indexItemPrice >= 0) {
+                var itemList = listProductPrice[indexItemPrice];
+                price = itemList.price;
+              }
+
+              // Знайдемо загальні залишки
+              var selectedListProductRest = listProductRest
+                  .where((element) =>
+                      element.uidProductCharacteristic ==
+                      productCharacteristic.uid)
+                  .toList();
+
+              for (var itemList in selectedListProductRest) {
+                countOnWarehouse = countOnWarehouse + itemList.count;
+              }
+
+              /// Якщо це товар і показувати тільки із залишком
+              if (showOnlyWithRests && countOnWarehouse == 0) {
+                return Container();
+              }
+
+              return expansionTileWarehouse(
+                  productCharacteristic, price, countOnWarehouse);
+            }),
+      ],
+    );
+  }
+
+  Widget expansionTileWarehouse(
+      productCharacteristic, price, countOnWarehouse) {
+    return ExpansionTile(
+      onExpansionChanged: (value) => {
+        if (value) {_getRestsByWarehouse(productCharacteristic)}
+      },
+
+      title: Row(
+        children: [
+          SizedBox(
+            //height: 60,
+            width: 70,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 10,
+            child: Container(),
+          ),
+          Expanded(
+            flex: 3,
+            child:
+                Text(productCharacteristic.name, textAlign: TextAlign.center),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              doubleToString(price),
+              textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              doubleThreeToString(countOnWarehouse),
+              textAlign: TextAlign.left),
+          ),
+        ],
+      ),
+      trailing: const Padding(
+        padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+        child: Icon(Icons.navigate_next),
+      ),
+      children: [
+        ListView.builder(
+            padding: EdgeInsets.all(0.0),
+            physics: BouncingScrollPhysics(),
+            shrinkWrap: true,
+            itemCount: listRestsByWarehouse.length,
+            itemBuilder: (context, index) {
+              var rest = listRestsByWarehouse[index];
+
+              /// Якщо це товар і показувати тільки із залишком
+              if (showOnlyWithRests && rest.count == 0) {
+                return Container();
+              }
+
+              return ListTile(
+                title: Row(
+                  children: [
+                    SizedBox(
+                      //height: 60,
+                      width: 70,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      flex: 10,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Container(),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        rest.nameWarehouse,
+                        textAlign: TextAlign.left),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: Text(
+                        doubleThreeToString(rest.count),
+                        textAlign: TextAlign.left,
+                        style: countOnWarehouse > 0
+                            ? const TextStyle(fontSize: 15, color: Colors.white)
+                            : const TextStyle(
+                                fontSize: 15, color: Colors.blueGrey),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 46,
+                      child: Container(),
+                    ),
+                  ],
+                ),
+              );
+            }),
+      ],
     );
   }
 }

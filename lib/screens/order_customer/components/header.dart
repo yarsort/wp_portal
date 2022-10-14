@@ -18,6 +18,9 @@ class Header extends StatefulWidget {
 class _HeaderState extends State<Header> {
   String profileName = '';
 
+  TextEditingController textFieldSearchCatalogController =
+  TextEditingController();
+
   @override
   void initState() {
     _loadProfileData();
@@ -48,7 +51,7 @@ class _HeaderState extends State<Header> {
           if (!Responsive.isMobile(context))
             Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
           Expanded(child: searchFieldWidget()),
-          profileNameWidget(),
+          //profileNameWidget(),
         ],
       ),
     );
@@ -89,8 +92,16 @@ class _HeaderState extends State<Header> {
 
   Widget searchFieldWidget() {
     return TextField(
+      controller: textFieldSearchCatalogController,
+      onSubmitted: (text) async {
+        if (textFieldSearchCatalogController.text == '') {
+          //await _renewItem();
+          return;
+        }
+        //await _renewItem();
+      },
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        contentPadding: EdgeInsets.fromLTRB(0, 0, 10, 0),
         hintText: "Пошук",
         fillColor: secondaryColor,
         filled: true,
@@ -98,16 +109,48 @@ class _HeaderState extends State<Header> {
           borderSide: BorderSide.none,
           borderRadius: const BorderRadius.all(Radius.circular(10)),
         ),
-        suffixIcon: InkWell(
-          onTap: () {},
-          child: Container(
-            padding: EdgeInsets.all(defaultPadding * 0.75),
-            //margin: EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-            decoration: BoxDecoration(
-              color: primaryColor,
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
+          child: InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                //await _renewItem();
+                return;
+              }
+              //await _renewItem();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: primaryColor,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Icon(
+                Icons.search,
+                color: Colors.white,
+              ),
             ),
-            child: SvgPicture.asset("assets/icons/Search.svg"),
+          ),
+        ),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+          child: InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                return;
+              }
+              textFieldSearchCatalogController.text = '';
+              //await _renewItem();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: const BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ),

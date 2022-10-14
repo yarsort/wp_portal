@@ -16,6 +16,10 @@ Future<ApiResponse> getOrdersCustomers() async {
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   // Get data from server
   try {
@@ -55,6 +59,10 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   // Get data from server
   try {

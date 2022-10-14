@@ -17,6 +17,10 @@ Future<ApiResponse> getOrdersMovements() async {
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   // Get data from server
   try {
@@ -57,6 +61,10 @@ Future<ApiResponse> getItemsOrderMovementByUID(uidOrderMovement) async {
 
   // Authorization
   String basicAuth = await getToken();
+  if (basicAuth == ''){
+    apiResponse.error = unauthorized;
+    return apiResponse;
+  }
 
   // Get data from server
   try {

@@ -1,9 +1,11 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
+import 'package:wp_b2b/screens/notification/notifications_list_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
 import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
 import 'package:wp_b2b/screens/products/products_list_screen.dart';
@@ -51,11 +53,10 @@ class MyApp extends StatelessWidget {
                   return FinancesScreen();
                 case ProductListScreen.routeName:
                   return ProductListScreen();
+                case NotificationListScreen.routeName:
+                  return NotificationListScreen();
                 default:
-                  //return LoginScreen();
-                  return OrderCustomerScreen();
-                  //return ProductListScreen();
-                  //return FinancesScreen();
+                  return LoginScreen();
               }
             },
           );

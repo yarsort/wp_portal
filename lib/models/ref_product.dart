@@ -8,6 +8,7 @@ class Product {
   String nameForSearch = '';      // Имя для поиска
   String vendorCode = '';         // Артикул товара в 1С
   String uidParent = '';          // Посилання на группу
+  bool useCharacteristic = false; // Имя
   String uidUnit = '';            // Посилання на единицу измерения
   String nameUnit = '';           // Имя ед. изм.
   String uidProductGroup = '';    // Посилання на номенклатурную групу
@@ -28,6 +29,7 @@ class Product {
     nameForSearch = json['name'].toLowerCase() ?? '';
     vendorCode = json['vendorCode'] ?? '';
     uidParent = json['uidParent'] ?? '';
+    useCharacteristic = (json['useCharacteristic'] == '1') ? true : false;
     uidUnit = json['uidUnit'] ?? '';
     nameUnit = json['nameUnit'] ?? '';
     uidProductGroup = json['uidProductGroup'] ?? '';
@@ -48,6 +50,7 @@ class Product {
     data['nameForSearch'] = nameForSearch;
     data['vendorCode'] = vendorCode;
     data['uidParent'] = uidParent;
+    data['useCharacteristic'] = useCharacteristic ? '1' : '0';
     data['uidUnit'] = uidUnit;
     data['nameUnit'] = nameUnit;
     data['uidProductGroup'] = uidProductGroup;
@@ -57,6 +60,32 @@ class Product {
     data['codeUKTZED'] = codeUKTZED;
     data['comment'] = comment;
     data['dateEdit'] = dateEdit.toIso8601String();
+    return data;
+  }
+}
+
+/// Справочник.ХарактеристикиТоваров
+class ProductCharacteristic {
+  String uid = '';                // UID для 1С и связи с ТЧ
+  String name = '';               // Имя
+  String uidProduct = '';          // Посилання на родителя (Товар)
+  String comment = '';            // Коммментарий
+
+  ProductCharacteristic();
+
+  ProductCharacteristic.fromJson(Map<String, dynamic> json) {
+    uid = json['uid'] ?? '';
+    name = json['name'] ?? '';
+    uidProduct = json['uidProduct'] ?? '';
+    comment = json['comment'] ?? '';
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['uid'] = uid;
+    data['name'] = name;
+    data['uidProduct'] = uidProduct;
+    data['comment'] = comment;
     return data;
   }
 }
