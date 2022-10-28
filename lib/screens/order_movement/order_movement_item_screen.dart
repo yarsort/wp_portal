@@ -162,7 +162,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   Widget textFieldsDocumentDesktop() {
     return Container(
       //width: MediaQuery.of(context).size.width*0.5,
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.fromLTRB(7, 7, 7, 7),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),

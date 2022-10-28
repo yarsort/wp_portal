@@ -320,7 +320,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
   Widget textFieldsDocumentDesktop() {
     return Container(
-      padding: EdgeInsets.all(defaultPadding),
+      padding: EdgeInsets.fromLTRB(7, 7, 7, 7),
       decoration: BoxDecoration(
         color: secondaryColor,
         borderRadius: const BorderRadius.all(Radius.circular(10)),
