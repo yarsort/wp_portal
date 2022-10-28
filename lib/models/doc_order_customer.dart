@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class OrderCustomer {
   int id = 0;                   // Инкремент
   String status = '';           //
@@ -29,6 +31,7 @@ class OrderCustomer {
   DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки замовлення в 1С из мобильного устройства
   String numberFrom1C = '';
   int countItems = 0;           // Количество товарів
+  List<ItemOrderCustomer> itemsOrderCustomer = [];
 
   OrderCustomer({this.date, this.nameOrganization, this.namePartner, this.nameWarehouse, this.namePrice, this.sum});
 
@@ -58,6 +61,10 @@ class OrderCustomer {
     // datePaying = DateTime.parse(json['datePaying']??'');
     numberFrom1C = json['numberFrom1C'] ?? '';
     countItems = json['countItems'] ?? 0;
+
+    // itemsOrderCustomer = List<dynamic>.from(json['itemsOrderCustomer'])
+    //     .map((i) => ItemOrderCustomer.fromJson(i))
+    //     .toList();
   }
 
   Map<String, dynamic> toJson() {
@@ -91,6 +98,7 @@ class OrderCustomer {
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
     data['countItems'] = countItems;
+    data['itemsOrderCustomer'] = jsonEncode(itemsOrderCustomer.map((e) => e.toJson()).toList());
     return data;
   }
 }

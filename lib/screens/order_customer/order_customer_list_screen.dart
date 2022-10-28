@@ -10,6 +10,7 @@ import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_customer.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_item_screen.dart';
+import 'package:wp_b2b/screens/products/products_list_selection_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
@@ -84,6 +85,29 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     Header(),
                     SizedBox(height: defaultPadding),
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Spacer(),
+                        SizedBox(
+                            height: 40,
+                            width: 120,
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  OrderCustomer orderCustomer = OrderCustomer();
+                                  orderCustomer.date = DateTime.now();
+
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          OrderCustomerItemScreen(orderCustomer: orderCustomer),
+                                    ),
+                                  );
+                                }, child: Text('Додати'))),
+                      ],
+                    ),
+                    SizedBox(height: defaultPadding),
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
@@ -121,11 +145,15 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
             child: Row(
               children: [
                 SizedBox(
-                  width: 50,
+                  width: 60,
                 ),
                 Expanded(
                   flex: 3,
                   child: Text("Дата", textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Text("Статус", textAlign: TextAlign.left),
                 ),
                 Expanded(
                   flex: 3,
@@ -140,7 +168,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   child: Text("Склад", textAlign: TextAlign.left),
                 ),
                 Expanded(
-                  flex: 2,
+                  flex: 3,
                   child: Text("Тип ціни", textAlign: TextAlign.left),
                 ),
                 Expanded(
@@ -207,32 +235,32 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                 ],
               ),
             ),
-            spaceBetweenColumn(),
+            Expanded(
+              flex: 3,
+              child: Text(orderCustomer.status!,
+                  style: TextStyle(color: Colors.white)),
+            ),
             Expanded(
               flex: 3,
               child: Text(orderCustomer.nameOrganization!,
                   style: TextStyle(color: Colors.white)),
             ),
-            spaceBetweenColumn(),
             Expanded(
               flex: 3,
               child: Text(orderCustomer.namePartner!,
                   style: TextStyle(color: Colors.white)),
             ),
-            spaceBetweenColumn(),
             Expanded(
               flex: 2,
               child: Text(orderCustomer.nameWarehouse!,
                   style: TextStyle(color: Colors.white)),
             ),
-            spaceBetweenColumn(),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Text(orderCustomer.namePrice!,
                   style: TextStyle(
                       color: Colors.white, overflow: TextOverflow.fade)),
             ),
-            spaceBetweenColumn(),
             Expanded(
               flex: 1,
               child: Text(doubleToString(orderCustomer.sum!),
