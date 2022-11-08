@@ -1,15 +1,16 @@
-
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
-import 'package:wp_b2b/models/doc_order_customer.dart';
 import 'package:wp_b2b/models/api_response.dart';
-import 'package:dio/dio.dart';
+import 'package:wp_b2b/models/doc_order_customer.dart';
 
 const ordersCustomersURL = '$baseURL/orders_customers';
 const orderCustomerURL = '$baseURL/order_customer';
+const orderCustomerURLPost = '$baseURL/order_customer/00000-0000-0000-0000-000000000000000';
 
 // Get all order customer
 Future<ApiResponse> getOrdersCustomers() async {
@@ -17,14 +18,13 @@ Future<ApiResponse> getOrdersCustomers() async {
 
   // Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
   // Get data from server
   try {
-
     var dio = Dio();
     final response = await dio.get(ordersCustomersURL,
         options: Options(headers: {
@@ -33,7 +33,7 @@ Future<ApiResponse> getOrdersCustomers() async {
           HttpHeaders.authorizationHeader: basicAuth,
         }));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => OrderCustomer.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -46,10 +46,17 @@ Future<ApiResponse> getOrdersCustomers() async {
         apiResponse.error = somethingWentWrong;
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }
@@ -60,7 +67,7 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
 
   // Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
@@ -68,14 +75,14 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
   // Get data from server
   try {
     var dio = Dio();
-    final response = await dio.get(orderCustomerURL+'/'+uidOrderCustomer,
+    final response = await dio.get(orderCustomerURL + '/' + uidOrderCustomer,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
         }));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'][0]['items'].map((p) => ItemOrderCustomer.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -88,10 +95,17 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
         apiResponse.error = somethingWentWrong;
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }
@@ -102,26 +116,23 @@ Future<ApiResponse> postOrderCustomer(OrderCustomer orderCustomer) async {
 
   // Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
   /// Post data from server
   try {
-
     var dio = Dio();
-    final response = await dio.post(orderCustomerURL,
-        options: Options(
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              HttpHeaders.contentTypeHeader: 'application/json',
-              HttpHeaders.authorizationHeader: basicAuth,
-            }),
-        data: jsonEncode(orderCustomer.toJson())
-    );
+    final response = await dio.post(orderCustomerURLPost,
+        options: Options(headers: {
+          'Access-Control-Allow-Origin': '*',
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: basicAuth,
+        }),
+        data: jsonEncode(orderCustomer.toJson()));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => OrderCustomer.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -131,13 +142,20 @@ Future<ApiResponse> postOrderCustomer(OrderCustomer orderCustomer) async {
         apiResponse.error = unauthorized;
         break;
       default:
-        apiResponse.error = 'Помилка отримання цін';
+        apiResponse.error = 'Помилка отримання даних';
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }

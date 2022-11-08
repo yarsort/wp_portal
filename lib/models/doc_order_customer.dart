@@ -98,7 +98,7 @@ class OrderCustomer {
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
     data['countItems'] = countItems;
-    data['itemsOrderCustomer'] = jsonEncode(itemsOrderCustomer.map((e) => e.toJson()).toList());
+    data['itemsOrderCustomer'] = itemsOrderCustomer.map((e) => e.toJson()).toList();
     return data;
   }
 }

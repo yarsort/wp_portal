@@ -51,10 +51,17 @@ Future<ApiResponse> getProductsByParent(uidParentProduct) async {
         apiResponse.error = 'Помилка отримання списку товарів';
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }
@@ -97,10 +104,17 @@ Future<ApiResponse> getProductsForSearch(searchString) async {
         apiResponse.error = 'Помилка отримання списку товарів';
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }
@@ -140,10 +154,17 @@ Future<ApiResponse> getProductCharacteristic(uidProduct) async {
         apiResponse.error = 'Помилка отримання списку характеристик товару';
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }
@@ -191,10 +212,17 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
         apiResponse.error = 'Помилка отримання цін';
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }
@@ -240,10 +268,17 @@ Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehouses
         apiResponse.error = 'Помилка отримання залишків';
         break;
     }
-  }
-  catch (e){
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }

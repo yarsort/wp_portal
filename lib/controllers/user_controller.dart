@@ -23,7 +23,6 @@ Future<ApiResponse> login(String username, String password) async {
 
   String basicAuth =
       'Basic ' + base64Encode(utf8.encode('$username:$password'));
-  //String basicAuth = 'Basic $email $password';
 
   // Get data from server
   try {
@@ -49,9 +48,20 @@ Future<ApiResponse> login(String username, String password) async {
         apiResponse.error = somethingWentWrong;
         break;
     }
-  } catch (e) {
+  } on DioError catch (e) {
     debugPrint(e.toString());
-    apiResponse.error = serverError;
+
+    switch (e.response?.statusCode) {
+      case 401:
+        apiResponse.error = unauthorized;
+        break;
+      case 406:
+        apiResponse.error = serverAuthError;
+        break;
+      default:
+        apiResponse.error = somethingWentWrong;
+        break;
+    }
   }
   return apiResponse;
 }

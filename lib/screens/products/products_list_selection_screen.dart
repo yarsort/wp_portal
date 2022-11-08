@@ -25,7 +25,7 @@ List<AccumProductPrice> listProductPrice = [];
 // Залишки товарів
 List<AccumProductRest> listProductRest = [];
 
-String uidPrice = 'fc605043-984d-11ea-89b3-180373c9c33b';
+String uidPrice = '';
 String uidWarehouse = '';
 
 bool showOnlyWithRests = false;
@@ -922,9 +922,11 @@ class _ProductItemListViewState extends State<ProductItemListView> {
       itemList?.discount = discount;
       itemList?.sum = count * price;
     } else {
+      var countElements = widget.orderCustomer?.itemsOrderCustomer.length ?? 0;
+
       ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
           uidOrderCustomer: widget.orderCustomer?.uid ?? '',
-          numberRow: widget.orderCustomer?.itemsOrderCustomer.length ?? 0 + 1,
+          numberRow: countElements + 1,
           uid: widget.product.uid,
           name: widget.product.name,
           uidCharacteristic: productCharacteristic.uid,

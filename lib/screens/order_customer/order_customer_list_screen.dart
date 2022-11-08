@@ -10,7 +10,6 @@ import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_customer.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_item_screen.dart';
-import 'package:wp_b2b/screens/products/products_list_selection_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
@@ -27,7 +26,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
   bool loadingData = false;
   List<OrderCustomer> listOrderCustomer = [];
 
-  loadListOrdersCustomers() async {
+  _loadListOrdersCustomers() async {
     // Request to server
     ApiResponse response = await getOrdersCustomers();
 
@@ -41,8 +40,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) =>
-          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -54,7 +52,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
 
   @override
   void initState() {
-    loadListOrdersCustomers();
+    _loadListOrdersCustomers();
     super.initState();
   }
 
@@ -99,11 +97,11 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                                   await Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          OrderCustomerItemScreen(orderCustomer: orderCustomer),
+                                      builder: (context) => OrderCustomerItemScreen(orderCustomer: orderCustomer),
                                     ),
                                   );
-                                }, child: Text('Додати'))),
+                                },
+                                child: Text('Додати'))),
                       ],
                     ),
                     SizedBox(height: defaultPadding),
@@ -209,8 +207,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
           await Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  OrderCustomerItemScreen(orderCustomer: orderCustomer),
+              builder: (context) => OrderCustomerItemScreen(orderCustomer: orderCustomer),
             ),
           );
         },
@@ -229,42 +226,33 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               flex: 3,
               child: Row(
                 children: [
-                  Flexible(
-                      child: Text(fullDateToString(orderCustomer.date!),
-                          style: TextStyle(color: Colors.white))),
+                  Flexible(child: Text(fullDateToString(orderCustomer.date!), style: TextStyle(color: Colors.white))),
                 ],
               ),
             ),
             Expanded(
               flex: 3,
-              child: Text(orderCustomer.status!,
-                  style: TextStyle(color: Colors.white)),
+              child: Text(orderCustomer.status!, style: TextStyle(color: Colors.white)),
             ),
             Expanded(
               flex: 3,
-              child: Text(orderCustomer.nameOrganization!,
-                  style: TextStyle(color: Colors.white)),
+              child: Text(orderCustomer.nameOrganization!, style: TextStyle(color: Colors.white)),
             ),
             Expanded(
               flex: 3,
-              child: Text(orderCustomer.namePartner!,
-                  style: TextStyle(color: Colors.white)),
+              child: Text(orderCustomer.namePartner!, style: TextStyle(color: Colors.white)),
             ),
             Expanded(
               flex: 2,
-              child: Text(orderCustomer.nameWarehouse!,
-                  style: TextStyle(color: Colors.white)),
+              child: Text(orderCustomer.nameWarehouse!, style: TextStyle(color: Colors.white)),
             ),
             Expanded(
               flex: 3,
-              child: Text(orderCustomer.namePrice!,
-                  style: TextStyle(
-                      color: Colors.white, overflow: TextOverflow.fade)),
+              child: Text(orderCustomer.namePrice!, style: TextStyle(color: Colors.white, overflow: TextOverflow.fade)),
             ),
             Expanded(
               flex: 1,
-              child: Text(doubleToString(orderCustomer.sum!),
-                  style: TextStyle(color: Colors.white)),
+              child: Text(doubleToString(orderCustomer.sum!), style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

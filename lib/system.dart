@@ -77,8 +77,10 @@ fullDateToString(DateTime date) {
 showMessage(String textMessage, context) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
+      behavior: SnackBarBehavior.floating,
+      width: MediaQuery.of(context).size.width / 2,
       backgroundColor: Colors.blue,
-      content: Text(textMessage),
+      content: Text(textMessage, style: TextStyle(color: Colors.white)),
       duration: const Duration(seconds: 3),
     ),
   );
@@ -87,8 +89,10 @@ showMessage(String textMessage, context) {
 showErrorMessage(String textMessage, context) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
+      behavior: SnackBarBehavior.floating,
+      width: MediaQuery.of(context).size.width / 2,
       backgroundColor: Colors.red,
-      content: Text(textMessage),
+      content: Text(textMessage, style: TextStyle(color: Colors.white)),
       duration: const Duration(seconds: 2),
     ),
   );
