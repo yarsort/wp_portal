@@ -4,6 +4,8 @@ import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:wp_b2b/screens/admin/login_admin_screen.dart';
+import 'package:wp_b2b/screens/admin/settings_admin_screen.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/notification/notifications_list_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
@@ -31,7 +33,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'B2B кабінет клієнта',
         theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: bgColor,
+          scaffoldBackgroundColor: bgColorDark,
           textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme)
               .apply(bodyColor: Colors.white),
           canvasColor: secondaryColor,
@@ -55,6 +57,11 @@ class MyApp extends StatelessWidget {
                   return ProductListScreen();
                 case NotificationListScreen.routeName:
                   return NotificationListScreen();
+
+                case SettingsAdminScreen.routeName:
+                  return SettingsAdminScreen();
+                case LoginAdminScreen.routeName:
+                  return LoginAdminScreen();
                 default:
                   return LoginScreen();
               }

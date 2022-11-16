@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
@@ -23,16 +24,34 @@ class OrderCustomerScreen extends StatefulWidget {
 }
 
 class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   bool loadingData = false;
+
   List<OrderCustomer> listOrderCustomer = [];
 
+  /// Начало периода отбора
+  String startPeriodDocsString = '';
+  DateTime startPeriodDocs = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day - 6);
+
+  /// Конец периода отбора
+  String finishPeriodDocsString = '';
+  DateTime finishPeriodDocs = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 23, 59, 59);
+
+  TextEditingController textFieldPeriodController = TextEditingController();
+
   _loadListOrdersCustomers() async {
-    // Request to server
-    ApiResponse response = await getOrdersCustomers();
+    /// Restore or get dates
+    await _loadPeriod();
+
+    /// Request to server
+    ApiResponse response = await getOrdersCustomers(startPeriodDocsString, finishPeriodDocsString);
 
     // Read response
     if (response.error == null) {
       setState(() {
+        listOrderCustomer.clear();
+
         for (var item in response.data as List<dynamic>) {
           listOrderCustomer.add(item);
         }
@@ -48,6 +67,32 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     setState(() {
       loadingData = false;
     });
+  }
+
+  _loadPeriod() async {
+    final SharedPreferences prefs = await _prefs;
+
+    textFieldPeriodController.text = prefs.getString('forms_orders_customers_periodDocuments') ?? '';
+
+    if (textFieldPeriodController.text.isEmpty) {
+      textFieldPeriodController.text = shortDateToString(startPeriodDocs) + ' - ' + shortDateToString(finishPeriodDocs);
+
+      startPeriodDocsString = shortDateToString(startPeriodDocs);
+      finishPeriodDocsString = shortDateToString(finishPeriodDocs);
+    } else {
+      String dayStart = textFieldPeriodController.text.substring(0, 2);
+      String monthStart = textFieldPeriodController.text.substring(3, 5);
+      String yearStart = textFieldPeriodController.text.substring(6, 10);
+      startPeriodDocsString = yearStart + monthStart + dayStart;
+
+      String dayFinish = textFieldPeriodController.text.substring(13, 15);
+      String monthFinish = textFieldPeriodController.text.substring(16, 18);
+      String yearFinish = textFieldPeriodController.text.substring(19, 23);
+      finishPeriodDocsString = yearFinish + monthFinish + dayFinish;
+
+      startPeriodDocs = DateTime.parse(startPeriodDocsString);
+      finishPeriodDocs = DateTime.parse(finishPeriodDocsString);
+    }
   }
 
   @override
@@ -83,8 +128,80 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     Header(),
                     SizedBox(height: defaultPadding),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        SizedBox(
+                          height: 40,
+                          width: 260,
+                          child: TextField(
+                            controller: textFieldPeriodController,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                              fillColor: secondaryColor,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              ),
+                              labelStyle: const TextStyle(
+                                color: Colors.blueGrey,
+                              ),
+                              //labelText: 'Період',
+                              suffixIcon: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min, //
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      var _datePick = await showDateRangePicker(
+                                          context: context,
+                                          initialDateRange:
+                                              DateTimeRange(start: startPeriodDocs, end: finishPeriodDocs),
+                                          helpText: 'Виберіть період',
+                                          firstDate: DateTime(2021, 1, 1),
+                                          lastDate: finishPeriodDocs,
+                                          builder: (context, child) {
+                                            return Center(
+                                              child: Column(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                                children: [
+                                                  ConstrainedBox(
+                                                    constraints: BoxConstraints(
+                                                      maxWidth: 400.0,
+                                                      maxHeight: 500.0,
+                                                    ),
+                                                    child: child,
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          });
+
+                                      if (_datePick != null) {
+                                        startPeriodDocs = _datePick.start;
+                                        finishPeriodDocs = _datePick.end;
+                                        textFieldPeriodController.text = shortDateToString(startPeriodDocs) +
+                                            ' - ' +
+                                            shortDateToString(finishPeriodDocs);
+
+                                        /// Save period
+                                        final SharedPreferences prefs = await _prefs;
+                                        prefs.setString(
+                                            'forms_orders_customers_periodDocuments', textFieldPeriodController.text);
+
+                                        /// Show documents
+                                        _loadListOrdersCustomers();
+                                        setState(() {});
+                                      }
+                                    },
+                                    icon: const Icon(Icons.date_range, color: iconColor),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                         Spacer(),
                         SizedBox(
                             height: 40,
@@ -146,32 +263,41 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   width: 60,
                 ),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Text("Дата", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 3,
                   child: Text("Статус", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 3,
                   child: Text("Організація", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 3,
                   child: Text("Контрагент", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
                   flex: 2,
                   child: Text("Склад", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
-                  flex: 3,
+                  flex: 2,
                   child: Text("Тип ціни", textAlign: TextAlign.left),
                 ),
+                spaceBetweenColumn(),
                 Expanded(
-                  flex: 1,
+                  flex: 2,
                   child: Text("Сума"),
+                ),
+                SizedBox(
+                  width: 10,
                 ),
               ],
             ),
@@ -181,15 +307,17 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
             children: [
               Expanded(
                 flex: 1,
-                child: ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listOrderCustomer.length,
-                    itemBuilder: (context, index) {
-                      final orderCustomer = listOrderCustomer[index];
-                      return recentOrderCustomerDataRow(orderCustomer);
-                    }),
+                child: listOrderCustomer.isNotEmpty
+                    ? ListView.builder(
+                        padding: EdgeInsets.all(0.0),
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: listOrderCustomer.length,
+                        itemBuilder: (context, index) {
+                          final orderCustomer = listOrderCustomer[index];
+                          return recentOrderCustomerDataRow(orderCustomer);
+                        })
+                    : SizedBox(height: 50, child: Center(child: Text('Список документів порожній!'))),
               )
             ],
           )
@@ -223,35 +351,41 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               ),
             ),
             Expanded(
-              flex: 3,
+              flex: 2,
               child: Row(
                 children: [
                   Flexible(child: Text(fullDateToString(orderCustomer.date!), style: TextStyle(color: Colors.white))),
                 ],
               ),
             ),
+            spaceBetweenColumn(),
             Expanded(
               flex: 3,
               child: Text(orderCustomer.status!, style: TextStyle(color: Colors.white)),
             ),
+            spaceBetweenColumn(),
             Expanded(
               flex: 3,
               child: Text(orderCustomer.nameOrganization!, style: TextStyle(color: Colors.white)),
             ),
+            spaceBetweenColumn(),
             Expanded(
               flex: 3,
               child: Text(orderCustomer.namePartner!, style: TextStyle(color: Colors.white)),
             ),
+            spaceBetweenColumn(),
             Expanded(
               flex: 2,
               child: Text(orderCustomer.nameWarehouse!, style: TextStyle(color: Colors.white)),
             ),
+            spaceBetweenColumn(),
             Expanded(
-              flex: 3,
+              flex: 2,
               child: Text(orderCustomer.namePrice!, style: TextStyle(color: Colors.white, overflow: TextOverflow.fade)),
             ),
+            spaceBetweenColumn(),
             Expanded(
-              flex: 1,
+              flex: 2,
               child: Text(doubleToString(orderCustomer.sum!), style: TextStyle(color: Colors.white)),
             ),
           ],

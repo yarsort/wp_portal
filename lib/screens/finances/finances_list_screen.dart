@@ -25,7 +25,29 @@ class _FinancesScreenState extends State<FinancesScreen> {
   bool loadingData = false;
   List<AccumPartnerDept> listAccumPartnerDept = [];
 
-  loadListAccumPartnerDebts() async {
+  /// Начало периода отбора
+  DateTime startPeriodDocs =
+  DateTime(DateTime
+      .now()
+      .year, DateTime
+      .now()
+      .month, DateTime
+      .now()
+      .day-6);
+
+  /// Конец периода отбора
+  DateTime finishPeriodDocs = DateTime(DateTime
+      .now()
+      .year,
+      DateTime
+          .now()
+          .month, DateTime
+          .now()
+          .day, 23, 59, 59);
+
+  TextEditingController textFieldPeriodController = TextEditingController();
+
+  _loadListAccumPartnerDebts() async {
     // Request to server
     ApiResponse response = await getAccumPartnerDebts('00000000-0000-0000-0000-000000000000');
 
@@ -50,9 +72,19 @@ class _FinancesScreenState extends State<FinancesScreen> {
     });
   }
 
+  _loadPeriod() async {
+    if (textFieldPeriodController.text.isEmpty) {
+      textFieldPeriodController.text =
+          shortDateToString(startPeriodDocs) +
+              ' - ' +
+              shortDateToString(finishPeriodDocs);
+    }
+  }
+
   @override
   void initState() {
-    loadListAccumPartnerDebts();
+    _loadPeriod();
+    _loadListAccumPartnerDebts();
     super.initState();
   }
 
@@ -81,6 +113,80 @@ class _FinancesScreenState extends State<FinancesScreen> {
                   children: [
                     // Desktop view
                     Header(),
+                    SizedBox(height: defaultPadding),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 40,
+                          width: 260,
+                          child: TextField(
+                            controller: textFieldPeriodController,
+                            readOnly: true,
+                            decoration: InputDecoration(
+                              contentPadding: const EdgeInsets.fromLTRB(10, 5, 0, 0),
+                              fillColor: secondaryColor,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: const BorderRadius.all(Radius.circular(10)),
+                              ),
+                              labelStyle: const TextStyle(
+                                color: Colors.blueGrey,
+                              ),
+                              //labelText: 'Період',
+                              suffixIcon: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                mainAxisSize: MainAxisSize.min, //
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      var _datePick = await showDateRangePicker(
+                                          context: context,
+                                          initialDateRange: DateTimeRange(
+                                              start: startPeriodDocs, end: finishPeriodDocs),
+                                          helpText: 'Виберіть період',
+                                          firstDate: DateTime(2021, 1, 1),
+                                          lastDate: finishPeriodDocs,builder: (context, child) {
+                                        return Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              ConstrainedBox(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: 400.0,
+                                                  maxHeight: 500.0,
+                                                ),
+                                                child: child,
+                                              )
+                                            ],
+                                          ),
+                                        );
+                                      });
+
+                                      if (_datePick != null) {
+                                        startPeriodDocs = _datePick.start;
+                                        finishPeriodDocs = _datePick.end;
+                                        textFieldPeriodController.text =
+                                            shortDateToString(startPeriodDocs) +
+                                                ' - ' +
+                                                shortDateToString(finishPeriodDocs);
+
+                                        _loadListAccumPartnerDebts();
+                                        setState(() {});
+                                      }
+                                    },
+                                    icon:
+                                    const Icon(Icons.date_range, color: iconColor),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
                     SizedBox(height: defaultPadding),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,

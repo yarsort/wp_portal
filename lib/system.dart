@@ -64,6 +64,16 @@ shortDateToString(DateTime date) {
   return (f.format(date).toString());
 }
 
+shortDateToString1C(DateTime date) {
+  // Проверка на пустую дату
+  if (date == DateTime(1900, 1, 1)) {
+    return '';
+  }
+  // Отформатируем дату
+  var f = DateFormat('yyyyMMdd');
+  return (f.format(date).toString());
+}
+
 fullDateToString(DateTime date) {
   // Проверка на пустую дату
   if (date == DateTime(1900, 1, 1)) {

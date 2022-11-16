@@ -2,17 +2,27 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_movement.dart';
 
-const ordersMovementsURL = '$baseURL/orders_movements';
-const orderMovementURL = '$baseURL/order_movement';
+// Get base url
+Future<String> _getBaseUrl() async {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final SharedPreferences prefs = await _prefs;
+  var baseURL = prefs.getString('settings_serverExchange') ?? '';
+  return baseURL;
+}
 
 // Get all order customer
-Future<ApiResponse> getOrdersMovements() async {
+Future<ApiResponse> getOrdersMovements(startPeriodDocs, finishPeriodDocs) async {
   ApiResponse apiResponse = ApiResponse();
+
+  /// Адрес подключения
+  String connectionUrl =
+      await _getBaseUrl() + '/orders_movements?startPeriodDocs=$startPeriodDocs&finishPeriodDocs=$finishPeriodDocs';
 
   // Authorization
   String basicAuth = await getToken();
@@ -24,7 +34,7 @@ Future<ApiResponse> getOrdersMovements() async {
   // Get data from server
   try {
     var dio = Dio();
-    final response = await dio.get(ordersMovementsURL,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -64,7 +74,10 @@ Future<ApiResponse> getOrdersMovements() async {
 Future<ApiResponse> getItemsOrderMovementByUID(uidOrderMovement) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения
+  String connectionUrl = await _getBaseUrl() + '/order_movement/' + uidOrderMovement;
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == '') {
     apiResponse.error = unauthorized;
@@ -74,7 +87,7 @@ Future<ApiResponse> getItemsOrderMovementByUID(uidOrderMovement) async {
   // Get data from server
   try {
     var dio = Dio();
-    final response = await dio.get(orderMovementURL + '/' + uidOrderMovement,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

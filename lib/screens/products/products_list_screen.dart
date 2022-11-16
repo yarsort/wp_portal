@@ -399,7 +399,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
           if (!Responsive.isMobile(context))
             Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
           Checkbox(
-            activeColor: Colors.blue,
+            activeColor: checkboxColor,
             checkColor: secondaryColor,
             value: showOnlyWithRests,
             onChanged: (value) {
@@ -416,7 +416,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
             child: Text('В наявності'),
           ),
           Checkbox(
-            activeColor: Colors.blue,
+            activeColor: checkboxColor,
             checkColor: secondaryColor,
             value: showProductHierarchy,
             onChanged: (value) {

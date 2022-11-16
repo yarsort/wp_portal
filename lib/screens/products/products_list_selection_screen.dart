@@ -254,6 +254,13 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
       return;
     }
 
+    if (widget.orderCustomer != null){
+      uidPrice = widget.orderCustomer!.uidPrice;
+    }
+    if (widget.orderCustomer != null){
+      uidWarehouse = widget.orderCustomer!.uidWarehouse;
+    }
+
     if (listPrices.isEmpty) {
       listPrices.add(uidPrice);
     }
@@ -394,7 +401,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
           Text("Каталог товарів", style: Theme.of(context).textTheme.headline6),
           if (!Responsive.isMobile(context)) Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
           Checkbox(
-            activeColor: Colors.blue,
+            activeColor: checkboxColor,
             checkColor: secondaryColor,
             value: showOnlyWithRests,
             onChanged: (value) {
@@ -411,7 +418,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             child: Text('В наявності'),
           ),
           Checkbox(
-            activeColor: Colors.blue,
+            activeColor: checkboxColor,
             checkColor: secondaryColor,
             value: showProductHierarchy,
             onChanged: (value) {
@@ -1068,7 +1075,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
         child: IconButton(
             icon: Icon(
               Icons.add_shopping_cart_outlined,
-              color: Colors.blue,
+              color: iconColor,
             ),
             onPressed: () {
               setState(() {
@@ -1213,7 +1220,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
         child: IconButton(
             icon: Icon(
               Icons.add_shopping_cart_outlined,
-              color: Colors.blue,
+              color: iconColor,
             ),
             onPressed: () {
               setState(() {

@@ -13,20 +13,38 @@ import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 
-class NotificationListScreen extends StatefulWidget {
-  static const routeName = '/notifications';
+class SettingsAdminScreen extends StatefulWidget {
+  static const routeName = '/admin';
 
   @override
-  State<NotificationListScreen> createState() => _NotificationListScreenState();
+  State<SettingsAdminScreen> createState() => _SettingsAdminScreenState();
 }
 
-class _NotificationListScreenState extends State<NotificationListScreen> {
+class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
   String profileName = '';
 
   List<String> listNotifications = [];
 
-  _renewItem() async {
+  /// Поле ввода: Server
+  TextEditingController textFieldServerController = TextEditingController();
+  TextEditingController textFieldPortController = TextEditingController();
+
+  _fillSettings() async {
+    final SharedPreferences prefs = await _prefs;
+
+    textFieldServerController.text = prefs.getString('settings_serverExchange') ?? 'http://91.218.88.160:35844/moto/hs/portal';
+    textFieldPortController.text = prefs.getString('settings_portExchange') ?? '';
+
     setState(() {});
+  }
+
+  _saveSettings() async {
+    final SharedPreferences prefs = await _prefs;
+
+    prefs.setString('settings_serverExchange', textFieldServerController.text);
+    prefs.setString('settings_portExchange', textFieldPortController.text);
   }
 
   _loadProfileData() async {
@@ -35,9 +53,17 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   }
 
   @override
+  void dispose() {
+    _saveSettings();
+    textFieldServerController.dispose();
+    textFieldPortController.dispose();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
-    _renewItem();
+    _fillSettings();
     _loadProfileData();
   }
 
@@ -74,7 +100,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
                           flex: 5,
                           child: Column(
                             children: [
-                              productList(),
+                              settingsList(),
                             ],
                           ),
                         ),
@@ -102,11 +128,10 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
             ),
           if (!Responsive.isMobile(context))
             Text(
-              "Нагадування",
+              "Налаштування",
               style: Theme.of(context).textTheme.headline6,
             ),
-          if (!Responsive.isMobile(context))
-            Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
+          if (!Responsive.isMobile(context)) Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
 
           //profileNameWidget(),
         ],
@@ -114,26 +139,35 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
     );
   }
 
-  Widget productList() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      child: listNotifications.isNotEmpty
-          ? ListView.builder(
-              padding: EdgeInsets.all(0.0),
-              physics: BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: listNotifications.length,
-              itemBuilder: (context, index) {
-                var item = listNotifications[index];
-                return Container();
-              })
-          : SizedBox(
-              height: 50,
-              child: Center(child: Text('Список повідомлень порожній!'))),
+  Widget settingsList() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            /// Адрес сервера
+            Expanded(
+                flex: 1,
+                child: IntrinsicHeight(
+                  child: TextField(
+                    keyboardType: TextInputType.text,
+                    controller: textFieldServerController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 2,
+                        minHeight: 2,
+                      ),
+                      border: const OutlineInputBorder(),
+                      labelStyle: const TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                      labelText: 'Ім\'я сервера підключення',
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      ],
     );
   }
 
@@ -159,8 +193,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
             ),
             if (!Responsive.isMobile(context))
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
                 child: Text(profileName),
               ),
             Icon(Icons.keyboard_arrow_down),

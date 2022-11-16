@@ -3,30 +3,39 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_customer.dart';
 
-const ordersCustomersURL = '$baseURL/orders_customers';
-const orderCustomerURL = '$baseURL/order_customer';
-const orderCustomerURLPost = '$baseURL/order_customer/00000-0000-0000-0000-000000000000000';
+// Get base url
+Future<String> _getBaseUrl() async {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final SharedPreferences prefs = await _prefs;
+  var baseURL = prefs.getString('settings_serverExchange') ?? '';
+  return baseURL;
+}
 
 // Get all order customer
-Future<ApiResponse> getOrdersCustomers() async {
+Future<ApiResponse> getOrdersCustomers(startPeriodDocs, finishPeriodDocs) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения
+  String connectionUrl =
+      await _getBaseUrl() + '/orders_customers' + '?startPeriodDocs=$startPeriodDocs&finishPeriodDocs=$finishPeriodDocs';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
     var dio = Dio();
-    final response = await dio.get(ordersCustomersURL,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -65,17 +74,20 @@ Future<ApiResponse> getOrdersCustomers() async {
 Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения
+  String connectionUrl = await _getBaseUrl() + '/order_customer/' + uidOrderCustomer;
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
     var dio = Dio();
-    final response = await dio.get(orderCustomerURL + '/' + uidOrderCustomer,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -114,7 +126,10 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
 Future<ApiResponse> postOrderCustomer(OrderCustomer orderCustomer) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await _getBaseUrl() + '/order_customer/00000-0000-0000-0000-000000000000000';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == '') {
     apiResponse.error = unauthorized;
@@ -124,7 +139,7 @@ Future<ApiResponse> postOrderCustomer(OrderCustomer orderCustomer) async {
   /// Post data from server
   try {
     var dio = Dio();
-    final response = await dio.post(orderCustomerURLPost,
+    final response = await dio.post(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
