@@ -29,22 +29,27 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   /// Поле ввода: Server
   TextEditingController textFieldServerController = TextEditingController();
-  TextEditingController textFieldPortController = TextEditingController();
+  TextEditingController textFieldPhotoServerController = TextEditingController();
+  TextEditingController textFieldNameOrganizationController = TextEditingController();
+  TextEditingController textFieldSloganOrganizationController = TextEditingController();
 
   _fillSettings() async {
     final SharedPreferences prefs = await _prefs;
 
-    textFieldServerController.text = prefs.getString('settings_serverExchange') ?? 'http://91.218.88.160:35844/moto/hs/portal';
-    textFieldPortController.text = prefs.getString('settings_portExchange') ?? '';
+    textFieldServerController.text = prefs.getString('settings_serverExchange') ?? '';
+    textFieldPhotoServerController.text = prefs.getString('settings_photoServerExchange') ?? '';
+    textFieldNameOrganizationController.text = prefs.getString('settings_nameOrganization') ?? 'Оптовий портал';
+    textFieldSloganOrganizationController.text = prefs.getString('settings_sloganOrganization') ?? 'продаж та взаєморозрахунки';
 
     setState(() {});
   }
 
   _saveSettings() async {
     final SharedPreferences prefs = await _prefs;
-
     prefs.setString('settings_serverExchange', textFieldServerController.text);
-    prefs.setString('settings_portExchange', textFieldPortController.text);
+    prefs.setString('settings_photoServerExchange', textFieldPhotoServerController.text);
+    prefs.setString('settings_nameOrganization', textFieldNameOrganizationController.text);
+    prefs.setString('settings_sloganOrganization', textFieldSloganOrganizationController.text);
   }
 
   _loadProfileData() async {
@@ -56,7 +61,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
   void dispose() {
     _saveSettings();
     textFieldServerController.dispose();
-    textFieldPortController.dispose();
+    textFieldPhotoServerController.dispose();
     super.dispose();
   }
 
@@ -149,6 +154,9 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
                 flex: 1,
                 child: IntrinsicHeight(
                   child: TextField(
+                    onChanged: (e) {
+                      _saveSettings();
+                    },
                     keyboardType: TextInputType.text,
                     controller: textFieldServerController,
                     decoration: InputDecoration(
@@ -162,6 +170,91 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
                         color: Colors.blueGrey,
                       ),
                       labelText: 'Ім\'я сервера підключення',
+                    ),
+                  ),
+                )),
+          ],
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            /// Адрес сервера
+            Expanded(
+                flex: 1,
+                child: IntrinsicHeight(
+                  child: TextField(
+                    onChanged: (e) {
+                      _saveSettings();
+                    },
+                    keyboardType: TextInputType.text,
+                    controller: textFieldPhotoServerController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 2,
+                        minHeight: 2,
+                      ),
+                      border: const OutlineInputBorder(),
+                      labelStyle: const TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                      labelText: 'Ім\'я сервера для відображення фотографій',
+                    ),
+                  ),
+                )),
+          ],
+        ),
+        SizedBox(height: 16),
+        Row(
+          children: [
+            /// Назва порталу
+            Expanded(
+                flex: 1,
+                child: IntrinsicHeight(
+                  child: TextField(
+                    onChanged: (e) {
+                      _saveSettings();
+                    },
+                    keyboardType: TextInputType.text,
+                    controller: textFieldNameOrganizationController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 2,
+                        minHeight: 2,
+                      ),
+                      border: const OutlineInputBorder(),
+                      labelStyle: const TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                      labelText: 'Назва організації B2B порталу',
+                    ),
+                  ),
+                )),
+            SizedBox(
+              width: 16,
+            ),
+            /// Слога порталу
+            Expanded(
+                flex: 1,
+                child: IntrinsicHeight(
+                  child: TextField(
+                    onChanged: (e) {
+                      _saveSettings();
+                    },
+                    keyboardType: TextInputType.text,
+                    controller: textFieldSloganOrganizationController,
+                    decoration: InputDecoration(
+                      isDense: true,
+                      suffixIconConstraints: const BoxConstraints(
+                        minWidth: 2,
+                        minHeight: 2,
+                      ),
+                      border: const OutlineInputBorder(),
+                      labelStyle: const TextStyle(
+                        color: Colors.blueGrey,
+                      ),
+                      labelText: 'Слоган компанії',
                     ),
                   ),
                 )),

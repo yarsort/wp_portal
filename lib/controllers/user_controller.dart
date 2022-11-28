@@ -7,9 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 
-const authURL = '$baseURL/auth';
-const registerURL = '$baseURL/register';
-
 Future<ApiResponse> login(String username, String password) async {
   ApiResponse apiResponse = ApiResponse();
   if (username.isEmpty) {
@@ -20,6 +17,9 @@ Future<ApiResponse> login(String username, String password) async {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
+
+  /// Адрес подключения
+  String connectionUrl = await getBaseUrl() + '/auth';
 
   String basicAuth =
       'Basic ' + base64Encode(utf8.encode('$username:$password'));
@@ -34,7 +34,7 @@ Future<ApiResponse> login(String username, String password) async {
     dio.options.headers[HttpHeaders.authorizationHeader] = basicAuth;
     dio.options.headers[HttpHeaders.wwwAuthenticateHeader] = basicAuth;
 
-    final response = await dio.get(authURL);
+    final response = await dio.get(connectionUrl);
 
     switch (response.statusCode) {
       case 200:

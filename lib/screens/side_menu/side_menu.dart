@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/screens/admin/settings_admin_screen.dart';
@@ -21,6 +22,24 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
+  String nameOrganization = '';
+  String sloganOrganization = '';
+
+  _fillSettings() async {
+    final SharedPreferences prefs = await _prefs;
+    nameOrganization = prefs.getString('settings_nameOrganization') ?? 'Оптовий портал';
+    sloganOrganization = prefs.getString('settings_sloganOrganization') ?? 'торгівля та розрахунки';
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fillSettings();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -30,9 +49,10 @@ class _SideMenuState extends State<SideMenu> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.motorcycle_outlined, color: iconColor, size: 50,),
-                Text('RSV MOTO', style: TextStyle(color: Colors.white, fontSize: 26)),
-                Text('Race, Save, Velocity', style: TextStyle(color: Colors.blueGrey, fontSize: 14)),
+                Icon(Icons.account_tree_outlined, color: iconColor, size: 50,),
+                SizedBox(height: 18,),
+                Text(nameOrganization, style: TextStyle(color: Colors.white, fontSize: 20)),
+                Text(sloganOrganization, style: TextStyle(color: Colors.blueGrey, fontSize: 12)),
               ],
             ),
           ),

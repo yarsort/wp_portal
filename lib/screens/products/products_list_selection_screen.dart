@@ -27,6 +27,9 @@ List<AccumProductRest> listProductRest = [];
 
 String uidPrice = '';
 String uidWarehouse = '';
+String pathPicture = '';
+
+//'https://rsvmoto.com.ua/files/resized/products/${widget.product.uid}_1.55x55.png'
 
 bool showOnlyWithRests = false;
 
@@ -323,6 +326,12 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     setState(() {});
   }
 
+  _loadPathPictureData() async {
+    final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+    final SharedPreferences prefs = await _prefs;
+    pathPicture = prefs.getString('settings_photoServerExchange') ?? '';
+  }
+
   _loadProfileData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     profileName = pref.getString('profileName') ?? '';
@@ -332,6 +341,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   void initState() {
     super.initState();
     _renewItem();
+    _loadPathPictureData();
     _loadProfileData();
   }
 
@@ -966,7 +976,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
       future: http
-          .get(Uri.parse('https://rsvmoto.com.ua/files/resized/products/${widget.product.uid}_1.55x55.png'), headers: {
+          .get(Uri.parse(pathPicture+ '/${widget.product.uid}.png'), headers: {
         HttpHeaders.accessControlAllowOriginHeader: '*',
       }),
       builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {

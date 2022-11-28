@@ -7,23 +7,24 @@ import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/ref_price.dart';
 
-const pricesURL = '$baseURL/prices';
-
 // Get all available partners
 Future<ApiResponse> getPrices() async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/prices';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
     var dio = Dio();
-    final response = await dio.get(pricesURL,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

@@ -7,11 +7,12 @@ import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/ref_organization.dart';
 
-const organizationsURL = '$baseURL/organizations';
-
 // Get all available organizations
 Future<ApiResponse> getOrganizations() async {
   ApiResponse apiResponse = ApiResponse();
+
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/organizations';
 
   // Authorization
   String basicAuth = await getToken();
@@ -24,7 +25,7 @@ Future<ApiResponse> getOrganizations() async {
   try {
 
     var dio = Dio();
-    final response = await dio.get(organizationsURL,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

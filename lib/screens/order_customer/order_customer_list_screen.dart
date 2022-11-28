@@ -77,8 +77,8 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     if (textFieldPeriodController.text.isEmpty) {
       textFieldPeriodController.text = shortDateToString(startPeriodDocs) + ' - ' + shortDateToString(finishPeriodDocs);
 
-      startPeriodDocsString = shortDateToString(startPeriodDocs);
-      finishPeriodDocsString = shortDateToString(finishPeriodDocs);
+      startPeriodDocsString = shortDateToString1C(startPeriodDocs);
+      finishPeriodDocsString = shortDateToString1C(finishPeriodDocs);
     } else {
       String dayStart = textFieldPeriodController.text.substring(0, 2);
       String monthStart = textFieldPeriodController.text.substring(3, 5);

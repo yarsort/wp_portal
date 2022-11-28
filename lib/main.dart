@@ -63,7 +63,8 @@ class MyApp extends StatelessWidget {
                 case LoginAdminScreen.routeName:
                   return LoginAdminScreen();
                 default:
-                  return LoginScreen();
+                  return SettingsAdminScreen();
+                  //return LoginScreen();
               }
             },
           );

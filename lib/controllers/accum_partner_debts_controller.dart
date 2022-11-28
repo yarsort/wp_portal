@@ -7,24 +7,25 @@ import 'package:wp_b2b/models/accum_partner_depts.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:dio/dio.dart';
 
-const financesURL = '$baseURL/finances';
-
 // Get all order customer
 Future<ApiResponse> getAccumPartnerDebts(String uidPartner) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/finances';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
 
     var dio = Dio();
-    final response = await dio.get(financesURL+'/'+uidPartner,
+    final response = await dio.get(connectionUrl + '/' + uidPartner,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

@@ -9,21 +9,13 @@ import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_customer.dart';
 
-// Get base url
-Future<String> _getBaseUrl() async {
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  final SharedPreferences prefs = await _prefs;
-  var baseURL = prefs.getString('settings_serverExchange') ?? '';
-  return baseURL;
-}
-
 // Get all order customer
 Future<ApiResponse> getOrdersCustomers(startPeriodDocs, finishPeriodDocs) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения
   String connectionUrl =
-      await _getBaseUrl() + '/orders_customers' + '?startPeriodDocs=$startPeriodDocs&finishPeriodDocs=$finishPeriodDocs';
+      await getBaseUrl() + '/orders_customers' + '?startPeriodDocs=$startPeriodDocs&finishPeriodDocs=$finishPeriodDocs';
 
   /// Authorization
   String basicAuth = await getToken();
@@ -75,7 +67,7 @@ Future<ApiResponse> getItemsOrderCustomerByUID(uidOrderCustomer) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения
-  String connectionUrl = await _getBaseUrl() + '/order_customer/' + uidOrderCustomer;
+  String connectionUrl = await getBaseUrl() + '/order_customer/' + uidOrderCustomer;
 
   /// Authorization
   String basicAuth = await getToken();
@@ -127,7 +119,7 @@ Future<ApiResponse> postOrderCustomer(OrderCustomer orderCustomer) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения: отправка!!!
-  final connectionUrl = await _getBaseUrl() + '/order_customer/00000-0000-0000-0000-000000000000000';
+  final connectionUrl = await getBaseUrl() + '/order_customer/00000-0000-0000-0000-000000000000000';
 
   /// Authorization
   String basicAuth = await getToken();

@@ -7,24 +7,25 @@ import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/ref_warehouse.dart';
 
-const warehousesURL = '$baseURL/warehouses';
-
 // Get all available partners
 Future<ApiResponse> getWarehouses() async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/warehouses';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
 
     var dio = Dio();
-    final response = await dio.get(warehousesURL,
+    final response = await dio.get(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

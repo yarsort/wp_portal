@@ -10,28 +10,25 @@ import 'package:wp_b2b/models/accum_product_rests.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/ref_product.dart';
 
-const productsURL = '$baseURL/products';
-const productCharacteristicsURL = '$baseURL/product_characteristics';
-const productsSearchURL = '$baseURL/products_search';
-const products_pricesURL = '$baseURL/products_prices';
-const products_restsURL = '$baseURL/products_rests';
-
 // Get all products
 Future<ApiResponse> getProductsByParent(uidParentProduct) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/products';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
     return apiResponse;
   }
     
-  // Get data from server
+  /// Get data from server
   try {
 
     var dio = Dio();
-    final response = await dio.get(productsURL+'/'+uidParentProduct,
+    final response = await dio.get(connectionUrl + '/' + uidParentProduct,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -70,21 +67,24 @@ Future<ApiResponse> getProductsByParent(uidParentProduct) async {
 Future<ApiResponse> getProductsForSearch(searchString) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/products_search';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
     // Екрануваня символів
     //searchString = jsonEncode(searchString);
 
     // Запит до сервера
     var dio = Dio();
-    final response = await dio.get(productsSearchURL+'/'+searchString,
+    final response = await dio.get(connectionUrl + '/' + searchString,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -123,18 +123,21 @@ Future<ApiResponse> getProductsForSearch(searchString) async {
 Future<ApiResponse> getProductCharacteristic(uidProduct) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/product_characteristics';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
 
     var dio = Dio();
-    final response = await dio.get(productCharacteristicsURL+'/'+uidProduct,
+    final response = await dio.get(connectionUrl + '/' + uidProduct,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -173,7 +176,10 @@ Future<ApiResponse> getProductCharacteristic(uidProduct) async {
 Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID, List<String> listProductsUID) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/products_prices';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
@@ -189,7 +195,7 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
     };
 
     var dio = Dio();
-    final response = await dio.post(products_pricesURL,
+    final response = await dio.post(connectionUrl,
         options: Options(
             headers: {
           'Access-Control-Allow-Origin': '*',
@@ -231,14 +237,17 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
 Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehousesUID, List<String> listProductsUID) async {
   ApiResponse apiResponse = ApiResponse();
 
-  // Authorization
+  /// Адрес подключения: отправка!!!
+  final connectionUrl = await getBaseUrl() + '/products_rests';
+
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == ''){
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
 
     Map dataMap = {
@@ -247,7 +256,7 @@ Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehouses
     };
 
     var dio = Dio();
-    final response = await dio.post(products_restsURL,
+    final response = await dio.post(connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

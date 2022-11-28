@@ -28,6 +28,8 @@ String uidPrice = 'fc605043-984d-11ea-89b3-180373c9c33b';
 String uidWarehouse = '';
 bool showOnlyWithRests = false;
 
+String pathPicture = '';
+
 class ProductListScreen extends StatefulWidget {
   static const routeName = '/products';
 
@@ -320,6 +322,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     setState(() {});
   }
 
+  _loadPathPictureData() async {
+    final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+    final SharedPreferences prefs = await _prefs;
+    pathPicture = prefs.getString('settings_photoServerExchange') ?? '';
+  }
+
   _loadProfileData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     profileName = pref.getString('profileName') ?? '';
@@ -329,6 +337,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   void initState() {
     super.initState();
     _renewItem();
+    _loadPathPictureData();
     _loadProfileData();
   }
 
@@ -902,8 +911,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
       future: http.get(
-          Uri.parse(
-              'https://rsvmoto.com.ua/files/resized/products/${widget.product.uid}_1.55x55.png'),
+          Uri.parse(pathPicture+ '/${widget.product.uid}_0.png'),
           headers: {
             HttpHeaders.accessControlAllowOriginHeader: '*',
           }),
@@ -973,10 +981,13 @@ class _ProductItemListViewState extends State<ProductItemListView> {
       contentPadding: const EdgeInsets.all(0),
       title: Row(
         children: [
-          SizedBox(
-            height: 60,
-            width: 70,
-            child: getItemSmallPicture(),
+          Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: SizedBox(
+              height: 60,
+              width: 70,
+              child: getItemSmallPicture(),
+            ),
           ),
           Expanded(
             flex: 10,
