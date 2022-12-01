@@ -73,7 +73,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     // Desktop view
                     headerPage(),
                     Container(
-                      height: MediaQuery.of(context).size.height-115,
+                      //height: MediaQuery.of(context).size.height-115,
                       color: bgColor,
                       padding: EdgeInsets.symmetric(
                         horizontal: defaultPadding,
