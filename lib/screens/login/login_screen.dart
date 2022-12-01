@@ -3,6 +3,7 @@ import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
+import 'package:wp_b2b/widgets.dart';
 
 class LoginScreen extends StatefulWidget {
 
@@ -110,29 +111,57 @@ class _AuthListState extends State<AuthList> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width * 0.4,
-      padding: EdgeInsets.all(defaultPadding),
+      width: MediaQuery.of(context).size.width * 0.3,
       decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withOpacity(0.3)),
         color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(flex: 2, child: Text('Логін')),
-              Expanded(flex: 5, child: emailField()),
-            ],
+          Container(
+            decoration: BoxDecoration(
+              border: Border(
+                  bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  //top: BorderSide(color: Colors.grey.withOpacity(0.3))
+                  ),
+              color: Colors.grey.withOpacity(0.3),
+              //borderRadius: const BorderRadius.all(Radius.circular(4)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding * 2, defaultPadding),
+              child: Row(
+                children: [
+                  Expanded(flex: 1, child: Text('Авторизація')),
+                ],
+              ),
+            ),
           ),
-          SizedBox(height: 16,),
-          Row(
-            children: [
-              Expanded(flex: 2, child: Text('Пароль')),
-              Expanded(flex: 5, child: passwordField()),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                spaceVertBetweenHeaderColumn(),
+                Row(
+                  children: [
+                    Expanded(flex: 2, child: Text('Логін')),
+                    Expanded(flex: 5, child: emailField()),
+                  ],
+                ),
+                spaceVertBetweenHeaderColumn(),
+                Row(
+                  children: [
+                    Expanded(flex: 2, child: Text('Пароль')),
+                    Expanded(flex: 5, child: passwordField()),
+                  ],
+                ),
+                spaceVertBetweenHeaderColumn(),
+                login2Button(),
+              ],
+            ),
           ),
-          login2Button(),
+
         ],
       ),
     );
@@ -140,74 +169,77 @@ class _AuthListState extends State<AuthList> {
 
   Widget emailField() {
 
-    return TextFormField(
-        autofocus: false,
-        controller: emailController,
-        keyboardType: TextInputType.text,
-        onSaved: (value) {
-          emailController.text = value!;
-        },
-        textInputAction: TextInputAction.next,
+    return SizedBox(
+      height: 40,
+      child: TextFormField(
+          style: TextStyle(fontSize:14),
+          autofocus: false,
+          controller: emailController,
+          keyboardType: TextInputType.text,
+          onSaved: (value) {
+            emailController.text = value!;
+          },
+          textInputAction: TextInputAction.next,
 
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: secondaryColor,
-          prefixIcon: const Icon(Icons.person),
-          contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-          border: OutlineInputBorder(
-            //borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-        ));
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: secondaryColor,
+            prefixIcon: const Icon(Icons.person, color: iconColor),
+            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
+            border: OutlineInputBorder(
+              //borderSide: BorderSide.none,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+          )),
+    );
 
   }
 
   Widget passwordField(){
 
-    return TextFormField(
-        autofocus: false,
-        controller: passwordController,
-        obscureText: true,
-        onSaved: (value) {
-          passwordController.text = value!;
-        },
-        onEditingComplete: () {
-          _loginUser();
-        },
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: secondaryColor,
-          prefixIcon: const Icon(Icons.password),
-          contentPadding: const EdgeInsets.fromLTRB(10, 12, 10, 12),
-          border: OutlineInputBorder(
-            //borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(10)),
-          ),
-        ));
+    return SizedBox(
+      height: 40,
+      child: TextFormField(
+          style: TextStyle(fontSize:14),
+          autofocus: false,
+          controller: passwordController,
+          obscureText: true,
+          onSaved: (value) {
+            passwordController.text = value!;
+          },
+          onEditingComplete: () {
+            _loginUser();
+          },
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: secondaryColor,
+            prefixIcon: const Icon(Icons.password, color: iconColor),
+            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
+            border: OutlineInputBorder(
+              //borderSide: BorderSide.none,
+              borderRadius: const BorderRadius.all(Radius.circular(10)),
+            ),
+          )),
+    );
 
   }
 
   Widget login2Button(){
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
+    return SizedBox(
+      height: 40,
       child: ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.blueGrey),
-          ),
           onPressed: () async {
             _loginUser();
           },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: const [
-              SizedBox(height: 50,),
               Text('Увійти',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 15, color: Colors.white, fontWeight: FontWeight.bold),),
-              SizedBox(height: 50,),
             ],
           )),
     );

@@ -79,17 +79,17 @@ class _SideMenuState extends State<SideMenu> {
               style: TextStyle(color: fontColorWhite),
             ),
           ),
-          ListTile(
-            onTap: () {
-              Navigator.pushNamedAndRemoveUntil(context, OrderMovementScreen.routeName, (route) => false);
-            },
-            horizontalTitleGap: 0.0,
-            leading: Icon(Icons.move_down, size: 25, color: iconColorWhite),
-            title: Text(
-              "Переміщення",
-              style: TextStyle(color: fontColorWhite),
-            ),
-          ),
+          // ListTile(
+          //   onTap: () {
+          //     Navigator.pushNamedAndRemoveUntil(context, OrderMovementScreen.routeName, (route) => false);
+          //   },
+          //   horizontalTitleGap: 0.0,
+          //   leading: Icon(Icons.move_down, size: 25, color: iconColorWhite),
+          //   title: Text(
+          //     "Переміщення",
+          //     style: TextStyle(color: fontColorWhite),
+          //   ),
+          // ),
           ListTile(
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(context, FinancesScreen.routeName, (route) => false);

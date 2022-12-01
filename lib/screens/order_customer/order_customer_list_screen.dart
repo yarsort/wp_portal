@@ -45,8 +45,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
 
   @override
   void initState() {
-    _loadListOrdersCustomers();
-    _loadProfileData();
+    _loadData();
     super.initState();
   }
 
@@ -104,39 +103,18 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     );
   }
 
-  /// LOADING DATA
-  _loadListOrdersCustomers() async {
-    /// Restore or get dates
+  _loadData() async {
+    await _loadProfileData();
     await _loadPeriod();
-
-    /// Request to server
-    ApiResponse response = await getOrdersCustomers(startPeriodDocsString, finishPeriodDocsString);
-
-    // Read response
-    if (response.error == null) {
-      setState(() {
-        listOrderCustomer.clear();
-
-        for (var item in response.data as List<dynamic>) {
-          listOrderCustomer.add(item);
-        }
-
-        loadingData = loadingData ? !loadingData : loadingData;
-      });
-    } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
-    } else {
-      showErrorMessage('${response.error}', context);
-    }
-
-    setState(() {
-      loadingData = false;
-    });
+    setState(() {});
+    await _loadListOrdersCustomers();
   }
+
+  /// LOADING DATA
 
   _loadProfileData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    profileName = pref.getString('profileName') ?? '';
+    profileName = pref.getString('settings_profileName') ?? '';
   }
 
   _loadPeriod() async {
@@ -163,6 +141,33 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
       startPeriodDocs = DateTime.parse(startPeriodDocsString);
       finishPeriodDocs = DateTime.parse(finishPeriodDocsString);
     }
+  }
+
+  _loadListOrdersCustomers() async {
+
+    /// Request to server
+    ApiResponse response = await getOrdersCustomers(startPeriodDocsString, finishPeriodDocsString);
+
+    // Read response
+    if (response.error == null) {
+      setState(() {
+        listOrderCustomer.clear();
+
+        for (var item in response.data as List<dynamic>) {
+          listOrderCustomer.add(item);
+        }
+
+        loadingData = loadingData ? !loadingData : loadingData;
+      });
+    } else if (response.error == unauthorized) {
+      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+    } else {
+      showErrorMessage('${response.error}', context);
+    }
+
+    setState(() {
+      loadingData = false;
+    });
   }
 
   /// HEADER
@@ -198,6 +203,14 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: Row(
                 children: [
+                  SizedBox(
+                    height: 40,
+                    width: 40,
+                    child: Icon(
+                      Icons.receipt_long,
+                      color: Colors.blue,
+                    ),
+                  ),
                   Text(namePage,
                       style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
                   Spacer(),
@@ -276,7 +289,8 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
           children: [
             Icon(Icons.person, color: iconColor),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text('Стрижаков Ярослав')),
+                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                child: Text(profileName)),
             Icon(Icons.keyboard_arrow_down),
           ],
         ),
@@ -338,6 +352,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   prefs.setString('forms_orders_customers_periodDocuments', textFieldPeriodController.text);
 
                   /// Show documents
+                  _loadPeriod();
                   _loadListOrdersCustomers();
                   setState(() {});
                 }
@@ -443,6 +458,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     flex: 2,
                     child: Text('Сума', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
+                  spaceBetweenColumn(),
                 ],
               ),
             ),
@@ -497,6 +513,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
   Widget rowDataOrderCustomer(OrderCustomer orderCustomer) {
     return GestureDetector(
       onTap: () async {
+        orderCustomer.itemsOrderCustomer.clear();
         await Navigator.push(
           context,
           MaterialPageRoute(
@@ -560,6 +577,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                 flex: 2,
                 child: Text(doubleToString(orderCustomer.sum!)),
               ),
+              spaceBetweenColumn(),
             ],
           ),
         ),

@@ -39,7 +39,10 @@ Future<ApiResponse> login(String username, String password) async {
     switch (response.statusCode) {
       case 200:
         SharedPreferences pref = await SharedPreferences.getInstance();
+
+        await pref.setString('settings_profileName', response.data['data'][0]['name']);
         await pref.setString('token', basicAuth);
+
         break;
       case 401:
         apiResponse.error = unauthorized;

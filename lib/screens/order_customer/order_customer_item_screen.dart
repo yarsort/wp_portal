@@ -38,6 +38,7 @@ class OrderCustomerItemScreen extends StatefulWidget {
 
 class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   bool loadingData = false;
+  String profileName = '';
 
   TextEditingController textFieldSearchCatalogController = TextEditingController();
 
@@ -73,10 +74,94 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   /// Поле ввода: Вага документа
   TextEditingController textFieldWeightController = TextEditingController();
 
+  /// MAIN
+
+  @override
+  void initState() {
+    _loadData();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      //key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
+      drawer: SideMenu(),
+      body: SafeArea(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (Responsive.isDesktop(context))
+              Expanded(
+                flex: 1,
+                // default flex = 1
+                // and it takes 1/6 part of the screen
+                child: SideMenu(),
+              ),
+            Expanded(
+              flex: 5,
+              child: SingleChildScrollView(
+                primary: true,
+                //padding: EdgeInsets.all(defaultPadding),
+                child: Column(
+                  children: [
+                    headerPage(),
+                    Container(
+                      color: bgColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: defaultPadding,
+                        vertical: defaultPadding,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Column(
+                              children: [
+                                textFieldsDocumentDesktop(),
+                                spaceVertBetweenHeaderColumn(),
+                                itemsOrderCustomerList(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// LOADING DATA
+
+  _loadData() async {
+    await _loadPathPictureData();
+    await _loadProfileData();
+    setState(() {});
+    await _loadOrderCustomer();
+    await _loadOrganizations();
+    await _loadPartners();
+    await _loadWarehouses();
+    await _loadPrices();
+    await _updateHeader();
+  }
+
   _loadPathPictureData() async {
     final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     final SharedPreferences prefs = await _prefs;
     pathPicture = prefs.getString('settings_photoServerExchange') ?? '';
+  }
+
+  _loadProfileData() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    profileName = pref.getString('settings_profileName') ?? '';
   }
 
   _loadOrderCustomer() async {
@@ -91,6 +176,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     // Read response
     if (response.error == null) {
       setState(() {
+        widget.orderCustomer.itemsOrderCustomer.clear();
         for (var item in response.data as List<dynamic>) {
           widget.orderCustomer.itemsOrderCustomer.add(item);
         }
@@ -271,22 +357,6 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     textFieldSumController.text = doubleToString(widget.orderCustomer.sum ?? 0.0);
   }
 
-  _loadData() async {
-    await _loadOrderCustomer();
-    await _loadOrganizations();
-    await _loadPartners();
-    await _loadWarehouses();
-    await _loadPrices();
-    await _updateHeader();
-  }
-
-  @override
-  void initState() {
-    _loadPathPictureData();
-    _loadData();
-    super.initState();
-  }
-
   _postOrderCustomer() async {
     // Request to server
     ApiResponse response = await postOrderCustomer(widget.orderCustomer);
@@ -329,6 +399,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     });
   }
 
+  /// HEADER
+
   Widget getItemSmallPicture(item) {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
@@ -344,18 +416,9 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               color: Colors.white24,
             );
           case ConnectionState.active:
-            return SizedBox(
-              child: Center(
-                child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ),
-              height: 45,
-              width: 45,
+            return Icon(
+              Icons.two_wheeler,
+              color: Colors.white24,
             );
           case ConnectionState.waiting:
             return SizedBox(
@@ -368,8 +431,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                   ),
                 ),
               ),
-              height: 45,
-              width: 45,
+              height: 20,
+              width: 20,
             );
           case ConnectionState.done:
             if (snapshot.hasError)
@@ -430,65 +493,6 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
             }
         }
       },
-    );
-  }
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      //key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
-      drawer: SideMenu(),
-      body: SafeArea(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (Responsive.isDesktop(context))
-              Expanded(
-                flex: 1,
-                // default flex = 1
-                // and it takes 1/6 part of the screen
-                child: SideMenu(),
-              ),
-            Expanded(
-              flex: 5,
-              child: SingleChildScrollView(
-                primary: true,
-                //padding: EdgeInsets.all(defaultPadding),
-                child: Column(
-                  children: [
-                    headerPage(),
-                    Container(
-                      height: MediaQuery.of(context).size.height,
-                      color: bgColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: defaultPadding,
-                        vertical: defaultPadding,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: Column(
-                              children: [
-                                textFieldsDocumentDesktop(),
-                                spaceVertBetweenHeaderColumn(),
-                                itemsOrderCustomerList(),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -616,7 +620,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
           children: [
             Icon(Icons.person, color: iconColor),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text('Стрижаков Ярослав')),
+                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                child: Text(profileName)),
             Icon(Icons.keyboard_arrow_down),
           ],
         ),
@@ -919,6 +924,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     );
   }
 
+  /// LISTS
+
   Widget itemsOrderCustomerList() {
     return Container(
       decoration: BoxDecoration(
@@ -943,6 +950,11 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                     child: ElevatedButton(
                         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green)),
                         onPressed: () async {
+                          if(widget.orderCustomer.uid != ''){
+                            showErrorMessage('Редагування документа заборонено!', context);
+                            return;
+                          }
+
                           bool valueResult = await showDialog<bool>(
                               context: context,
                               builder: (context) {
@@ -985,6 +997,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                     height: 30,
                     child: ElevatedButton(
                         onPressed: () async {
+                          if(widget.orderCustomer.uid != ''){
+                            showErrorMessage('Редагування документа заборонено!', context);
+                            return;
+                          }
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -1003,6 +1019,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                     child: ElevatedButton(
                         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
                         onPressed: () async {
+                          if(widget.orderCustomer.uid != ''){
+                            showErrorMessage('Редагування документа заборонено!', context);
+                            return;
+                          }
                           bool valueResult = await showDialog<bool>(
                               context: context,
                               builder: (context) {
