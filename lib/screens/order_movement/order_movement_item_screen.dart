@@ -756,87 +756,6 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
     );
   }
 
-  Widget itemsOrderMovementList1() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 50,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 15,
-                  child: Text(""),
-                ),
-                SizedBox(
-                  width: 40,
-                  child: Text("N",
-                    textAlign: TextAlign.center,),
-                ),
-                SizedBox(
-                  width: 50,
-                  child: Text(""),
-                ),
-                spaceBetweenColumn(),
-                Expanded(
-                  flex: 2,
-                  child: Text("Товар", overflow: TextOverflow.fade),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text("Варіант", overflow: TextOverflow.fade),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text("Од. вим.", overflow: TextOverflow.fade),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text("Заплановано", overflow: TextOverflow.fade),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text("Відправлено", overflow: TextOverflow.fade),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Text("Отримано", overflow: TextOverflow.fade),
-                ),
-                SizedBox(
-                  width: 14,
-                  child: Text(""),
-                ),
-              ],
-            ),
-          ),
-          Divider(color: Colors.white24, thickness: 0.5),
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listItemsOrderMovement.length,
-                    itemBuilder: (context, index) {
-                      final item = listItemsOrderMovement[index];
-                      return recentOrderMovementDataRow(item);
-                    }),
-              )
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
   Widget itemsOrderMovementList() {
     return Container(
       decoration: BoxDecoration(
@@ -855,122 +774,122 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                 Text('Список товарів', style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
                 /// Space
                 Spacer(),
-                /// Send to 1C database
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green)),
-                        onPressed: () async {
-                          if(widget.orderMovement.uid != ''){
-                            showErrorMessage('Редагування документа заборонено!', context);
-                            return;
-                          }
-
-                          bool valueResult = await showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: const Text('Відправити документ постачальнику?'),
-                                  actions: <Widget>[
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: Center(child: Text('Відправити'))),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        ElevatedButton(
-                                            style: ButtonStyle(
-                                                backgroundColor: MaterialStateProperty.all(Colors.red)),
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                            child: const Text('Відміна'))
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }) as bool;
-
-                          if (valueResult) {
-                            //_postOrderCustomer();
-                          }
-                        },
-                        child: Text('Відправити постачальнику'))),
-                /// Space
-                SizedBox(width: defaultPadding),
-                /// Add products
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          if(widget.orderMovement.uid != ''){
-                            showErrorMessage('Редагування документа заборонено!', context);
-                            return;
-                          }
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  ProductListSelectionScreen(orderMovement: widget.orderMovement),
-                            ),
-                          );
-                          setState(() {});
-                        },
-                        child: Text('Додати товар'))),
-                /// Space
-                SizedBox(width: defaultPadding),
-                /// Clear list
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
-                        onPressed: () async {
-                          if(widget.orderMovement.uid != ''){
-                            showErrorMessage('Редагування документа заборонено!', context);
-                            return;
-                          }
-                          bool valueResult = await showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: const Text('Очистити список товарів?'),
-                                  actions: <Widget>[
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: Center(child: Text('Очистити'))),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        ElevatedButton(
-                                            style: ButtonStyle(
-                                                backgroundColor: MaterialStateProperty.all(Colors.red)),
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                            child: const Text('Відміна'))
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }) as bool;
-
-                          if (valueResult) {
-                            setState(() {
-                              widget.orderMovement.itemsOrderMovement.clear();
-                            });
-                          }
-                        },
-                        child: Text('Очистити список'))),
+                // /// Send to 1C database
+                // SizedBox(
+                //     height: 30,
+                //     child: ElevatedButton(
+                //         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green)),
+                //         onPressed: () async {
+                //           if(widget.orderMovement.uid != ''){
+                //             showErrorMessage('Редагування документа заборонено!', context);
+                //             return;
+                //           }
+                //
+                //           bool valueResult = await showDialog<bool>(
+                //               context: context,
+                //               builder: (context) {
+                //                 return AlertDialog(
+                //                   content: const Text('Відправити документ постачальнику?'),
+                //                   actions: <Widget>[
+                //                     Row(
+                //                       mainAxisAlignment: MainAxisAlignment.center,
+                //                       children: [
+                //                         ElevatedButton(
+                //                             onPressed: () async {
+                //                               Navigator.of(context).pop(true);
+                //                             },
+                //                             child: Center(child: Text('Відправити'))),
+                //                         const SizedBox(
+                //                           width: 10,
+                //                         ),
+                //                         ElevatedButton(
+                //                             style: ButtonStyle(
+                //                                 backgroundColor: MaterialStateProperty.all(Colors.red)),
+                //                             onPressed: () async {
+                //                               Navigator.of(context).pop(false);
+                //                             },
+                //                             child: const Text('Відміна'))
+                //                       ],
+                //                     ),
+                //                   ],
+                //                 );
+                //               }) as bool;
+                //
+                //           if (valueResult) {
+                //             //_postOrderCustomer();
+                //           }
+                //         },
+                //         child: Text('Відправити постачальнику'))),
+                // /// Space
+                // SizedBox(width: defaultPadding),
+                // /// Add products
+                // SizedBox(
+                //     height: 30,
+                //     child: ElevatedButton(
+                //         onPressed: () async {
+                //           if(widget.orderMovement.uid != ''){
+                //             showErrorMessage('Редагування документа заборонено!', context);
+                //             return;
+                //           }
+                //           await Navigator.push(
+                //             context,
+                //             MaterialPageRoute(
+                //               builder: (context) =>
+                //                   ProductListSelectionScreen(orderMovement: widget.orderMovement),
+                //             ),
+                //           );
+                //           setState(() {});
+                //         },
+                //         child: Text('Додати товар'))),
+                // /// Space
+                // SizedBox(width: defaultPadding),
+                // /// Clear list
+                // SizedBox(
+                //     height: 30,
+                //     child: ElevatedButton(
+                //         style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                //         onPressed: () async {
+                //           if(widget.orderMovement.uid != ''){
+                //             showErrorMessage('Редагування документа заборонено!', context);
+                //             return;
+                //           }
+                //           bool valueResult = await showDialog<bool>(
+                //               context: context,
+                //               builder: (context) {
+                //                 return AlertDialog(
+                //                   content: const Text('Очистити список товарів?'),
+                //                   actions: <Widget>[
+                //                     Row(
+                //                       mainAxisAlignment: MainAxisAlignment.center,
+                //                       children: [
+                //                         ElevatedButton(
+                //                             onPressed: () async {
+                //                               Navigator.of(context).pop(true);
+                //                             },
+                //                             child: Center(child: Text('Очистити'))),
+                //                         const SizedBox(
+                //                           width: 10,
+                //                         ),
+                //                         ElevatedButton(
+                //                             style: ButtonStyle(
+                //                                 backgroundColor: MaterialStateProperty.all(Colors.red)),
+                //                             onPressed: () async {
+                //                               Navigator.of(context).pop(false);
+                //                             },
+                //                             child: const Text('Відміна'))
+                //                       ],
+                //                     ),
+                //                   ],
+                //                 );
+                //               }) as bool;
+                //
+                //           if (valueResult) {
+                //             setState(() {
+                //               widget.orderMovement.itemsOrderMovement.clear();
+                //             });
+                //           }
+                //         },
+                //         child: Text('Очистити список'))),
               ],
             ),
           ),
