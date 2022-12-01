@@ -103,14 +103,14 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     );
   }
 
+  /// LOADING DATA
+
   _loadData() async {
     await _loadProfileData();
     await _loadPeriod();
     setState(() {});
     await _loadListOrdersCustomers();
   }
-
-  /// LOADING DATA
 
   _loadProfileData() async {
     SharedPreferences pref = await SharedPreferences.getInstance();

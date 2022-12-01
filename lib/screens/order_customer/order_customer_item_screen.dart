@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
+import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/order_customer_controller.dart';
 import 'package:wp_b2b/controllers/organization_controller.dart';
@@ -85,7 +87,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
+      key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
         child: Row(
@@ -145,7 +147,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     await _loadPathPictureData();
     await _loadProfileData();
     setState(() {});
-    await _loadOrderCustomer();
+    await _loadItemsOrderCustomer();
     await _loadOrganizations();
     await _loadPartners();
     await _loadWarehouses();
@@ -164,7 +166,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     profileName = pref.getString('settings_profileName') ?? '';
   }
 
-  _loadOrderCustomer() async {
+  _loadItemsOrderCustomer() async {
     // Item without UUID - new item
     if (widget.orderCustomer.uid == '') {
       return;

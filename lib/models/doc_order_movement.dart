@@ -15,6 +15,7 @@ class OrderMovement {
       1900, 1, 1); // Дата отправки замовлення в 1С из мобильного устройства
   String numberFrom1C = '';
   int countItems = 0; // Количество товарів
+  List<ItemOrderMovement> itemsOrderMovement = [];
 
   OrderMovement(
       {this.date,
@@ -64,6 +65,7 @@ class OrderMovement {
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
     data['numberFrom1C'] = numberFrom1C;
     data['countItems'] = countItems;
+    data['itemsOrderMovement'] = itemsOrderMovement.map((e) => e.toJson()).toList();
     return data;
   }
 }

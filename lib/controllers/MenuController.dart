@@ -4,6 +4,7 @@ class MenuController extends ChangeNotifier {
   final GlobalKey<ScaffoldState> _scaffoldOrderCustomerKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldItemOrderCustomerKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldOrderMovementKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldItemOrderMovementKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldFinanceKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldProductsKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldNotificationsKey = GlobalKey<ScaffoldState>();
@@ -12,6 +13,7 @@ class MenuController extends ChangeNotifier {
   GlobalKey<ScaffoldState> get scaffoldOrderCustomerKey => _scaffoldOrderCustomerKey;
   GlobalKey<ScaffoldState> get scaffoldItemOrderCustomerKey => _scaffoldItemOrderCustomerKey;
   GlobalKey<ScaffoldState> get scaffoldOrderMovementKey => _scaffoldOrderMovementKey;
+  GlobalKey<ScaffoldState> get scaffoldItemOrderMovementKey => _scaffoldItemOrderMovementKey;
   GlobalKey<ScaffoldState> get scaffoldProductsKey => _scaffoldProductsKey;
   GlobalKey<ScaffoldState> get scaffoldFinanceKey => _scaffoldFinanceKey;
   GlobalKey<ScaffoldState> get scaffoldNotificationsKey => _scaffoldNotificationsKey;
