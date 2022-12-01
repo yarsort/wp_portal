@@ -30,7 +30,7 @@ Future<ApiResponse> login(String username, String password) async {
 
     dio.options.headers[HttpHeaders.accessControlAllowOriginHeader] = '*';
     dio.options.headers[HttpHeaders.contentTypeHeader] = 'application/json';
-    dio.options.headers[HttpHeaders.accessControlAllowCredentialsHeader] = true;
+    //dio.options.headers[HttpHeaders.accessControlAllowCredentialsHeader] = true;
     dio.options.headers[HttpHeaders.authorizationHeader] = basicAuth;
     dio.options.headers[HttpHeaders.wwwAuthenticateHeader] = basicAuth;
 

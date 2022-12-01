@@ -488,7 +488,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
               ],
             ),
           ),
-          Divider(color: Colors.white24, thickness: 0.5),
+          Divider(color: Colors.blueGrey, thickness: 0.5),
           Row(
             children: [
               Expanded(
@@ -976,7 +976,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
       future: http
-          .get(Uri.parse(pathPicture+ '/${widget.product.uid}.png'), headers: {
+          .get(Uri.parse(pathPicture+ '/${widget.product.uid}_0.png'), headers: {
         HttpHeaders.accessControlAllowOriginHeader: '*',
       }),
       builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
@@ -1023,7 +1023,48 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
             // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
             if (snapshot.data!.statusCode == 200) {
-              return Image.memory(snapshot.data!.bodyBytes);
+              return GestureDetector(
+                  onTap: () async {
+                    await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            content: Text(widget.product.name, style: TextStyle(color: Colors.black)),
+                            actions: <Widget>[
+                              Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 300,
+                                          height: 300,
+                                          child: Image.memory(snapshot.data!.bodyBytes)),
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      ElevatedButton(
+                                          style: ButtonStyle(
+                                              backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: const Text('Відміна'))
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ],
+                          );
+                        });
+                  },
+                  child: Image.memory(snapshot.data!.bodyBytes));
             } else {
               return Icon(
                 Icons.two_wheeler,
@@ -1064,8 +1105,8 @@ class _ProductItemListViewState extends State<ProductItemListView> {
               doubleToString(widget.price),
               textAlign: TextAlign.left,
               style: widget.price > 0
-                  ? const TextStyle(fontSize: 15, color: Colors.white)
-                  : const TextStyle(fontSize: 15, color: Colors.blueGrey),
+                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
+                  : const TextStyle(fontSize: 15, color: fontColorGrey),
             ),
           ),
           Expanded(
@@ -1074,8 +1115,8 @@ class _ProductItemListViewState extends State<ProductItemListView> {
               doubleThreeToString(widget.countOnWarehouse),
               textAlign: TextAlign.left,
               style: widget.countOnWarehouse > 0
-                  ? const TextStyle(fontSize: 15, color: Colors.white)
-                  : const TextStyle(fontSize: 15, color: Colors.blueGrey),
+                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
+                  : const TextStyle(fontSize: 15, color: fontColorGrey),
             ),
           ),
         ],
@@ -1135,8 +1176,8 @@ class _ProductItemListViewState extends State<ProductItemListView> {
               doubleThreeToString(widget.countOnWarehouse),
               textAlign: TextAlign.left,
               style: widget.countOnWarehouse > 0
-                  ? const TextStyle(fontSize: 15, color: Colors.white)
-                  : const TextStyle(fontSize: 15, color: Colors.blueGrey),
+                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
+                  : const TextStyle(fontSize: 15, color: fontColorGrey),
             ),
           ),
         ],
@@ -1219,8 +1260,8 @@ class _ProductItemListViewState extends State<ProductItemListView> {
               doubleThreeToString(countOnWarehouse),
               textAlign: TextAlign.left,
               style: countOnWarehouse > 0
-                  ? const TextStyle(fontSize: 15, color: Colors.white)
-                  : const TextStyle(fontSize: 15, color: Colors.blueGrey),
+                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
+                  : const TextStyle(fontSize: 15, color: fontColorGrey),
             ),
           ),
         ],
@@ -1282,8 +1323,8 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                         doubleThreeToString(rest.count),
                         textAlign: TextAlign.left,
                         style: countOnWarehouse > 0
-                            ? const TextStyle(fontSize: 15, color: Colors.white)
-                            : const TextStyle(fontSize: 15, color: Colors.blueGrey),
+                            ? const TextStyle(fontSize: 15, color: fontColorBlack)
+                            : const TextStyle(fontSize: 15, color: fontColorGrey),
                       ),
                     ),
                     Expanded(

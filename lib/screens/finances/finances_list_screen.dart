@@ -265,7 +265,7 @@ class _FinancesScreenState extends State<FinancesScreen> {
               ],
             ),
           ),
-          Divider(color: Colors.white24, thickness: 0.5),
+          Divider(color: Colors.blueGrey, thickness: 0.5),
           Row(
             children: [
               Expanded(
@@ -289,15 +289,6 @@ class _FinancesScreenState extends State<FinancesScreen> {
 
   Widget recentAccumPartnerDeptDataRow(AccumPartnerDept accumPartnerDept) {
     return ListTile(
-      // onTap: () async {
-      //   await Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) =>
-      //           OrderCustomerItemScreen(orderCustomer: orderCustomer),
-      //     ),
-      //   );
-      // },
       contentPadding: EdgeInsets.all(0.0),
       subtitle: Column(
         mainAxisSize: MainAxisSize.min,
@@ -315,51 +306,51 @@ class _FinancesScreenState extends State<FinancesScreen> {
               Expanded(
                 flex: 2,
                 child: Text(fullDateToString(accumPartnerDept.date),
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
                 child: Text(accumPartnerDept.nameOrganization,
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
                 child: Text(accumPartnerDept.namePartner,
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
                 child: Text(accumPartnerDept.nameContract,
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 4,
                 child: Text(accumPartnerDept.nameDoc,
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
                 child: Text(doubleToString(accumPartnerDept.balance),
                     style: TextStyle(
-                        color: Colors.white, overflow: TextOverflow.fade)),
+                        color: fontColorBlack, overflow: TextOverflow.fade)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
                 child: Text(doubleToString(accumPartnerDept.balanceUah),
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: fontColorBlack)),
               ),
             ],
           ),
           SizedBox(
             height: 1,
           ),
-          Divider(color: Colors.white24, thickness: 0.5),
+          Divider(color: Colors.blueGrey, thickness: 0.5),
         ],
       ),
     );

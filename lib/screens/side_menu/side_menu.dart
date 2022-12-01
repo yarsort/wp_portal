@@ -43,6 +43,7 @@ class _SideMenuState extends State<SideMenu> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      backgroundColor: Color.fromRGBO(64, 81, 137, 1),
       child: ListView(
         children: [
           DrawerHeader(
@@ -51,8 +52,8 @@ class _SideMenuState extends State<SideMenu> {
               children: [
                 Icon(Icons.account_tree_outlined, color: iconColor, size: 50,),
                 SizedBox(height: 18,),
-                Text(nameOrganization, style: TextStyle(color: Colors.white, fontSize: 20)),
-                Text(sloganOrganization, style: TextStyle(color: Colors.blueGrey, fontSize: 12)),
+                Text(nameOrganization, style: TextStyle(color: fontColorWhite, fontSize: 20)),
+                Text(sloganOrganization, style: TextStyle(color: fontColorWhite, fontSize: 12)),
               ],
             ),
           ),
@@ -61,10 +62,10 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.pushNamedAndRemoveUntil(context, OrderCustomerScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.home, size: 25, color: iconColor),
+            leading: Icon(Icons.home, size: 25, color: iconColorWhite),
             title: Text(
               "Головна",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
           ListTile(
@@ -72,10 +73,10 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.pushNamedAndRemoveUntil(context, OrderCustomerScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.receipt_long, size: 25, color: iconColor),
+            leading: Icon(Icons.receipt_long, size: 25, color: iconColorWhite),
             title: Text(
               "Замовлення",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
           ListTile(
@@ -83,10 +84,10 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.pushNamedAndRemoveUntil(context, OrderMovementScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.move_down, size: 25, color: iconColor),
+            leading: Icon(Icons.move_down, size: 25, color: iconColorWhite),
             title: Text(
               "Переміщення",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
           ListTile(
@@ -94,10 +95,10 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.pushNamedAndRemoveUntil(context, FinancesScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.real_estate_agent, size: 25, color: iconColor),
+            leading: Icon(Icons.real_estate_agent, size: 25, color: iconColorWhite),
             title: Text(
               "Розрахунки",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
           ListTile(
@@ -105,10 +106,10 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.pushNamedAndRemoveUntil(context, ProductListScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.wallet_giftcard_outlined, size: 25, color: iconColor),
+            leading: Icon(Icons.wallet_giftcard_outlined, size: 25, color: iconColorWhite),
             title: Text(
               "Товари",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
           ListTile(
@@ -116,25 +117,25 @@ class _SideMenuState extends State<SideMenu> {
               Navigator.pushNamedAndRemoveUntil(context, NotificationListScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.notifications, size: 25, color: iconColor),
+            leading: Icon(Icons.notifications, size: 25, color: iconColorWhite),
             title: Text(
               "Нагадування",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
-          Divider(),
+          Divider(color: Colors.grey),
           ListTile(
             onTap: () {
               Navigator.pushNamedAndRemoveUntil(context, SettingsAdminScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.settings, size: 25, color: iconColor),
+            leading: Icon(Icons.settings, size: 25, color: iconColorWhite),
             title: Text(
               "Налаштування",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
-          Divider(),
+          Divider(color: Colors.grey),
           ListTile(
             onTap: () async {
               bool valueResult = await showDialog<bool>(
@@ -173,10 +174,10 @@ class _SideMenuState extends State<SideMenu> {
               }
             },
             horizontalTitleGap: 0.0,
-            leading: Icon(Icons.exit_to_app_rounded, size: 25, color: iconColor),
+            leading: Icon(Icons.exit_to_app_rounded, size: 25, color: iconColorWhite),
             title: Text(
               "Вихід",
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: fontColorWhite),
             ),
           ),
         ],

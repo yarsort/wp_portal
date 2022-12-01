@@ -959,7 +959,45 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
             // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
             if (snapshot.data!.statusCode == 200) {
-              return Image.memory(snapshot.data!.bodyBytes);
+              return GestureDetector(
+                  onTap: () async {
+                    await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            content: Text(widget.product.name, style: TextStyle(color: Colors.black)),
+                            actions: <Widget>[
+                              Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.memory(snapshot.data!.bodyBytes),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                      onPressed: () async {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                      child: const Text('Відміна'))
+                                ],
+                              )
+                            ],
+                          );
+                        });
+                  },
+                  child: Image.memory(snapshot.data!.bodyBytes));
             } else {
               return Icon(
                 Icons.two_wheeler,

@@ -32,12 +32,13 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'B2B кабінет клієнта',
-        theme: ThemeData.dark().copyWith(
-          scaffoldBackgroundColor: bgColorDark,
-          textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme)
-              .apply(bodyColor: Colors.white),
-          canvasColor: secondaryColor,
-        ),
+        // theme: ThemeData.dark().copyWith(
+        //   scaffoldBackgroundColor: bgColor,
+        //
+        //   textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme)
+        //       .apply(bodyColor: Colors.black),
+        //   canvasColor: secondaryColor,
+        // ),
         onGenerateRoute: (RouteSettings routeSettings) {
           return MaterialPageRoute<void>(
             settings: routeSettings,
