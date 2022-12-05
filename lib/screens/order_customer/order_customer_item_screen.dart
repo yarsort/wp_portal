@@ -87,6 +87,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       key: context.read<MenuController>().scaffoldItemOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
@@ -104,11 +105,11 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               flex: 5,
               child: SingleChildScrollView(
                 primary: true,
-                //padding: EdgeInsets.all(defaultPadding),
                 child: Column(
                   children: [
                     headerPage(),
                     Container(
+                      height: MediaQuery.of(context).size.height,
                       color: bgColor,
                       padding: EdgeInsets.symmetric(
                         horizontal: defaultPadding,
@@ -590,7 +591,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
                 ),
                 child: Icon(
                   Icons.search,
@@ -662,15 +663,17 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                       Expanded(flex: 5, child: SizedBox(
                         height: 40,
                         child: TextField(
+
                           style: TextStyle(fontSize:14),
                           readOnly: true,
                           controller: textFieldDateController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                           ),
                         ),
@@ -698,11 +701,12 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           readOnly: true,
                           controller: textFieldOrganizationController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                             suffixIcon: PopupMenuButton<Organization>(
                               icon: const Icon(
@@ -749,11 +753,12 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           readOnly: true,
                           controller: textFieldPartnerController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                             suffixIcon: PopupMenuButton<Partner>(
                               icon: const Icon(
@@ -804,13 +809,13 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           readOnly: true,
                           controller: textFieldSumController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
-                            //labelText: 'Сума документа',
                           ),
                         ),
                       ))
@@ -837,11 +842,12 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           readOnly: true,
                           controller: textFieldWarehouseController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                             suffixIcon: PopupMenuButton<Warehouse>(
                               icon: const Icon(
@@ -888,11 +894,12 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           readOnly: true,
                           controller: textFieldPriceController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                             suffixIcon: PopupMenuButton<Price>(
                               icon: const Icon(
@@ -954,6 +961,11 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                         onPressed: () async {
                           if(widget.orderCustomer.uid != ''){
                             showErrorMessage('Редагування документа заборонено!', context);
+                            return;
+                          }
+
+                          if(widget.orderCustomer.itemsOrderCustomer.length == 0){
+                            showErrorMessage('Документ порожній! Відправка неможлива.', context);
                             return;
                           }
 

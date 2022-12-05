@@ -35,6 +35,9 @@ class _FinancesScreenState extends State<FinancesScreen> {
 
   List<AccumPartnerDept> listAccumPartnerDept = [];
 
+  String startPeriodDocsString = '';
+  String finishPeriodDocsString = '';
+
   /// Начало периода отбора
   DateTime startPeriodDocs =
   DateTime(DateTime
@@ -67,6 +70,7 @@ class _FinancesScreenState extends State<FinancesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       key: context.read<MenuController>().scaffoldOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
@@ -158,11 +162,28 @@ class _FinancesScreenState extends State<FinancesScreen> {
   }
 
   _loadPeriod() async {
+    final SharedPreferences prefs = await _prefs;
+
+    textFieldPeriodController.text = prefs.getString('forms_finance_periodDocuments') ?? '';
+
     if (textFieldPeriodController.text.isEmpty) {
-      textFieldPeriodController.text =
-          shortDateToString(startPeriodDocs) +
-              ' - ' +
-              shortDateToString(finishPeriodDocs);
+      textFieldPeriodController.text = shortDateToString(startPeriodDocs) + ' - ' + shortDateToString(finishPeriodDocs);
+
+      startPeriodDocsString = shortDateToString1C(startPeriodDocs);
+      finishPeriodDocsString = shortDateToString1C(finishPeriodDocs);
+    } else {
+      String dayStart = textFieldPeriodController.text.substring(0, 2);
+      String monthStart = textFieldPeriodController.text.substring(3, 5);
+      String yearStart = textFieldPeriodController.text.substring(6, 10);
+      startPeriodDocsString = yearStart + monthStart + dayStart;
+
+      String dayFinish = textFieldPeriodController.text.substring(13, 15);
+      String monthFinish = textFieldPeriodController.text.substring(16, 18);
+      String yearFinish = textFieldPeriodController.text.substring(19, 23);
+      finishPeriodDocsString = yearFinish + monthFinish + dayFinish;
+
+      startPeriodDocs = DateTime.parse(startPeriodDocsString);
+      finishPeriodDocs = DateTime.parse(finishPeriodDocsString);
     }
   }
 
@@ -319,7 +340,7 @@ class _FinancesScreenState extends State<FinancesScreen> {
                     initialDateRange: DateTimeRange(start: startPeriodDocs, end: finishPeriodDocs),
                     helpText: 'Виберіть період',
                     firstDate: DateTime(2021, 1, 1),
-                    lastDate: finishPeriodDocs,
+                    lastDate: DateTime.now(),
                     builder: (context, child) {
                       return Center(
                         child: Column(
@@ -343,12 +364,14 @@ class _FinancesScreenState extends State<FinancesScreen> {
                   textFieldPeriodController.text =
                       shortDateToString(startPeriodDocs) + ' - ' + shortDateToString(finishPeriodDocs);
 
+                  startPeriodDocsString = shortDateToString1C(startPeriodDocs);
+                  finishPeriodDocsString = shortDateToString1C(finishPeriodDocs);
+
                   /// Save period
                   final SharedPreferences prefs = await _prefs;
-                  prefs.setString('forms_orders_customers_periodDocuments', textFieldPeriodController.text);
+                  prefs.setString('forms_finance_periodDocuments', textFieldPeriodController.text);
 
                   /// Show documents
-                  _loadPeriod();
                   _loadListAccumPartnerDebts();
                   setState(() {});
                 }

@@ -74,6 +74,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       key: context.read<MenuController>().scaffoldItemOrderMovementKey,
       drawer: SideMenu(),
       body: SafeArea(
@@ -96,6 +97,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                   children: [
                     headerPage(),
                     Container(
+                      height: MediaQuery.of(context).size.height,
                       color: bgColor,
                       padding: EdgeInsets.symmetric(
                         horizontal: defaultPadding,
@@ -493,7 +495,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
                 ),
                 child: Icon(
                   Icons.search,
@@ -569,11 +571,12 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                           readOnly: true,
                           controller: textFieldDateController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                           ),
                         ),
@@ -601,11 +604,12 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                           readOnly: true,
                           controller: textFieldOrganizationController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                             suffixIcon: PopupMenuButton<Organization>(
                               icon: const Icon(
@@ -652,11 +656,12 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                             readOnly: true,
                             controller: textFieldWarehouseSenderController,
                             decoration: InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                               fillColor: bgColor,
                               filled: true,
-                              contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: bgColor),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: const BorderRadius.all(Radius.circular(5)),
                               ),
                               suffixIcon: PopupMenuButton<Warehouse>(
                                 icon: const Icon(
@@ -717,11 +722,12 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                           readOnly: true,
                           controller: textFieldWarehouseReceiverController,
                           decoration: InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
                             fillColor: bgColor,
                             filled: true,
-                            contentPadding: const EdgeInsets.fromLTRB(10, 26, 10, 0),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: bgColor),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
                             ),
                             suffixIcon: PopupMenuButton<Warehouse>(
                               icon: const Icon(

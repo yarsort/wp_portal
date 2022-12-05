@@ -35,7 +35,6 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   _fillSettings() async {
     final SharedPreferences prefs = await _prefs;
-
     textFieldServerController.text = prefs.getString('settings_serverExchange') ?? '';
     textFieldPhotoServerController.text = prefs.getString('settings_photoServerExchange') ?? '';
     textFieldNameOrganizationController.text = prefs.getString('settings_nameOrganization') ?? 'Оптовий портал';

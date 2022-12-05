@@ -52,6 +52,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       key: context.read<MenuController>().scaffoldOrderMovementKey,
       drawer: SideMenu(),
       body: SafeArea(
@@ -73,7 +74,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                     // Desktop view
                     headerPage(),
                     Container(
-                      //height: MediaQuery.of(context).size.height-115,
+                      height: MediaQuery.of(context).size.height,
                       color: bgColor,
                       padding: EdgeInsets.symmetric(
                         horizontal: defaultPadding,
@@ -259,7 +260,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
                 ),
                 child: Icon(
                   Icons.search,
@@ -325,7 +326,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                     initialDateRange: DateTimeRange(start: startPeriodDocs, end: finishPeriodDocs),
                     helpText: 'Виберіть період',
                     firstDate: DateTime(2021, 1, 1),
-                    lastDate: finishPeriodDocs,
+                    lastDate: DateTime.now(),
                     builder: (context, child) {
                       return Center(
                         child: Column(
@@ -349,12 +350,14 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                   textFieldPeriodController.text =
                       shortDateToString(startPeriodDocs) + ' - ' + shortDateToString(finishPeriodDocs);
 
+                  startPeriodDocsString = shortDateToString1C(startPeriodDocs);
+                  finishPeriodDocsString = shortDateToString1C(finishPeriodDocs);
+
                   /// Save period
                   final SharedPreferences prefs = await _prefs;
                   prefs.setString('forms_orders_movements_periodDocuments', textFieldPeriodController.text);
 
                   /// Show documents
-                  _loadPeriod();
                   _loadListOrdersMovements();
                   setState(() {});
                 }
@@ -401,6 +404,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                             builder: (context) => OrderMovementItemScreen(orderMovement: orderMovement),
                           ),
                         );
+                         await _loadListOrdersMovements();
                       },
                       child: Text('Додати документ')),
                 ),

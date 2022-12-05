@@ -29,13 +29,6 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'B2B кабінет клієнта',
-        // theme: ThemeData.dark().copyWith(
-        //   scaffoldBackgroundColor: bgColor,
-        //
-        //   textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme)
-        //       .apply(bodyColor: Colors.black),
-        //   canvasColor: secondaryColor,
-        // ),
         onGenerateRoute: (RouteSettings routeSettings) {
           return MaterialPageRoute<void>(
             settings: routeSettings,

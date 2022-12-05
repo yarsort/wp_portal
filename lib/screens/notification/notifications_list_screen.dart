@@ -35,6 +35,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       key: context.read<MenuController>().scaffoldNotificationsKey,
       drawer: SideMenu(),
       body: SafeArea(
@@ -58,7 +59,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
                     // Desktop view
                     headerPage(),
                     Container(
-                      height: MediaQuery.of(context).size.height-115,
+                      height: MediaQuery.of(context).size.height,
                       color: bgColor,
                       padding: EdgeInsets.symmetric(
                         horizontal: defaultPadding,

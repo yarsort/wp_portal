@@ -52,6 +52,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: bgColor,
       key: context.read<MenuController>().scaffoldOrderCustomerKey,
       drawer: SideMenu(),
       body: SafeArea(
@@ -67,13 +68,12 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               flex: 5,
               child: SingleChildScrollView(
                 primary: true,
-                //padding: EdgeInsets.all(defaultPadding),
                 child: Column(
                   children: [
                     // Desktop view
                     headerPage(),
                     Container(
-                      //height: MediaQuery.of(context).size.height-115,
+                      height: MediaQuery.of(context).size.height,
                       color: bgColor,
                       padding: EdgeInsets.symmetric(
                         horizontal: defaultPadding,
@@ -257,7 +257,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(5)),
                 ),
                 child: Icon(
                   Icons.search,
@@ -323,7 +323,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                     initialDateRange: DateTimeRange(start: startPeriodDocs, end: finishPeriodDocs),
                     helpText: 'Виберіть період',
                     firstDate: DateTime(2021, 1, 1),
-                    lastDate: finishPeriodDocs,
+                    lastDate: DateTime.now(),
                     builder: (context, child) {
                       return Center(
                         child: Column(
@@ -347,12 +347,14 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   textFieldPeriodController.text =
                       shortDateToString(startPeriodDocs) + ' - ' + shortDateToString(finishPeriodDocs);
 
+                  startPeriodDocsString = shortDateToString1C(startPeriodDocs);
+                  finishPeriodDocsString = shortDateToString1C(finishPeriodDocs);
+
                   /// Save period
                   final SharedPreferences prefs = await _prefs;
                   prefs.setString('forms_orders_customers_periodDocuments', textFieldPeriodController.text);
 
                   /// Show documents
-                  _loadPeriod();
                   _loadListOrdersCustomers();
                   setState(() {});
                 }
@@ -399,6 +401,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                             builder: (context) => OrderCustomerItemScreen(orderCustomer: orderCustomer),
                           ),
                         );
+                        await _loadListOrdersCustomers();
                       },
                       child: Text('Додати документ')),
                 ),
