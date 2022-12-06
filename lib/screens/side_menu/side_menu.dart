@@ -5,17 +5,18 @@ import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/screens/admin/settings_admin_screen.dart';
 import 'package:wp_b2b/screens/finances/finances_list_screen.dart';
-import 'package:wp_b2b/screens/admin/login_admin_screen.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/notification/notifications_list_screen.dart';
 import 'package:wp_b2b/screens/order_customer/order_customer_list_screen.dart';
 import 'package:wp_b2b/screens/order_movement/order_movement_list_screen.dart';
-import 'package:wp_b2b/screens/products/products_list_screen.dart';
+import 'package:wp_b2b/screens/products/products_list_selection_screen.dart';
 
 class SideMenu extends StatefulWidget {
   const SideMenu({
     Key? key,
   }) : super(key: key);
+
+  static const routeName = '/product_selection';
 
   @override
   State<SideMenu> createState() => _SideMenuState();
@@ -103,7 +104,7 @@ class _SideMenuState extends State<SideMenu> {
           ),
           ListTile(
             onTap: () {
-              Navigator.pushNamedAndRemoveUntil(context, ProductListScreen.routeName, (route) => false);
+              Navigator.pushNamedAndRemoveUntil(context, ProductListSelectionScreen.routeName, (route) => false);
             },
             horizontalTitleGap: 0.0,
             leading: Icon(Icons.wallet_giftcard_outlined, size: 25, color: iconColorWhite),

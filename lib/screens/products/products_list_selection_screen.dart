@@ -144,7 +144,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                         ],
                       ),
                     )
-
                   ],
                 ),
               ),
@@ -177,14 +176,25 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   }
 
   _loadWarehouses() async {
-
-    // Request to server
     ApiResponse response = await getWarehouses();
 
     // Read response
     if (response.error == null) {
       setState(() {
         for (var item in response.data as List<dynamic>) {
+          // Skip warehouse if item not from document 'Order customer'
+          if (widget.orderCustomer != null) {
+            if (widget.orderCustomer!.uidWarehouse != item.uid) {
+              continue;
+            }
+          }
+          // Skip warehouse if item not from document 'Order movement'
+          if (widget.orderMovement != null) {
+            if (widget.orderMovement!.uidWarehouseSender != item.uid) {
+              continue;
+            }
+          }
+
           listWarehouses.add(item);
         }
 
@@ -420,10 +430,10 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
       return;
     }
 
-    if (widget.orderCustomer != null){
+    if (widget.orderCustomer != null) {
       uidPrice = widget.orderCustomer!.uidPrice;
     }
-    if (widget.orderCustomer != null){
+    if (widget.orderCustomer != null) {
       uidWarehouse = widget.orderCustomer!.uidWarehouse;
     }
 
@@ -441,12 +451,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     /// Залишки товарів
     listProductRest = await _loadAccumProductRestByUIDProducts(listWarehousesUID, listProductsUID);
 
-    // debugPrint('Ціни товарів: ' + listProductPrice.length.toString());
-    // debugPrint('Залишки товарів: ' + listProductRest.length.toString());
-
-    setState(() {
-      //debugPrint('Оновлено...');
-    });
+    setState(() {});
   }
 
   _loadAdditionalProductsToView() async {
@@ -454,7 +459,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     for (int i = _currentMax; i < _currentMax + countLoadItems; i++) {
       if (i < listProducts.length) {
         listProductsForListView.add(listProducts[i]);
-        //debugPrint('Добавлен товар: ' + listProducts[i].name);
       }
     }
 
@@ -475,18 +479,88 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
       }
     }
 
-    ///Немає даних - нет вывода на форму
-    if (listProductsUID.isEmpty) {
-      // debugPrint('Ні товарів для отображения цен и остатков! Товаров: ' +
-      //     listProductsForListView.length.toString());
-    } else {
-      // debugPrint('Есть товары для отображения цен и остатков! Товаров: ' +
-      //     listProductsForListView.length.toString());
-    }
-
     await _loadPriceAndRests();
 
     setState(() {});
+  }
+
+  addItemToDocument(product, productCharacteristic, countOnWarehouse, priceOnWarehouse) {
+    // Контроль добавления товара, если на остатке его нет
+    // bool deniedAddProductWithoutRest =
+    // prefs.getBool('settings_deniedAddProductWithoutRest')!;
+    // if (deniedAddProductWithoutRest) {
+    //   if (count * selectedUnit.multiplicity > countOnWarehouse) {
+    //     showErrorMessage('Товару недостатньо на залишку!', context);
+    //     return false;
+    //   }
+    // }
+    // if (price == 0.0) {
+    //   showErrorMessage('Товар без ціни!', context);
+    //   return false;
+    // }
+
+    if (productCharacteristic.uid != '') {
+      // Обнулення!
+      countOnWarehouse = 0.0;
+
+      // Знайдемо загальні залишки по виду товару
+      var selectedListProductRest =
+          listProductRest.where((element) => element.uidProductCharacteristic == productCharacteristic.uid).toList();
+
+      for (var itemList in selectedListProductRest) {
+        countOnWarehouse = countOnWarehouse + itemList.count;
+      }
+    }
+
+    if (countOnWarehouse == 0) {
+      showErrorMessage('Товару недостатньо на залишку!', context);
+      return false;
+    }
+
+    String uidUnit = product.uidUnit;
+    String nameUnit = product.nameUnit;
+
+    double price = priceOnWarehouse;
+    double count = 1;
+    double discount = 0.0;
+    double sum = price * count;
+
+    // Найдем индекс строки товара в документе по товару который добавляем
+    var indexItem = widget.orderCustomer?.itemsOrderCustomer.indexWhere(
+            (element) => element.uid == product.uid && element.uidCharacteristic == productCharacteristic.uid) ??
+        -1;
+
+    // Если нашли товар в списке документа
+    if (indexItem >= 0) {
+      var itemList = widget.orderCustomer?.itemsOrderCustomer[indexItem];
+
+      count = itemList?.count ?? 0 + 1;
+      count = count + 1;
+
+      itemList?.price = price;
+      itemList?.count = count;
+      itemList?.discount = discount;
+      itemList?.sum = count * price;
+    } else {
+      var countElements = widget.orderCustomer?.itemsOrderCustomer.length ?? 0;
+
+      ItemOrderCustomer itemOrderCustomer = ItemOrderCustomer(
+          uidOrderCustomer: widget.orderCustomer?.uid ?? '',
+          numberRow: countElements + 1,
+          uid: product.uid,
+          name: product.name,
+          uidCharacteristic: productCharacteristic.uid,
+          nameCharacteristic: productCharacteristic.name,
+          uidUnit: uidUnit,
+          nameUnit: nameUnit,
+          count: count,
+          price: price,
+          discount: discount,
+          sum: sum);
+
+      widget.orderCustomer?.itemsOrderCustomer.add(itemOrderCustomer);
+    }
+    showMessage('В документ додано товар: ' + product.name, context);
   }
 
   /// HEADER
@@ -494,43 +568,46 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   Widget getItemSmallPicture(item) {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
-      future: http
-          .get(Uri.parse(pathPicture+ '/${item.uid}_0.png'), headers: {
+      future: http.get(Uri.parse(pathPicture + '/${item.uid}_0.png'), headers: {
         HttpHeaders.accessControlAllowOriginHeader: '*',
       }),
       builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Icon(
-              Icons.two_wheeler,
+              Icons.image,
               color: Colors.white24,
             );
           case ConnectionState.active:
             return Icon(
-              Icons.two_wheeler,
+              Icons.image,
               color: Colors.white24,
             );
           case ConnectionState.waiting:
             return SizedBox(
+              height: 25,
+              width: 25,
               child: Center(
                 child: SizedBox(
-                  height: 20,
-                  width: 20,
+                  height: 16,
+                  width: 16,
                   child: CircularProgressIndicator(
-                    color: Colors.blue.withOpacity(0.2),
+                    strokeWidth: 2.0,
+                    color: Colors.blue.withOpacity(0.5),
                   ),
                 ),
               ),
-              height: 20,
-              width: 20,
             );
           case ConnectionState.done:
             if (snapshot.hasError)
-              return Icon(
-                Icons.image,
-                color: Colors.blue.withOpacity(0.5),
+              return SizedBox(
+                height: 25,
+                width: 25,
+                child: Icon(
+                  Icons.image,
+                  color: Colors.blue.withOpacity(0.5),
+                ),
               );
-
             // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
             if (snapshot.data!.statusCode == 200) {
               return GestureDetector(
@@ -547,10 +624,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                          width: 300,
-                                          height: 300,
-                                          child: Image.memory(snapshot.data!.bodyBytes)),
+                                      SizedBox(width: 300, height: 300, child: Image.memory(snapshot.data!.bodyBytes)),
                                     ],
                                   ),
                                   const SizedBox(
@@ -560,8 +634,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       ElevatedButton(
-                                          style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
                                           onPressed: () async {
                                             Navigator.of(context).pop(false);
                                           },
@@ -574,11 +647,15 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                           );
                         });
                   },
-                  child: Image.memory(snapshot.data!.bodyBytes));
+                  child: SizedBox(height: 50, width: 50, child: Image.memory(snapshot.data!.bodyBytes)));
             } else {
-              return Icon(
-                Icons.image,
-                color: Colors.blue.withOpacity(0.2),
+              return SizedBox(
+                height: 25,
+                width: 25,
+                child: Icon(
+                  Icons.image,
+                  color: Colors.blue.withOpacity(0.5),
+                ),
               );
             }
         }
@@ -601,7 +678,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
           ]),
       child: Column(
         children: [
-
           /// Search
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
@@ -618,21 +694,41 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: Row(
                 children: [
-                  GestureDetector(
-                    child: SizedBox(
+                  /// If this window use like separated windows without document
+                  if (widget.orderCustomer != null || widget.orderMovement != null)
+                    GestureDetector(
+                      child: SizedBox(
+                        height: 40,
+                        width: 40,
+                        child: Icon(
+                          Icons.arrow_back,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+
+                  /// Show icon if not for selection goods to document
+                  if (widget.orderCustomer == null && widget.orderMovement == null)
+                    SizedBox(
                       height: 40,
                       width: 40,
                       child: Icon(
-                        Icons.arrow_back,
+                        Icons.receipt_long,
                         color: Colors.blue,
                       ),
                     ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Text('ПІДБІР ТОВАРІВ ТА ПОСЛУГ',
-                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                  if (widget.orderCustomer != null && widget.orderMovement == null)
+                    Text('ПІДБІР ТОВАРІВ В ЗАМОВЛЕННЯ ПОКУПЦЯ',
+                        style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                  if (widget.orderCustomer == null && widget.orderMovement != null)
+                    Text('ПІДБІР ТОВАРІВ В ПЕРЕМІЩЕННЯ ТОВАРІВ',
+                        style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                  if (widget.orderCustomer == null && widget.orderMovement == null)
+                    Text('ТОВАРИ ТА ПОСЛУГИ',
+                        style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
                 ],
               )),
         ],
@@ -718,9 +814,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
         child: Row(
           children: [
             Icon(Icons.person, color: iconColor),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(profileName)),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text(profileName)),
             Icon(Icons.keyboard_arrow_down),
           ],
         ),
@@ -749,103 +843,111 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                   flex: 1,
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Row(
-                        children: [
-                          Spacer(),
-                          Text('Тип ціни:'),
-                          spaceBetweenColumn(),
-                        ],
-                      )),
-                      Expanded(flex: 5, child: SizedBox(
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(fontSize:14),
-                          readOnly: true,
-                          controller: textFieldPriceController,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                            fillColor: bgColor,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                            ),
-                            suffixIcon: PopupMenuButton<Price>(
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.blue,
-                                size: 30,
+                      Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Тип ціни:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(fontSize: 14),
+                              readOnly: true,
+                              controller: textFieldPriceController,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                ),
+                                suffixIcon: PopupMenuButton<Price>(
+                                  icon: const Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.blue,
+                                    size: 30,
+                                  ),
+                                  onSelected: (Price value) {
+                                    setState(() {
+                                      price = value;
+                                    });
+                                    _updateHeader();
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return listPrices.map<PopupMenuItem<Price>>((Price value) {
+                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    }).toList();
+                                  },
+                                ),
                               ),
-                              onSelected: (Price value) {
-                                setState(() {
-                                  price = value;
-                                });
-                                _updateHeader();
-                              },
-                              itemBuilder: (BuildContext context) {
-                                return listPrices.map<PopupMenuItem<Price>>((Price value) {
-                                  return PopupMenuItem(child: Text(value.name), value: value);
-                                }).toList();
-                              },
                             ),
-                          ),
-                        ),
-                      ))
+                          ))
                     ],
-                  )
-              ),
+                  )),
               spaceBetweenHeaderColumn(),
+
               /// Warehouse
               Expanded(
                   flex: 1,
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Row(
-                        children: [
-                          Spacer(),
-                          Text('Склад:'),
-                          spaceBetweenColumn(),
-                        ],
-                      )),
-                      Expanded(flex: 5, child: SizedBox(
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(fontSize:14),
-                          readOnly: true,
-                          controller: textFieldWarehouseController,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                            fillColor: bgColor,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                            ),
-                            suffixIcon: PopupMenuButton<Warehouse>(
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.blue,
-                                size: 30,
+                      Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Склад:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(fontSize: 14),
+                              readOnly: true,
+                              controller: textFieldWarehouseController,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                ),
+                                suffixIcon: PopupMenuButton<Warehouse>(
+                                  icon: const Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.blue,
+                                    size: 30,
+                                  ),
+                                  onSelected: (Warehouse value) {
+                                    setState(() {
+                                      warehouse = value;
+                                    });
+                                    _updateHeader();
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
+                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    }).toList();
+                                  },
+                                ),
                               ),
-                              onSelected: (Warehouse value) {
-                                setState(() {
-                                  warehouse = value;
-                                });
-                                _updateHeader();
-                              },
-                              itemBuilder: (BuildContext context) {
-                                return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
-                                  return PopupMenuItem(child: Text(value.name), value: value);
-                                }).toList();
-                              },
                             ),
-                          ),
-                        ),
-                      ))
+                          ))
                     ],
-                  )
-              ),
+                  )),
               spaceBetweenHeaderColumn(),
+
               /// Checkboxes
               Expanded(
                   flex: 1,
@@ -895,166 +997,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
   /// LISTS
 
-  Widget productList() {
-    return Container(
-      padding: EdgeInsets.fromLTRB(5, 0, 5, 5),
-      decoration: BoxDecoration(
-        color: secondaryColor,
-        borderRadius: const BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Column(
-        children: [
-          SizedBox(
-            height: 50,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 60,
-                ),
-                Expanded(
-                  flex: 10,
-                  child: Text("Товар", textAlign: TextAlign.left),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text("Од. вим.", textAlign: TextAlign.left),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text("Ціна", textAlign: TextAlign.left),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Text("Залишок"),
-                ),
-                SizedBox(
-                  width: 60,
-                ),
-              ],
-            ),
-          ),
-          Divider(color: Colors.blueGrey, thickness: 0.5),
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: listProductsForListView.length != 0
-                    ? ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listProductsForListView.length,
-                    itemBuilder: (context, index) {
-                      var productItem = listProductsForListView[index];
-                      var price = 0.0;
-                      var countOnWarehouse = 0.0;
-
-                      var indexItemPrice = listProductPrice.indexWhere(
-                              (element) => element.uidProduct == productItem.uid && element.uidPrice == uidPrice);
-                      if (indexItemPrice >= 0) {
-                        var itemList = listProductPrice[indexItemPrice];
-                        price = itemList.price;
-                      } else {
-                        price = 0.0;
-                      }
-
-                      // Знайдемо загальні залишки
-                      var selectedListProductRest =
-                      listProductRest.where((element) => element.uidProduct == productItem.uid).toList();
-
-                      for (var itemList in selectedListProductRest) {
-                        countOnWarehouse = countOnWarehouse + itemList.count;
-                      }
-
-                      /// Якщо це головна попередня група товарів
-                      if (productItem.uid == '') {
-                        return Card(
-                          color: productItem.uid != parentProduct.uid ? tileColor : tileSelectedColor,
-                          elevation: 5,
-                          child: MoreItemListView(
-                            textItem: 'Показати більше позицій',
-                            tap: () {
-                              // Удалим пункт "Показать больше"
-                              _currentMax--; // Для пункта "Показать больше"
-                              listProductsForListView.remove(listProductsForListView[index]);
-                              _loadAdditionalProductsToView();
-                              setState(() {});
-                            },
-                          ),
-                        );
-                      }
-
-                      /// Якщо це група товарів
-                      if (productItem.isGroup == 1) {
-                        return Card(
-                          color: productItem.uid != parentProduct.uid ? tileColor : tileSelectedColor,
-                          elevation: 5,
-                          child: DirectoryItemListView(
-                            parentProduct: parentProduct,
-                            product: productItem,
-                            tap: () {
-                              if (productItem.uid == parentProduct.uid) {
-                                if (treeParentItems.isNotEmpty) {
-                                  // Назначим нового родителя выхода из узла дерева
-                                  parentProduct = treeParentItems[treeParentItems.length - 1];
-
-                                  // Удалим старого родителя для будущего узла
-                                  treeParentItems.remove(treeParentItems[treeParentItems.length - 1]);
-                                } else {
-                                  // Отправим дерево на его самый главный узел
-                                  parentProduct = Product();
-                                }
-                                _renewItem();
-                              } else {
-                                treeParentItems.add(parentProduct);
-                                parentProduct = productItem;
-                                _renewItem();
-                              }
-                            },
-                            popTap: () {},
-                          ),
-                        );
-                      }
-
-                      /// Якщо це товар і показувати тільки із залишком
-                      if (productItem.isGroup == 0 && showOnlyWithRests && countOnWarehouse == 0) {
-                        return Container();
-                      }
-
-                      /// Якщо це товар
-                      if (productItem.isGroup == 0) {
-                        return Card(
-                          color: productItem.uid != parentProduct.uid ? tileColor : tileSelectedColor,
-                          elevation: 5,
-                          child: ProductItemListView(
-                            orderCustomer: widget.orderCustomer,
-                            price: price,
-                            countOnWarehouse: countOnWarehouse,
-                            product: productItem,
-                            tap: () async {
-                              // await Navigator.push(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) =>
-                              //         ScreenProductItem(productItem: productItem),
-                              //   ),
-                              // );
-                            },
-                          ),
-                        );
-                      }
-
-                      return Container();
-                    })
-                    : SizedBox(height: 50, child: Center(child: Text('Список даних порожній!'))),
-              )
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
   Widget itemsProductList() {
     return Container(
       decoration: BoxDecoration(
@@ -1071,13 +1013,14 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             child: Row(
               children: [
                 Text('Список товарів', style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
+
                 /// Space
                 Spacer(),
               ],
             ),
           ),
 
-          /// Header
+          /// Header of goods
           Container(
             decoration: BoxDecoration(
               border: Border(
@@ -1091,132 +1034,133 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text('Фото', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Фото',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 9,
-                    child: Text('Назва', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Назва',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Од. вим.', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Од. вим.',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child:
-                    Text('Кількість', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Кількість',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Залишок', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Залишок',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Ціна', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Ціна',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Сума', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
+                  spaceBetweenColumn(),
+                  Expanded(
+                    flex: 1,
+                    child: Icon(
+                      Icons.add_shopping_cart_outlined,
+                      color: fontColorDarkGrey,
+                      size: 20,
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
 
-          /// List of documents
+          /// List of goods
           Row(
             children: [
               Expanded(
                 flex: 1,
                 child: listProductsForListView.isNotEmpty
                     ? ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listProductsForListView.length,
-                    itemBuilder: (context, index) {
-                      var productItem = listProductsForListView[index];
-                      var count = 0.0;
-                      var price = 0.0;
-                      var countOnWarehouse = 0.0;
+                        padding: EdgeInsets.all(0.0),
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: listProductsForListView.length,
+                        itemBuilder: (context, index) {
+                          var productItem = listProductsForListView[index];
+                          var count = 0.0;
+                          var price = 0.0;
+                          var countOnWarehouse = 0.0;
 
-                      var indexItemPrice = listProductPrice.indexWhere(
+                          var indexItemPrice = listProductPrice.indexWhere(
                               (element) => element.uidProduct == productItem.uid && element.uidPrice == uidPrice);
-                      if (indexItemPrice >= 0) {
-                        var itemList = listProductPrice[indexItemPrice];
-                        price = itemList.price;
-                      } else {
-                        price = 0.0;
-                      }
+                          if (indexItemPrice >= 0) {
+                            var itemList = listProductPrice[indexItemPrice];
+                            price = itemList.price;
+                          } else {
+                            price = 0.0;
+                          }
 
-                      // Знайдемо загальні залишки
-                      var selectedListProductRest =
-                      listProductRest.where((element) => element.uidProduct == productItem.uid).toList();
+                          /// Знайдемо загальні залишки
+                          var selectedListProductRest =
+                              listProductRest.where((element) => element.uidProduct == productItem.uid).toList();
 
-                      for (var itemList in selectedListProductRest) {
-                        countOnWarehouse = countOnWarehouse + itemList.count;
-                      }
+                          for (var itemList in selectedListProductRest) {
+                            countOnWarehouse = countOnWarehouse + itemList.count;
+                          }
 
-                      /// Якщо це група товарів
-                      if (productItem.isGroup == 1) {
-                          return rowDataGroupItemProduct(productItem);
-                      }
+                          /// Якщо це строка "Показати більше"
+                          if (productItem.uid == '') {
+                            return rowDataMoreProducts(productItem);
+                          }
 
-                      /// Якщо це товар і показувати тільки із залишком
-                      if (productItem.isGroup == 0 && showOnlyWithRests && countOnWarehouse == 0) {
-                        return Container();
-                      }
+                          /// Якщо це група товарів
+                          if (productItem.isGroup == 1) {
+                            return rowDataGroupItemProduct(productItem);
+                          }
 
-                      /// Якщо це товар
-                      if (productItem.isGroup == 0) {
-                        return rowDataItemProduct(productItem, count, countOnWarehouse, price);
-                      }
+                          /// Якщо це товар і показувати тільки із залишком
+                          if (productItem.isGroup == 0 && showOnlyWithRests && countOnWarehouse == 0) {
+                            return Container();
+                          }
 
-                      // if (productItem.isGroup == 0) {
-                      //   return Card(
-                      //     color: productItem.uid != parentProduct.uid ? tileColor : tileSelectedColor,
-                      //     elevation: 5,
-                      //     child: ProductItemListView(
-                      //       orderCustomer: widget.orderCustomer,
-                      //       price: price,
-                      //       countOnWarehouse: countOnWarehouse,
-                      //       product: productItem,
-                      //       tap: () async {
-                      //         // await Navigator.push(
-                      //         //   context,
-                      //         //   MaterialPageRoute(
-                      //         //     builder: (context) =>
-                      //         //         ScreenProductItem(productItem: productItem),
-                      //         //   ),
-                      //         // );
-                      //       },
-                      //     ),
-                      //   );
-                      // }
+                          /// Якщо це товар
+                          if (productItem.isGroup == 0) {
+                            return rowDataItemProduct(productItem, count, countOnWarehouse, price);
+                          }
 
-                      return Container();
-
-                      //return rowDataItemProduct(productItem);
-                    })
+                          return Container();
+                        })
                     : SizedBox(height: 50, child: Center(child: Text('Список товарів порожній!'))),
               )
             ],
           ),
 
-          /// Footer
+          /// Footer of goods
           Container(
             decoration: BoxDecoration(
               border: Border(
-                //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                //top: BorderSide(color: Colors.grey.withOpacity(0.3))
-              ),
+                  //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  //top: BorderSide(color: Colors.grey.withOpacity(0.3))
+                  ),
               color: secondaryColor,
             ),
             child: Padding(
@@ -1232,65 +1176,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget rowDataItemProduct(Product item, count, countOnWarehouse, price) {
-    return GestureDetector(
-      onTap: () async {},
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: defaultPadding,
-          vertical: defaultPadding,
-        ),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-          ),
-          color: tileColor,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, defaultPadding, 0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: getItemSmallPicture(item),
-              ),
-              spaceBetweenColumn(),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 9,
-                child: Text(item.name),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 2,
-                child: Text(item.nameUnit),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 2,
-                child: Text(doubleToString(count)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 2,
-                child: Text(doubleToString(price)),
-              ),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 2,
-                child: Text(doubleToString(0.0)),
-              ),
-              Expanded(
-                flex: 2,
-                child: Text(doubleToString(price * count)),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -1318,8 +1203,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
       },
       child: Container(
         padding: EdgeInsets.symmetric(
-          horizontal: defaultPadding,
-          vertical: defaultPadding,
+           vertical: defaultPadding,
         ),
         decoration: BoxDecoration(
           border: Border(
@@ -1327,103 +1211,83 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
           ),
           color: item.uid != parentProduct.uid ? tileColor : tileSelectedColor.withOpacity(0.5),
         ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, defaultPadding, 0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: Icon(
-                  Icons.folder,
-                  color: Colors.blue,
-                ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Icon(
+                Icons.folder,
+                color: Colors.blue,
               ),
-              spaceBetweenColumn(),
-              spaceBetweenColumn(),
-              Expanded(
-                flex: 18,
-                child: Text(item.name),
+            ),
+            spaceBetweenColumn(),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 20,
+              child: Text(item.name),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: Icon(
+                Icons.add_shopping_cart_outlined,
+                color: tileSelectedColor.withOpacity(0.5),
+                size: 20,
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget rowDataMoreProducts(Product item) {
+    return GestureDetector(
+      onTap: () async {
+        // Удалим пункт "Показать больше"
+        _currentMax--; // Для пункта "Показать больше"
+        listProductsForListView.remove(item);
+        _loadAdditionalProductsToView();
+        setState(() {});
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(
+        // horizontal: defaultPadding,
+           vertical: defaultPadding,
+        ),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
           ),
+          color: tileColor,
         ),
-      ),
-    );
-  }
-
-}
-
-class DirectoryItemListView extends StatelessWidget {
-  final Product parentProduct;
-  final Product product;
-  final Function tap;
-  final Function? popTap;
-
-  const DirectoryItemListView({
-    Key? key,
-    required this.parentProduct,
-    required this.product,
-    required this.tap,
-    this.popTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      // tileColor: product.uid != parentProduct.uid
-      //     ? tileColor
-      //     : tileSelectedColor,
-      onTap: () => tap(),
-      //onLongPress: popTap == null ? null : popTap,
-
-      contentPadding: const EdgeInsets.all(0),
-      minLeadingWidth: 20,
-      leading: const Padding(
-        padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-        child: Icon(
-          Icons.folder,
-          color: Colors.blueAccent,
-        ),
-      ),
-      title: Text(
-        product.name,
-        style: const TextStyle(
-          fontSize: 16,
-        ),
-        maxLines: 2,
-      ),
-      trailing: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
-        child:
-            product.uid != parentProduct.uid ? const Icon(Icons.navigate_next) : const Icon(Icons.keyboard_arrow_down),
-      ),
-    );
-  }
-}
-
-class MoreItemListView extends StatelessWidget {
-  final String textItem;
-  final Function tap;
-
-  const MoreItemListView({
-    Key? key,
-    required this.textItem,
-    required this.tap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => tap(),
-      title: Center(
         child: Text(
-          textItem,
+          'ПОКАЗАТИ БІЛЬШЕ ПОЗИЦІЙ',
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.blueAccent,
-          ),
-          maxLines: 2,
+          style: TextStyle(fontWeight: FontWeight.bold, color: primaryColor),
+        ),
+      ),
+    );
+  }
+
+  Widget rowDataItemProduct(Product item, count, countOnWarehouse, price) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+      //   horizontal: defaultPadding,
+         vertical: defaultPadding,
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+        ),
+        color: tileColor,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Column(
+          children: [
+            ProductItemListView(product: item, countOnWarehouse: countOnWarehouse, price: price, orderCustomer: widget.orderCustomer),
+          ],
         ),
       ),
     );
@@ -1434,7 +1298,6 @@ class ProductItemListView extends StatefulWidget {
   final OrderCustomer? orderCustomer;
   final OrderMovement? orderMovement;
   final Product product;
-  final Function tap;
   final double countOnWarehouse;
   final double price;
 
@@ -1443,7 +1306,6 @@ class ProductItemListView extends StatefulWidget {
     this.orderCustomer,
     this.orderMovement,
     required this.product,
-    required this.tap,
     required this.countOnWarehouse,
     required this.price,
   }) : super(key: key);
@@ -1459,6 +1321,11 @@ class _ProductItemListViewState extends State<ProductItemListView> {
   // Залишки товарів по складам
   List<AccumProductRest> listRestsByWarehouse = [];
 
+  bool visibleListCharacteristics = false;
+
+  _loadData() async  {
+    await _getCharacteristics();
+  }
 
   _getCharacteristics() async {
     if (listProductCharacteristic.length > 0) {
@@ -1495,7 +1362,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
     });
   }
 
-  _addItemToDocument(productCharacteristic) {
+  _addItemToDocument(productCharacteristic, count, price) {
     // Контроль добавления товара, если на остатке его нет
     // bool deniedAddProductWithoutRest =
     // prefs.getBool('settings_deniedAddProductWithoutRest')!;
@@ -1513,14 +1380,13 @@ class _ProductItemListViewState extends State<ProductItemListView> {
       return false;
     }
 
-    if(productCharacteristic.uid != '') {
+    if (productCharacteristic.uid != '') {
       // Обнулення!
       countOnWarehouse = 0.0;
 
       // Знайдемо загальні залишки по виду товару
-      var selectedListProductRest = listProductRest
-          .where((element) => element.uidProductCharacteristic == productCharacteristic.uid)
-          .toList();
+      var selectedListProductRest =
+          listProductRest.where((element) => element.uidProductCharacteristic == productCharacteristic.uid).toList();
 
       for (var itemList in selectedListProductRest) {
         countOnWarehouse = countOnWarehouse + itemList.count;
@@ -1580,63 +1446,168 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
   @override
   void initState() {
+    _loadData();
     super.initState();
   }
 
-  Widget getItemSmallPicture() {
-    if (widget.product.isGroup == 1) {
-      return Icon(
-        Icons.two_wheeler,
-        color: Colors.white24,
-      );
-    }
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: getItemSmallPictureWithPopup(widget.product),
+            ),
+            spaceBetweenColumn(),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 9,
+              child: Text(widget.product.name, textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(0.0), textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(widget.countOnWarehouse), textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(widget.price), textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(widget.price * widget.countOnWarehouse), textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: listProductCharacteristic.isEmpty ? IconButton(
+                  icon: Icon(
+                    Icons.add_shopping_cart_outlined,
+                    color: iconColor,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      ProductCharacteristic productCharacteristic = ProductCharacteristic();
+                      _addItemToDocument(widget.product, productCharacteristic, widget.countOnWarehouse);
+                    });
+                  }) : IconButton(
+                  icon: Icon(
+                    Icons.arrow_downward,
+                    color: iconColor,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      visibleListCharacteristics = !visibleListCharacteristics;
+                    });
+                  }),
+            ),
+          ],
+        ),
+        if (listProductCharacteristic.isNotEmpty && visibleListCharacteristics) Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: ListView.builder(
+                  padding: EdgeInsets.all(0.0),
+                  physics: BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: listProductCharacteristic.length,
+                  itemBuilder: (context, index) {
+                    var productCharacteristic = listProductCharacteristic[index];
 
+                    var price = 0.0;
+                    var countOnWarehouse = 0.0;
+
+                    var indexItemPrice = listProductPrice.indexWhere((element) =>
+                    element.uidProductCharacteristic == productCharacteristic.uid &&
+                        element.uidPrice == uidPrice);
+                    if (indexItemPrice >= 0) {
+                      var itemList = listProductPrice[indexItemPrice];
+                      price = itemList.price;
+                    }
+
+                    // Знайдемо загальні залишки
+                    var selectedListProductRest = listProductRest
+                        .where((element) => element.uidProductCharacteristic == productCharacteristic.uid)
+                        .toList();
+
+                    for (var itemList in selectedListProductRest) {
+                      countOnWarehouse = countOnWarehouse + itemList.count;
+                    }
+
+                    /// Якщо це товар і показувати тільки із залишком
+                    if (showOnlyWithRests && countOnWarehouse == 0) {
+                      return Container();
+                    }
+
+                    return rowDataItemProductCharacteristic(productCharacteristic, 0, countOnWarehouse, price);
+                  }),
+            )
+          ],
+        ),
+
+      ],
+    );
+  }
+
+  Widget getItemSmallPictureWithPopup(item) {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
-      future: http
-          .get(Uri.parse(pathPicture+ '/${widget.product.uid}_0.png'), headers: {
+      future: http.get(Uri.parse(pathPicture + '/${item.uid}_0.png'), headers: {
         HttpHeaders.accessControlAllowOriginHeader: '*',
       }),
       builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
             return Icon(
-              Icons.two_wheeler,
+              Icons.image,
               color: Colors.white24,
             );
           case ConnectionState.active:
-            return SizedBox(
-              child: Center(
-                child: SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(
-                    color: Colors.blueGrey,
-                  ),
-                ),
-              ),
-              height: 45,
-              width: 45,
+            return Icon(
+              Icons.image,
+              color: Colors.white24,
             );
           case ConnectionState.waiting:
             return SizedBox(
+              height: 25,
+              width: 25,
               child: Center(
                 child: SizedBox(
-                  height: 20,
-                  width: 20,
+                  height: 16,
+                  width: 16,
                   child: CircularProgressIndicator(
-                    color: Colors.blueGrey,
+                    strokeWidth: 2.0,
+                    color: Colors.blue.withOpacity(0.5),
                   ),
                 ),
               ),
-              height: 45,
-              width: 45,
             );
           case ConnectionState.done:
             if (snapshot.hasError)
-              return Icon(
-                Icons.two_wheeler,
-                color: Colors.white24,
+              return SizedBox(
+                height: 25,
+                width: 25,
+                child: Icon(
+                  Icons.image,
+                  color: Colors.blue.withOpacity(0.5),
+                ),
               );
 
             // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
@@ -1648,17 +1619,14 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                         builder: (context) {
                           return AlertDialog(
                             backgroundColor: Colors.white,
-                            content: Text(widget.product.name, style: TextStyle(color: Colors.black)),
+                            content: Text(item.name, style: TextStyle(color: Colors.black)),
                             actions: <Widget>[
                               Column(
                                 children: [
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                        width: 300,
-                                          height: 300,
-                                          child: Image.memory(snapshot.data!.bodyBytes)),
+                                      SizedBox(width: 300, height: 300, child: Image.memory(snapshot.data!.bodyBytes)),
                                     ],
                                   ),
                                   const SizedBox(
@@ -1668,8 +1636,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       ElevatedButton(
-                                          style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
                                           onPressed: () async {
                                             Navigator.of(context).pop(false);
                                           },
@@ -1682,11 +1649,15 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                           );
                         });
                   },
-                  child: Image.memory(snapshot.data!.bodyBytes));
+                  child: SizedBox(height: 50, width: 50, child: Image.memory(snapshot.data!.bodyBytes)));
             } else {
-              return Icon(
-                Icons.two_wheeler,
-                color: Colors.white24,
+              return SizedBox(
+                height: 25,
+                width: 25,
+                child: Icon(
+                  Icons.image,
+                  color: Colors.blue.withOpacity(0.5),
+                ),
               );
             }
         }
@@ -1694,266 +1665,124 @@ class _ProductItemListViewState extends State<ProductItemListView> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return (widget.product.useCharacteristic) ? itemExpansionTileDesktop() : itemTileDesktop();
-  }
-
-  Widget itemTileDesktop() {
-    return ListTile(
-      contentPadding: const EdgeInsets.all(0),
-      title: Row(
-        children: [
-          SizedBox(
-            height: 60,
-            width: 70,
-            child: getItemSmallPicture(),
-          ),
-          Expanded(
-            flex: 10,
-            child: Text(widget.product.name, textAlign: TextAlign.left),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              doubleToString(widget.price),
-              textAlign: TextAlign.left,
-              style: widget.price > 0
-                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
-                  : const TextStyle(fontSize: 15, color: fontColorGrey),
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              doubleThreeToString(widget.countOnWarehouse),
-              textAlign: TextAlign.left,
-              style: widget.countOnWarehouse > 0
-                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
-                  : const TextStyle(fontSize: 15, color: fontColorGrey),
-            ),
-          ),
-        ],
-      ),
-      trailing: Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: IconButton(
-            icon: Icon(
-              Icons.add_shopping_cart_outlined,
-              color: iconColor,
-            ),
-            onPressed: () {
-              setState(() {
-                ProductCharacteristic productCharacteristic = ProductCharacteristic();
-                _addItemToDocument(productCharacteristic);
-              });
-            }),
-      ),
-    );
-  }
-
-  Widget itemExpansionTileDesktop() {
-    return ExpansionTile(
-    tilePadding: EdgeInsets.zero,
-      onExpansionChanged: (value) => {
-        if (value) {_getCharacteristics()}
-      },
-      title: Row(
-        children: [
-          SizedBox(
-            height: 60,
-            width: 70,
-            child: getItemSmallPicture(),
-          ),
-          Expanded(
-            flex: 10,
-            child: Text(widget.product.name, textAlign: TextAlign.left, style: TextStyle(color: fontColorBlack)),
-          ),
-          Expanded(
-            flex: 3,
-            child: Icon(Icons.arrow_drop_down),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              doubleToString(widget.price),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              doubleThreeToString(widget.countOnWarehouse),
-              textAlign: TextAlign.left,
-              style: widget.countOnWarehouse > 0
-                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
-                  : const TextStyle(fontSize: 15, color: fontColorGrey),
-            ),
-          ),
-        ],
-      ),
-      trailing: const Padding(
-        padding: EdgeInsets.fromLTRB(10, 0, 12, 0),
-        child: Icon(Icons.navigate_next),
-      ),
-      children: [
-        ListView.builder(
-            padding: EdgeInsets.all(0.0),
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: listProductCharacteristic.length,
-            itemBuilder: (context, index) {
-              var productCharacteristic = listProductCharacteristic[index];
-
-              var price = 0.0;
-              var countOnWarehouse = 0.0;
-
-              var indexItemPrice = listProductPrice.indexWhere((element) =>
-                  element.uidProductCharacteristic == productCharacteristic.uid && element.uidPrice == uidPrice);
-              if (indexItemPrice >= 0) {
-                var itemList = listProductPrice[indexItemPrice];
-                price = itemList.price;
-              }
-
-              // Знайдемо загальні залишки
-              var selectedListProductRest = listProductRest
-                  .where((element) => element.uidProductCharacteristic == productCharacteristic.uid)
-                  .toList();
-
-              for (var itemList in selectedListProductRest) {
-                countOnWarehouse = countOnWarehouse + itemList.count;
-              }
-
-              /// Якщо це товар і показувати тільки із залишком
-              if (showOnlyWithRests && countOnWarehouse == 0) {
-                return Container();
-              }
-
-              return itemExpansionTileWarehouseDesktop(productCharacteristic, price, countOnWarehouse);
-            }),
-      ],
-    );
-  }
-
-  Widget itemExpansionTileWarehouseDesktop(productCharacteristic, price, countOnWarehouse) {
-    return ExpansionTile(
-      collapsedTextColor: Colors.white,
-      tilePadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-      onExpansionChanged: (value) => {
-        if (value) {_getRestsByWarehouse(productCharacteristic)}
-      },
-      title: Row(
-        children: [
-          SizedBox(
-            width: 70,
-            child: Container(),
-          ),
-          Expanded(
-            flex: 10,
-            child: Text(productCharacteristic.name, textAlign: TextAlign.left, style: TextStyle(color: fontColorBlack)),
-          ),
-          Expanded(
-            flex: 3,
-            child: Container(),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(widget.product.nameUnit, textAlign: TextAlign.left, style: TextStyle(color: fontColorBlack)),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(doubleToString(price), textAlign: TextAlign.left, style: TextStyle(color: fontColorBlack)),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              doubleThreeToString(countOnWarehouse),
-              textAlign: TextAlign.left,
-              style: countOnWarehouse > 0
-                  ? const TextStyle(fontSize: 15, color: fontColorBlack)
-                  : const TextStyle(fontSize: 15, color: fontColorGrey),
-            ),
-          ),
-        ],
-      ),
-      trailing: Padding(
-        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: IconButton(
-            icon: Icon(
-              Icons.add_shopping_cart_outlined,
-              color: iconColor,
-            ),
-            onPressed: () {
-              setState(() {
-                _addItemToDocument(productCharacteristic);
-              });
-            }),
-      ),
-      children: [
-        ListView.builder(
-            padding: EdgeInsets.all(0.0),
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: true,
-            itemCount: listRestsByWarehouse.length,
-            itemBuilder: (context, index) {
-              var rest = listRestsByWarehouse[index];
-
-              /// Якщо це товар і показувати тільки із залишком
-              if (showOnlyWithRests && rest.count == 0) {
-                return Container();
-              }
-
-              return ListTile(
-                title: Row(
-                  children: [
-                    SizedBox(
-                      //height: 60,
-                      width: 37,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      flex: 10,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Container(),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(rest.nameWarehouse, textAlign: TextAlign.left, style: TextStyle(color: fontColorBlack)),
-                    ),
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        doubleThreeToString(rest.count),
-                        textAlign: TextAlign.left,
-                        style: countOnWarehouse > 0
-                            ? const TextStyle(fontSize: 15, color: fontColorBlack)
-                            : const TextStyle(fontSize: 15, color: fontColorGrey),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 1,
-                      child: Text(""),
-                    ),
-                  ],
+  Widget getItemSmallPicture(item) {
+    return FutureBuilder(
+      // Paste your image URL inside the htt.get method as a parameter
+      future: http.get(Uri.parse(pathPicture + '/${item.uid}_0.png'), headers: {
+        HttpHeaders.accessControlAllowOriginHeader: '*',
+      }),
+      builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.none:
+            return Icon(
+              Icons.image,
+              color: Colors.white24,
+            );
+          case ConnectionState.active:
+            return Icon(
+              Icons.image,
+              color: Colors.white24,
+            );
+          case ConnectionState.waiting:
+            return SizedBox(
+              height: 25,
+              width: 25,
+              child: Center(
+                child: SizedBox(
+                  height: 16,
+                  width: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.0,
+                    color: Colors.blue.withOpacity(0.5),
+                  ),
+                ),
+              ),
+            );
+          case ConnectionState.done:
+            if (snapshot.hasError)
+              return SizedBox(
+                height: 25,
+                width: 25,
+                child: Icon(
+                  Icons.image,
+                  color: Colors.blue.withOpacity(0.5),
                 ),
               );
-            }),
-      ],
+
+            // when we get the data from the http call, we give the bodyBytes to Image.memory for showing the image
+            if (snapshot.data!.statusCode == 200) {
+              return Image.memory(snapshot.data!.bodyBytes);
+            } else {
+              return SizedBox(
+                height: 25,
+                width: 25,
+                child: Icon(
+                  Icons.image,
+                  color: Colors.blue.withOpacity(0.5),
+                ),
+              );
+            }
+        }
+      },
+    );
+  }
+
+  Widget rowDataItemProductCharacteristic(ProductCharacteristic itemCharacteristic, count, countOnWarehouse, price) {
+    return Container(
+      padding: EdgeInsets.zero,
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: Colors.grey.withOpacity(0.3)),
+        ),
+        color: tileColor,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: SizedBox(width: 25),
+            ),
+            spaceBetweenColumn(),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 13,
+              child: Text(itemCharacteristic.name, textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(countOnWarehouse), textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(price),textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text('',textAlign: TextAlign.left),
+            ),
+            spaceBetweenColumn(),
+            Expanded(
+              flex: 1,
+              child: IconButton(
+                  icon: Icon(
+                    Icons.add_shopping_cart_outlined,
+                    color: iconColor,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _addItemToDocument(itemCharacteristic, count, price);
+                    });
+                  }),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
