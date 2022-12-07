@@ -415,7 +415,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               border: Border(
                   bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
                   top: BorderSide(color: Colors.grey.withOpacity(0.3))),
-              color: Colors.grey.withOpacity(0.3),
+              color: bgColorHeader,
             ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding * 2, defaultPadding),

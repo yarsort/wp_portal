@@ -126,7 +126,7 @@ class _AuthListState extends State<AuthList> {
                   bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
                   //top: BorderSide(color: Colors.grey.withOpacity(0.3))
                   ),
-              color: Colors.grey.withOpacity(0.3),
+              color: bgColorHeader,
               //borderRadius: const BorderRadius.all(Radius.circular(4)),
             ),
             child: Padding(

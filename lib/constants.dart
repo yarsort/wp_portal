@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 const primaryColor = Color.fromRGBO(17, 159, 250, 1);
 const secondaryColor = Color.fromRGBO(255, 255, 255, 1);
 const bgColor = Color.fromRGBO(243, 243, 249, 1);
+const bgColorHeader = Color.fromRGBO(219, 222, 233, 1);
 const tileColor = Color(0xFFFFFFFF);
 
 const transparent = Colors.transparent;

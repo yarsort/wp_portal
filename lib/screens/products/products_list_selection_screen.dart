@@ -299,7 +299,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     /// Очистка данных
     setState(() {
       listProducts.clear();
-      listProductsForListView.clear(); // Список для отображения на форме
       listProductsUID.clear();
 
       /// Получим остатки и цены по найденным товарам
@@ -375,6 +374,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
       listProducts.add(newItem);
     }
 
+    listProductsForListView.clear(); // Список для отображения на форме
     await _loadAdditionalProductsToView();
 
     setState(() {});
@@ -1026,60 +1026,59 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
               border: Border(
                   bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
                   top: BorderSide(color: Colors.grey.withOpacity(0.3))),
-              color: Colors.grey.withOpacity(0.3),
+              //color: Colors.grey.withOpacity(0.3),
+              color: bgColorHeader,
             ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding * 2, defaultPadding),
               child: Row(
                 children: [
                   Expanded(
-                    flex: 1,
+                    flex: 2,
                     child: Text('Фото',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
-                  spaceBetweenColumn(),
                   Expanded(
                     flex: 9,
                     child: Text('Назва',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
+                  Expanded(
+                    flex: 2,
+                    child: Text('Артикул',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                  ),
                   Expanded(
                     flex: 2,
                     child: Text('Од. вим.',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Кількість',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Залишок',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Ціна',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Сума', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
-                  spaceBetweenColumn(),
                   Expanded(
                     flex: 1,
                     child: Icon(
@@ -1144,7 +1143,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
                           /// Якщо це товар
                           if (productItem.isGroup == 0) {
-                            return rowDataItemProduct(productItem, count, countOnWarehouse, price);
+                            return ProductItemListView(product: productItem, countOnWarehouse: countOnWarehouse, price: price, orderCustomer: widget.orderCustomer);
                           }
 
                           return Container();
@@ -1209,24 +1208,26 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
           border: Border(
             bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
           ),
-          color: item.uid != parentProduct.uid ? tileColor : tileSelectedColor.withOpacity(0.5),
+          color: item.uid != parentProduct.uid ? tileColor : Color.fromRGBO(236, 238, 243, 1),
         ),
         child: Row(
           children: [
             Expanded(
-              flex: 1,
-              child: Icon(
-                Icons.folder,
-                color: Colors.blue,
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: defaultPadding,
+                ),
+                child: Icon(
+                  Icons.folder,
+                  color: Colors.blue,
+                ),
               ),
             ),
-            spaceBetweenColumn(),
-            spaceBetweenColumn(),
             Expanded(
               flex: 20,
               child: Text(item.name),
             ),
-            spaceBetweenColumn(),
             Expanded(
               flex: 1,
               child: Icon(
@@ -1270,28 +1271,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     );
   }
 
-  Widget rowDataItemProduct(Product item, count, countOnWarehouse, price) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-      //   horizontal: defaultPadding,
-         vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-        ),
-        color: tileColor,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: Column(
-          children: [
-            ProductItemListView(product: item, countOnWarehouse: countOnWarehouse, price: price, orderCustomer: widget.orderCustomer),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 class ProductItemListView extends StatefulWidget {
@@ -1452,117 +1431,133 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
+    return Container(
+      padding: EdgeInsets.symmetric(
+        //   horizontal: defaultPadding,
+        vertical: defaultPadding,
+      ),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+        ),
+        color: tileColor,
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: defaultPadding,
+        ),
+        child: Column(
           children: [
-            Expanded(
-              flex: 1,
-              child: getItemSmallPictureWithPopup(widget.product),
-            ),
-            spaceBetweenColumn(),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 9,
-              child: Text(widget.product.name, textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(0.0), textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(widget.countOnWarehouse), textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(widget.price), textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(widget.price * widget.countOnWarehouse), textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 1,
-              child: listProductCharacteristic.isEmpty ? IconButton(
-                  icon: Icon(
-                    Icons.add_shopping_cart_outlined,
-                    color: iconColor,
-                    size: 20,
+            Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: getItemSmallPictureWithPopup(widget.product),
                   ),
-                  onPressed: () {
-                    setState(() {
-                      ProductCharacteristic productCharacteristic = ProductCharacteristic();
-                      _addItemToDocument(widget.product, productCharacteristic, widget.countOnWarehouse);
-                    });
-                  }) : IconButton(
-                  icon: Icon(
-                    Icons.arrow_downward,
-                    color: iconColor,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      visibleListCharacteristics = !visibleListCharacteristics;
-                    });
-                  }),
+                ),
+                Expanded(
+                  flex: 9,
+                  child: Text(widget.product.name, textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(widget.product.vendorCode.isNotEmpty ? widget.product.vendorCode : '-', textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(doubleToString(0.0), textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(doubleToString(widget.countOnWarehouse), textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(doubleToString(widget.price), textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Text(doubleToString(widget.price * widget.countOnWarehouse), textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: listProductCharacteristic.isEmpty ? IconButton(
+                      icon: Icon(
+                        Icons.add_shopping_cart_outlined,
+                        color: iconColor,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          ProductCharacteristic productCharacteristic = ProductCharacteristic();
+                          _addItemToDocument(widget.product, productCharacteristic, widget.countOnWarehouse);
+                        });
+                      }) : IconButton(
+                      icon: Icon(
+                        visibleListCharacteristics ? Icons.arrow_downward : Icons.arrow_back,
+                        color: iconColor,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          visibleListCharacteristics = !visibleListCharacteristics;
+                        });
+                      }),
+                ),
+              ],
             ),
+            if (listProductCharacteristic.isNotEmpty && visibleListCharacteristics) Row(
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: ListView.builder(
+                      padding: EdgeInsets.all(0.0),
+                      physics: BouncingScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: listProductCharacteristic.length,
+                      itemBuilder: (context, index) {
+                        var productCharacteristic = listProductCharacteristic[index];
+
+                        var price = 0.0;
+                        var countOnWarehouse = 0.0;
+
+                        var indexItemPrice = listProductPrice.indexWhere((element) =>
+                        element.uidProductCharacteristic == productCharacteristic.uid &&
+                            element.uidPrice == uidPrice);
+                        if (indexItemPrice >= 0) {
+                          var itemList = listProductPrice[indexItemPrice];
+                          price = itemList.price;
+                        }
+
+                        // Знайдемо загальні залишки
+                        var selectedListProductRest = listProductRest
+                            .where((element) => element.uidProductCharacteristic == productCharacteristic.uid)
+                            .toList();
+
+                        for (var itemList in selectedListProductRest) {
+                          countOnWarehouse = countOnWarehouse + itemList.count;
+                        }
+
+                        /// Якщо це товар і показувати тільки із залишком
+                        if (showOnlyWithRests && countOnWarehouse == 0) {
+                          return Container();
+                        }
+
+                        return rowDataItemProductCharacteristic(productCharacteristic, 0, countOnWarehouse, price);
+                      }),
+                )
+              ],
+            ),
+
           ],
         ),
-        if (listProductCharacteristic.isNotEmpty && visibleListCharacteristics) Row(
-          children: [
-            Expanded(
-              flex: 1,
-              child: ListView.builder(
-                  padding: EdgeInsets.all(0.0),
-                  physics: BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: listProductCharacteristic.length,
-                  itemBuilder: (context, index) {
-                    var productCharacteristic = listProductCharacteristic[index];
-
-                    var price = 0.0;
-                    var countOnWarehouse = 0.0;
-
-                    var indexItemPrice = listProductPrice.indexWhere((element) =>
-                    element.uidProductCharacteristic == productCharacteristic.uid &&
-                        element.uidPrice == uidPrice);
-                    if (indexItemPrice >= 0) {
-                      var itemList = listProductPrice[indexItemPrice];
-                      price = itemList.price;
-                    }
-
-                    // Знайдемо загальні залишки
-                    var selectedListProductRest = listProductRest
-                        .where((element) => element.uidProductCharacteristic == productCharacteristic.uid)
-                        .toList();
-
-                    for (var itemList in selectedListProductRest) {
-                      countOnWarehouse = countOnWarehouse + itemList.count;
-                    }
-
-                    /// Якщо це товар і показувати тільки із залишком
-                    if (showOnlyWithRests && countOnWarehouse == 0) {
-                      return Container();
-                    }
-
-                    return rowDataItemProductCharacteristic(productCharacteristic, 0, countOnWarehouse, price);
-                  }),
-            )
-          ],
-        ),
-
-      ],
+      ),
     );
   }
 
@@ -1741,31 +1736,42 @@ class _ProductItemListViewState extends State<ProductItemListView> {
         child: Row(
           children: [
             Expanded(
-              flex: 1,
-              child: SizedBox(width: 25),
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: defaultPadding,
+                ),
+                child: Text('',textAlign: TextAlign.left),
+              ),
             ),
-            spaceBetweenColumn(),
-            spaceBetweenColumn(),
             Expanded(
-              flex: 13,
+              flex: 9,
               child: Text(itemCharacteristic.name, textAlign: TextAlign.left),
             ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(countOnWarehouse), textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(price),textAlign: TextAlign.left),
-            ),
-            spaceBetweenColumn(),
             Expanded(
               flex: 2,
               child: Text('',textAlign: TextAlign.left),
             ),
-            spaceBetweenColumn(),
+            Expanded(
+              flex: 2,
+              child: Text('',textAlign: TextAlign.left),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text('',textAlign: TextAlign.left),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(countOnWarehouse), textAlign: TextAlign.left),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(doubleToString(price),textAlign: TextAlign.left),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text('',textAlign: TextAlign.left),
+            ),
             Expanded(
               flex: 1,
               child: IconButton(
