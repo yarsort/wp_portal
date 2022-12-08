@@ -31,19 +31,22 @@ String pathPicture = '';
 class OrderCustomerItemScreen extends StatefulWidget {
   final OrderCustomer orderCustomer;
 
-  const OrderCustomerItemScreen({Key? key, required this.orderCustomer}) : super(key: key);
+  const OrderCustomerItemScreen({Key? key, required this.orderCustomer})
+      : super(key: key);
 
   static const routeName = '/order_customer';
 
   @override
-  State<OrderCustomerItemScreen> createState() => _OrderCustomerItemScreenState();
+  State<OrderCustomerItemScreen> createState() =>
+      _OrderCustomerItemScreenState();
 }
 
 class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   bool loadingData = false;
   String profileName = '';
 
-  TextEditingController textFieldSearchCatalogController = TextEditingController();
+  TextEditingController textFieldSearchCatalogController =
+      TextEditingController();
 
   List<Organization> listOrganizations = [];
   List<Partner> listPartners = [];
@@ -54,7 +57,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   TextEditingController textFieldDateController = TextEditingController();
 
   /// Поле ввода: Организация
-  TextEditingController textFieldOrganizationController = TextEditingController();
+  TextEditingController textFieldOrganizationController =
+      TextEditingController();
 
   /// Поле ввода: Партнер
   TextEditingController textFieldPartnerController = TextEditingController();
@@ -174,7 +178,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     }
 
     // Request to server
-    ApiResponse response = await getItemsOrderCustomerByUID(widget.orderCustomer.uid);
+    ApiResponse response =
+        await getItemsOrderCustomerByUID(widget.orderCustomer.uid);
 
     // Read response
     if (response.error == null) {
@@ -187,7 +192,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -225,7 +231,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -263,7 +270,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -301,7 +309,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -339,7 +348,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -350,14 +360,18 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   }
 
   _updateHeader() async {
-    textFieldDateController.text = fullDateToString(widget.orderCustomer.date ?? DateTime.parse(''));
-    textFieldOrganizationController.text = widget.orderCustomer.nameOrganization ?? '';
+    textFieldDateController.text =
+        fullDateToString(widget.orderCustomer.date ?? DateTime.parse(''));
+    textFieldOrganizationController.text =
+        widget.orderCustomer.nameOrganization ?? '';
     textFieldPartnerController.text = widget.orderCustomer.namePartner ?? '';
     textFieldContractController.text = widget.orderCustomer.nameContract ?? '';
     textFieldStoreController.text = widget.orderCustomer.nameStore ?? '';
     textFieldPriceController.text = widget.orderCustomer.namePrice ?? '';
-    textFieldWarehouseController.text = widget.orderCustomer.nameWarehouse ?? '';
-    textFieldSumController.text = doubleToString(widget.orderCustomer.sum ?? 0.0);
+    textFieldWarehouseController.text =
+        widget.orderCustomer.nameWarehouse ?? '';
+    textFieldSumController.text =
+        doubleToString(widget.orderCustomer.sum ?? 0.0);
   }
 
   _postOrderCustomer() async {
@@ -392,7 +406,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         showMessage('Документ відправлено!', context);
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) =>
+          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -457,14 +472,19 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                         builder: (context) {
                           return AlertDialog(
                             backgroundColor: Colors.white,
-                            content: Text(item.name, style: TextStyle(color: Colors.black)),
+                            content: Text(item.name,
+                                style: TextStyle(color: Colors.black)),
                             actions: <Widget>[
                               Column(
                                 children: [
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(width: 300, height: 300, child: Image.memory(snapshot.data!.bodyBytes)),
+                                      SizedBox(
+                                          width: 300,
+                                          height: 300,
+                                          child: Image.memory(
+                                              snapshot.data!.bodyBytes)),
                                     ],
                                   ),
                                   const SizedBox(
@@ -474,7 +494,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       ElevatedButton(
-                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          style: ButtonStyle(
+                                              backgroundColor:
+                                                  MaterialStateProperty.all(
+                                                      Colors.red)),
                                           onPressed: () async {
                                             Navigator.of(context).pop(false);
                                           },
@@ -487,7 +510,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           );
                         });
                   },
-                  child: SizedBox(height: 50, width: 50, child: Image.memory(snapshot.data!.bodyBytes)));
+                  child: SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: Image.memory(snapshot.data!.bodyBytes)));
             } else {
               return SizedBox(
                 height: 50,
@@ -508,7 +534,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
       height: 115,
       decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
+          border:
+              Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -534,6 +561,18 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: Row(
                 children: [
+                  if (!Responsive.isDesktop(context))
+                    GestureDetector(
+                      child: SizedBox(
+                        height: 40,
+                        width: 40,
+                        child: Icon(
+                          Icons.menu,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      onTap: context.read<MenuController>().controlMenu,
+                    ),
                   GestureDetector(
                     child: SizedBox(
                       height: 40,
@@ -551,7 +590,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                       widget.orderCustomer.uid.isNotEmpty
                           ? "ЗАМОВЛЕННЯ №" + widget.orderCustomer.numberFrom1C
                           : "СТВОРЕННЯ ЗАМОВЛЕННЯ",
-                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          color: fontColorDarkGrey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold)),
                 ],
               )),
         ],
@@ -626,7 +668,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         child: Row(
           children: [
             Icon(Icons.person, color: iconColor),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text(profileName)),
+            Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                child: Text(profileName)),
             Icon(Icons.keyboard_arrow_down),
           ],
         ),
@@ -673,12 +718,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               readOnly: true,
                               controller: textFieldDateController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
                                 fillColor: bgColor,
                                 filled: true,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
                                 ),
                               ),
                             ),
@@ -710,12 +757,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               readOnly: true,
                               controller: textFieldOrganizationController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
                                 fillColor: bgColor,
                                 filled: true,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
                                 ),
                                 suffixIcon: PopupMenuButton<Organization>(
                                   icon: const Icon(
@@ -725,14 +774,20 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                   ),
                                   onSelected: (Organization value) {
                                     setState(() {
-                                      widget.orderCustomer.uidOrganization = value.uid;
-                                      widget.orderCustomer.nameOrganization = value.name;
+                                      widget.orderCustomer.uidOrganization =
+                                          value.uid;
+                                      widget.orderCustomer.nameOrganization =
+                                          value.name;
                                     });
                                     _updateHeader();
                                   },
                                   itemBuilder: (BuildContext context) {
-                                    return listOrganizations.map<PopupMenuItem<Organization>>((Organization value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    return listOrganizations
+                                        .map<PopupMenuItem<Organization>>(
+                                            (Organization value) {
+                                      return PopupMenuItem(
+                                          child: Text(value.name),
+                                          value: value);
                                     }).toList();
                                   },
                                 ),
@@ -766,12 +821,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               readOnly: true,
                               controller: textFieldPartnerController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
                                 fillColor: bgColor,
                                 filled: true,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
                                 ),
                                 suffixIcon: PopupMenuButton<Partner>(
                                   icon: const Icon(
@@ -781,14 +838,20 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                   ),
                                   onSelected: (Partner value) {
                                     setState(() {
-                                      widget.orderCustomer.uidPartner = value.uid;
-                                      widget.orderCustomer.namePartner = value.name;
+                                      widget.orderCustomer.uidPartner =
+                                          value.uid;
+                                      widget.orderCustomer.namePartner =
+                                          value.name;
                                     });
                                     _updateHeader();
                                   },
                                   itemBuilder: (BuildContext context) {
-                                    return listPartners.map<PopupMenuItem<Partner>>((Partner value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    return listPartners
+                                        .map<PopupMenuItem<Partner>>(
+                                            (Partner value) {
+                                      return PopupMenuItem(
+                                          child: Text(value.name),
+                                          value: value);
                                     }).toList();
                                   },
                                 ),
@@ -825,12 +888,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               readOnly: true,
                               controller: textFieldSumController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
                                 fillColor: bgColor,
                                 filled: true,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
                                 ),
                               ),
                             ),
@@ -862,12 +927,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               readOnly: true,
                               controller: textFieldWarehouseController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
                                 fillColor: bgColor,
                                 filled: true,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
                                 ),
                                 suffixIcon: PopupMenuButton<Warehouse>(
                                   icon: const Icon(
@@ -877,14 +944,20 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                   ),
                                   onSelected: (Warehouse value) {
                                     setState(() {
-                                      widget.orderCustomer.uidWarehouse = value.uid;
-                                      widget.orderCustomer.nameWarehouse = value.name;
+                                      widget.orderCustomer.uidWarehouse =
+                                          value.uid;
+                                      widget.orderCustomer.nameWarehouse =
+                                          value.name;
                                     });
                                     _updateHeader();
                                   },
                                   itemBuilder: (BuildContext context) {
-                                    return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    return listWarehouses
+                                        .map<PopupMenuItem<Warehouse>>(
+                                            (Warehouse value) {
+                                      return PopupMenuItem(
+                                          child: Text(value.name),
+                                          value: value);
                                     }).toList();
                                   },
                                 ),
@@ -918,12 +991,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               readOnly: true,
                               controller: textFieldPriceController,
                               decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
                                 fillColor: bgColor,
                                 filled: true,
                                 border: OutlineInputBorder(
                                   borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(5)),
                                 ),
                                 suffixIcon: PopupMenuButton<Price>(
                                   icon: const Icon(
@@ -934,13 +1009,17 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                   onSelected: (Price value) {
                                     setState(() {
                                       widget.orderCustomer.uidPrice = value.uid;
-                                      widget.orderCustomer.namePrice = value.name;
+                                      widget.orderCustomer.namePrice =
+                                          value.name;
                                     });
                                     _updateHeader();
                                   },
                                   itemBuilder: (BuildContext context) {
-                                    return listPrices.map<PopupMenuItem<Price>>((Price value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    return listPrices.map<PopupMenuItem<Price>>(
+                                        (Price value) {
+                                      return PopupMenuItem(
+                                          child: Text(value.name),
+                                          value: value);
                                     }).toList();
                                   },
                                 ),
@@ -973,7 +1052,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
             padding: const EdgeInsets.all(defaultPadding * 1.5),
             child: Row(
               children: [
-                Text('Список товарів', style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
+                Text('Список товарів',
+                    style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
 
                 /// Space
                 Spacer(),
@@ -982,15 +1062,21 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                 SizedBox(
                     height: 30,
                     child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green)),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.green)),
                         onPressed: () async {
                           if (widget.orderCustomer.uid != '') {
-                            showErrorMessage('Редагування документа заборонено!', context);
+                            showErrorMessage(
+                                'Редагування документа заборонено!', context);
                             return;
                           }
 
-                          if (widget.orderCustomer.itemsOrderCustomer.length == 0) {
-                            showErrorMessage('Документ порожній! Відправка неможлива.', context);
+                          if (widget.orderCustomer.itemsOrderCustomer.length ==
+                              0) {
+                            showErrorMessage(
+                                'Документ порожній! Відправка неможлива.',
+                                context);
                             return;
                           }
 
@@ -998,21 +1084,27 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  content: const Text('Відправити документ постачальнику?'),
+                                  content: const Text(
+                                      'Відправити документ постачальнику?'),
                                   actions: <Widget>[
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         ElevatedButton(
                                             onPressed: () async {
                                               Navigator.of(context).pop(true);
                                             },
-                                            child: Center(child: Text('Відправити'))),
+                                            child: Center(
+                                                child: Text('Відправити'))),
                                         const SizedBox(
                                           width: 10,
                                         ),
                                         ElevatedButton(
-                                            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.red)),
                                             onPressed: () async {
                                               Navigator.of(context).pop(false);
                                             },
@@ -1038,15 +1130,20 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                     child: ElevatedButton(
                         onPressed: () async {
                           if (widget.orderCustomer.uid != '') {
-                            showErrorMessage('Редагування документа заборонено!', context);
+                            showErrorMessage(
+                                'Редагування документа заборонено!', context);
                             return;
                           }
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ProductListSelectionScreen(orderCustomer: widget.orderCustomer),
+                              builder: (context) => ProductListSelectionScreen(
+                                  orderCustomer: widget.orderCustomer),
                             ),
                           );
+
+                          OrderCustomer().allSum(widget.orderCustomer);
+
                           setState(() {});
                         },
                         child: Text('Додати товар'))),
@@ -1058,31 +1155,40 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                 SizedBox(
                     height: 30,
                     child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.red)),
                         onPressed: () async {
                           if (widget.orderCustomer.uid != '') {
-                            showErrorMessage('Редагування документа заборонено!', context);
+                            showErrorMessage(
+                                'Редагування документа заборонено!', context);
                             return;
                           }
                           bool valueResult = await showDialog<bool>(
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
-                                  content: const Text('Очистити список товарів?'),
+                                  content:
+                                      const Text('Очистити список товарів?'),
                                   actions: <Widget>[
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
                                         ElevatedButton(
                                             onPressed: () async {
                                               Navigator.of(context).pop(true);
                                             },
-                                            child: Center(child: Text('Очистити'))),
+                                            child: Center(
+                                                child: Text('Очистити'))),
                                         const SizedBox(
                                           width: 10,
                                         ),
                                         ElevatedButton(
-                                            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                            style: ButtonStyle(
+                                                backgroundColor:
+                                                    MaterialStateProperty.all(
+                                                        Colors.red)),
                                             onPressed: () async {
                                               Navigator.of(context).pop(false);
                                             },
@@ -1096,6 +1202,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           if (valueResult) {
                             setState(() {
                               widget.orderCustomer.itemsOrderCustomer.clear();
+                              OrderCustomer().allSum(widget.orderCustomer);
                             });
                           }
                         },
@@ -1113,14 +1220,17 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               color: bgColorHeader,
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding * 2, defaultPadding),
+              padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding,
+                  defaultPadding * 2, defaultPadding),
               child: Row(
                 children: [
                   Expanded(
                     flex: 1,
                     child: Text('Фото',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   spaceBetweenColumn(),
@@ -1128,57 +1238,78 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                     flex: 1,
                     child: Text('N',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 6,
                     child: Text('Товар',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Варіант',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
                     child: Text('Кількість',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
                     child: Text('Од. вим.',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Ціна',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
                     child: Text('Знижка',
                         textAlign: TextAlign.left,
-                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Сума', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Сума',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: fontColorDarkGrey)),
                   ),
-                  Expanded(child: Text(''),),
-                  Expanded(child: Text(''),),
+                  Expanded(
+                    child: Text(''),
+                  ),
+                  Expanded(
+                    child: Text(''),
+                  ),
                 ],
               ),
             ),
@@ -1194,12 +1325,16 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                         padding: EdgeInsets.all(0.0),
                         physics: BouncingScrollPhysics(),
                         shrinkWrap: true,
-                        itemCount: widget.orderCustomer.itemsOrderCustomer.length,
+                        itemCount:
+                            widget.orderCustomer.itemsOrderCustomer.length,
                         itemBuilder: (context, index) {
-                          final itemOrderCustomer = widget.orderCustomer.itemsOrderCustomer[index];
+                          final itemOrderCustomer =
+                              widget.orderCustomer.itemsOrderCustomer[index];
                           return rowDataItemOrderCustomer(itemOrderCustomer);
                         })
-                    : SizedBox(height: 50, child: Center(child: Text('Список товарів порожній!'))),
+                    : SizedBox(
+                        height: 50,
+                        child: Center(child: Text('Список товарів порожній!'))),
               )
             ],
           ),
@@ -1214,12 +1349,15 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               color: secondaryColor,
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding * 2, defaultPadding),
+              padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding,
+                  defaultPadding * 2, defaultPadding),
               child: Row(
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text('', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text('',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -1266,7 +1404,9 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
-                child: Text(item.nameCharacteristic.isNotEmpty ? item.nameCharacteristic : '-'),
+                child: Text(item.nameCharacteristic.isNotEmpty
+                    ? item.nameCharacteristic
+                    : '-'),
               ),
               spaceBetweenColumn(),
               Expanded(
@@ -1297,7 +1437,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                 child: IconButton(
                     onPressed: () async {
                       if (widget.orderCustomer.uid != '') {
-                        showErrorMessage('Редагування документа заборонено!', context);
+                        showErrorMessage(
+                            'Редагування документа заборонено!', context);
                         return;
                       }
 
@@ -1305,21 +1446,26 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                       product.name = item.name;
                       product.uid = item.uid;
 
-                      ProductCharacteristic productCharacteristic = ProductCharacteristic();
+                      ProductCharacteristic productCharacteristic =
+                          ProductCharacteristic();
                       productCharacteristic.name = item.nameCharacteristic;
                       productCharacteristic.uid = item.uidCharacteristic;
 
                       await showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            content: CountWindow(
-                                orderCustomer: widget.orderCustomer,
-                                product: product,
-                                productCharacteristic: productCharacteristic,
-                                price: item.price,
-                                countOnWarehouse: item.count),
-                          ));
+                                backgroundColor: Colors.white,
+                                content: CountWindow(
+                                    orderCustomer: widget.orderCustomer,
+                                    product: product,
+                                    productCharacteristic:
+                                        productCharacteristic,
+                                    price: item.price,
+                                    countOnWarehouse: item.count),
+                              ));
+
+                      OrderCustomer().allSum(widget.orderCustomer);
+
                       setState(() {});
                     },
                     icon: Icon(
@@ -1332,10 +1478,14 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                 child: IconButton(
                     onPressed: () {
                       if (widget.orderCustomer.uid != '') {
-                        showErrorMessage('Редагування документа заборонено!', context);
+                        showErrorMessage(
+                            'Редагування документа заборонено!', context);
                         return;
                       }
                       widget.orderCustomer.itemsOrderCustomer.remove(item);
+
+                      OrderCustomer().allSum(widget.orderCustomer);
+
                       setState(() {});
                     },
                     icon: Icon(

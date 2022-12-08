@@ -203,6 +203,18 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
               padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
               child: Row(
                 children: [
+                  if (!Responsive.isDesktop(context))
+                    GestureDetector(
+                      child: SizedBox(
+                        height: 40,
+                        width: 40,
+                        child: Icon(
+                          Icons.menu,
+                          color: Colors.blue,
+                        ),
+                      ),
+                      onTap: context.read<MenuController>().controlMenu,
+                    ),
                   SizedBox(
                     height: 40,
                     width: 40,

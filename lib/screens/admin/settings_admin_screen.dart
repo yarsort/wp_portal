@@ -12,6 +12,7 @@ import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
+import 'package:wp_b2b/widgets.dart';
 
 class SettingsAdminScreen extends StatefulWidget {
   static const routeName = '/admin';
@@ -29,16 +30,24 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   /// Поле ввода: Server
   TextEditingController textFieldServerController = TextEditingController();
-  TextEditingController textFieldPhotoServerController = TextEditingController();
-  TextEditingController textFieldNameOrganizationController = TextEditingController();
-  TextEditingController textFieldSloganOrganizationController = TextEditingController();
+  TextEditingController textFieldPhotoServerController =
+      TextEditingController();
+  TextEditingController textFieldNameOrganizationController =
+      TextEditingController();
+  TextEditingController textFieldSloganOrganizationController =
+      TextEditingController();
 
   _fillSettings() async {
     final SharedPreferences prefs = await _prefs;
-    textFieldServerController.text = prefs.getString('settings_serverExchange') ?? '';
-    textFieldPhotoServerController.text = prefs.getString('settings_photoServerExchange') ?? '';
-    textFieldNameOrganizationController.text = prefs.getString('settings_nameOrganization') ?? 'Оптовий портал';
-    textFieldSloganOrganizationController.text = prefs.getString('settings_sloganOrganization') ?? 'продаж та взаєморозрахунки';
+    textFieldServerController.text =
+        prefs.getString('settings_serverExchange') ?? '';
+    textFieldPhotoServerController.text =
+        prefs.getString('settings_photoServerExchange') ?? '';
+    textFieldNameOrganizationController.text =
+        prefs.getString('settings_nameOrganization') ?? 'Оптовий портал';
+    textFieldSloganOrganizationController.text =
+        prefs.getString('settings_sloganOrganization') ??
+            'продаж та взаєморозрахунки';
 
     setState(() {});
   }
@@ -46,9 +55,12 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
   _saveSettings() async {
     final SharedPreferences prefs = await _prefs;
     prefs.setString('settings_serverExchange', textFieldServerController.text);
-    prefs.setString('settings_photoServerExchange', textFieldPhotoServerController.text);
-    prefs.setString('settings_nameOrganization', textFieldNameOrganizationController.text);
-    prefs.setString('settings_sloganOrganization', textFieldSloganOrganizationController.text);
+    prefs.setString(
+        'settings_photoServerExchange', textFieldPhotoServerController.text);
+    prefs.setString(
+        'settings_nameOrganization', textFieldNameOrganizationController.text);
+    prefs.setString('settings_sloganOrganization',
+        textFieldSloganOrganizationController.text);
   }
 
   _loadProfileData() async {
@@ -91,24 +103,30 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               flex: 5,
               child: SingleChildScrollView(
                 primary: true,
-                padding: EdgeInsets.all(defaultPadding),
                 child: Column(
                   children: [
                     // Desktop view
-                    headerWidget(),
-                    SizedBox(height: defaultPadding),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: Column(
-                            children: [
-                              settingsList(),
-                            ],
+                    headerPage(),
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      color: bgColor,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: defaultPadding,
+                        vertical: defaultPadding,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 5,
+                            child: Column(
+                              children: [
+                                settingsList(),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     )
                   ],
                 ),
@@ -116,6 +134,44 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget headerPage() {
+    return Container(
+      height: 57,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border:
+              Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              blurRadius: 3,
+              offset: const Offset(0, 2), // changes position of shadow
+            ),
+          ]),
+      child: Column(
+        children: [
+          /// Name of page
+          Padding(
+              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+              child: Row(
+                children: [
+                  if (!Responsive.isDesktop(context))
+                    IconButton(
+                      icon: Icon(Icons.menu, color: Colors.blue),
+                      onPressed: context.read<MenuController>().controlMenu,
+                    ),
+                  Text('НАЛАШТУВАННЯ',
+                      style: TextStyle(
+                          color: fontColorDarkGrey,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold)),
+                ],
+              )),
+        ],
       ),
     );
   }
@@ -135,7 +191,8 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               "Налаштування",
               style: Theme.of(context).textTheme.headline6,
             ),
-          if (!Responsive.isMobile(context)) Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
+          if (!Responsive.isMobile(context))
+            Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
 
           //profileNameWidget(),
         ],
@@ -144,122 +201,204 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
   }
 
   Widget settingsList() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            /// Адрес сервера
-            Expanded(
-                flex: 1,
-                child: IntrinsicHeight(
-                  child: TextField(
-                    onChanged: (e) {
-                      _saveSettings();
-                    },
-                    keyboardType: TextInputType.text,
-                    controller: textFieldServerController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      suffixIconConstraints: const BoxConstraints(
-                        minWidth: 2,
-                        minHeight: 2,
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: defaultPadding,
+        vertical: defaultPadding,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        color: secondaryColor,
+        borderRadius: const BorderRadius.all(Radius.circular(4)),
+      ),
+      child: Column(
+        children: [
+          /// Адрес сервера
+          Row(
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Адреса сервера:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              onChanged: (e) {
+                                _saveSettings();
+                              },
+                              style: TextStyle(fontSize: 14),
+                              keyboardType: TextInputType.text,
+                              controller: textFieldServerController,
+                              decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius:
+                                      const BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                            ),
+                          ))
+                    ],
+                  )),
+            ],
+          ),
+          spaceVertBetweenHeaderColumn(),
+
+          /// Адрес сервера картинок
+          Row(
+            children: [
+              Expanded(
+                  flex: 1,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Адреса картинок:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              onChanged: (e) {
+                                _saveSettings();
+                              },
+                              style: TextStyle(fontSize: 14),
+                              keyboardType: TextInputType.text,
+                              controller: textFieldPhotoServerController,
+                              decoration: InputDecoration(
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius:
+                                      const BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
+                            ),
+                          ))
+                    ],
+                  )),
+            ],
+          ),
+          spaceVertBetweenHeaderColumn(),
+
+          /// Название кампании
+          Row(
+            children: [
+              /// Назва порталу
+              Expanded(
+                  flex: 1,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Название компании:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                        flex: 5,
+                        child: SizedBox(
+                          height: 40,
+                          child: TextField(
+                            onChanged: (e) {
+                              _saveSettings();
+                            },
+                            style: TextStyle(fontSize: 14),
+                            keyboardType: TextInputType.text,
+                            controller: textFieldNameOrganizationController,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                              fillColor: bgColor,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(5)),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      border: const OutlineInputBorder(),
-                      labelStyle: const TextStyle(
-                        color: Colors.blueGrey,
+                    ],
+                  )),
+            ],
+          ),
+          spaceVertBetweenHeaderColumn(),
+
+          /// Слоган кампании
+          Row(
+            children: [
+              /// Слога порталу
+              Expanded(
+                  flex: 1,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          flex: 1,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Слоган компании:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                        flex: 5,
+                        child: SizedBox(
+                          height: 40,
+                          child: TextField(
+                            onChanged: (e) {
+                              _saveSettings();
+                            },
+                            style: TextStyle(fontSize: 14),
+                            keyboardType: TextInputType.text,
+                            controller: textFieldSloganOrganizationController,
+                            decoration: InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                              fillColor: bgColor,
+                              filled: true,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(5)),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      labelText: 'Ім\'я сервера підключення',
-                    ),
-                  ),
-                )),
-          ],
-        ),
-        SizedBox(height: 16),
-        Row(
-          children: [
-            /// Адрес сервера
-            Expanded(
-                flex: 1,
-                child: IntrinsicHeight(
-                  child: TextField(
-                    onChanged: (e) {
-                      _saveSettings();
-                    },
-                    keyboardType: TextInputType.text,
-                    controller: textFieldPhotoServerController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      suffixIconConstraints: const BoxConstraints(
-                        minWidth: 2,
-                        minHeight: 2,
-                      ),
-                      border: const OutlineInputBorder(),
-                      labelStyle: const TextStyle(
-                        color: Colors.blueGrey,
-                      ),
-                      labelText: 'Ім\'я сервера для відображення фотографій',
-                    ),
-                  ),
-                )),
-          ],
-        ),
-        SizedBox(height: 16),
-        Row(
-          children: [
-            /// Назва порталу
-            Expanded(
-                flex: 1,
-                child: IntrinsicHeight(
-                  child: TextField(
-                    onChanged: (e) {
-                      _saveSettings();
-                    },
-                    keyboardType: TextInputType.text,
-                    controller: textFieldNameOrganizationController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      suffixIconConstraints: const BoxConstraints(
-                        minWidth: 2,
-                        minHeight: 2,
-                      ),
-                      border: const OutlineInputBorder(),
-                      labelStyle: const TextStyle(
-                        color: Colors.blueGrey,
-                      ),
-                      labelText: 'Назва організації B2B порталу',
-                    ),
-                  ),
-                )),
-            SizedBox(
-              width: 16,
-            ),
-            /// Слога порталу
-            Expanded(
-                flex: 1,
-                child: IntrinsicHeight(
-                  child: TextField(
-                    onChanged: (e) {
-                      _saveSettings();
-                    },
-                    keyboardType: TextInputType.text,
-                    controller: textFieldSloganOrganizationController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      suffixIconConstraints: const BoxConstraints(
-                        minWidth: 2,
-                        minHeight: 2,
-                      ),
-                      border: const OutlineInputBorder(),
-                      labelStyle: const TextStyle(
-                        color: Colors.blueGrey,
-                      ),
-                      labelText: 'Слоган компанії',
-                    ),
-                  ),
-                )),
-          ],
-        ),
-      ],
+                    ],
+                  )),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -285,7 +424,8 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             ),
             if (!Responsive.isMobile(context))
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
                 child: Text(profileName),
               ),
             Icon(Icons.keyboard_arrow_down),

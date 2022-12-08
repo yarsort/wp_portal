@@ -50,6 +50,12 @@ class _CountWindowState extends State<CountWindow> {
   @override
   void initState() {
     _loadData();
+
+    textFieldCountController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: textFieldCountController.text.length,
+    );
+
     super.initState();
   }
 

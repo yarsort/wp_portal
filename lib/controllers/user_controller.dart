@@ -30,7 +30,6 @@ Future<ApiResponse> login(String username, String password) async {
 
     dio.options.headers[HttpHeaders.accessControlAllowOriginHeader] = '*';
     dio.options.headers[HttpHeaders.contentTypeHeader] = 'application/json';
-    //dio.options.headers[HttpHeaders.accessControlAllowCredentialsHeader] = true;
     dio.options.headers[HttpHeaders.authorizationHeader] = basicAuth;
     dio.options.headers[HttpHeaders.wwwAuthenticateHeader] = basicAuth;
 
@@ -75,7 +74,7 @@ Future<String> getToken() async {
   return pref.getString('token') ?? '';
 
   // String username = 'Администратор';
-  // String password = 'Lofege74';
+  // String password = 'jkloofege74';
   // String basicAuth = 'Basic ' + base64Encode(utf8.encode('$username:$password'));
   // return basicAuth;
 }

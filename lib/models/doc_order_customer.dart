@@ -101,6 +101,16 @@ class OrderCustomer {
     data['itemsOrderCustomer'] = itemsOrderCustomer.map((e) => e.toJson()).toList();
     return data;
   }
+
+  allSum (OrderCustomer orderCustomer) {
+    /// Сума документа
+    double allSum = 0.0;
+    for (var item in orderCustomer.itemsOrderCustomer) {
+      allSum = allSum + item.sum;
+    }
+    orderCustomer.sum = allSum;
+  }
+
 }
 
 /// ТЧ Товары, Документы.ЗаказПокупателя
