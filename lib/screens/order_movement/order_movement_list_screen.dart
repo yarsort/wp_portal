@@ -68,7 +68,6 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
               flex: 5,
               child: SingleChildScrollView(
                 primary: true,
-                //padding: EdgeInsets.all(defaultPadding),
                 child: Column(
                   children: [
                     // Desktop view
@@ -177,7 +176,6 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
 
   Widget headerPage() {
     return Container(
-      height: 115,
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
@@ -194,7 +192,13 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
-              children: [searchFieldWidget(), Spacer(), profileNameWidget()],
+              children: [
+                portalSearchWidget(),
+                Spacer(),
+                PortalDebtsPartners(),
+                PortalPhonesAddresses(),
+                PortalProfileName()
+              ],
             ),
           ),
 
@@ -203,113 +207,47 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
 
           /// Name of page
           Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Row(
-                children: [
-                  if (!Responsive.isDesktop(context))
-                    GestureDetector(
-                      child: SizedBox(
-                        height: 40,
-                        width: 40,
-                        child: Icon(
-                          Icons.menu,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      onTap: context.read<MenuController>().controlMenu,
-                    ),
-                  SizedBox(
-                    height: 40,
-                    width: 40,
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                if (!Responsive.isDesktop(context))
+                  GestureDetector(
                     child: Icon(
-                      Icons.receipt_long,
+                      Icons.menu,
                       color: Colors.blue,
                     ),
+                    onTap: context.read<MenuController>().controlMenu,
                   ),
-                  Text(namePage,
-                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                  Spacer(),
-                ],
-              )),
+                SizedBox(
+                  width: 40,
+                  child: Icon(
+                    Icons.receipt_long,
+                    color: Colors.blue,
+                  ),
+                ),
+                Text(namePage, style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget searchFieldWidget() {
-    return SizedBox(
-      height: 40,
-      width: 400,
-      child: TextField(
-        controller: textFieldSearchCatalogController,
-        onSubmitted: (text) async {
-          if (textFieldSearchCatalogController.text == '') {
-            //await _renewItem();
-            return;
-          }
-          //await _renewItem();
-        },
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-          hintText: 'Пошук',
-          hintStyle: TextStyle(color: fontColorGrey),
-          fillColor: bgColor,
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-            child: InkWell(
-              onTap: () async {
-                if (textFieldSearchCatalogController.text == '') {
-                  //await _renewItem();
-                  return;
-                }
-                //await _renewItem();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                ),
-                child: Icon(
-                  Icons.search,
-                  color: iconColor,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget profileNameWidget() {
-    return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: SizedBox(
-        height: 24,
-        child: Row(
-          children: [
-            Icon(Icons.person, color: iconColor),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(profileName)),
-            Icon(Icons.keyboard_arrow_down),
-          ],
-        ),
-      ),
+  Widget portalSearchWidget() {
+    return PortalSearch(
+      textFieldSearchController: textFieldSearchCatalogController,
+      onSubmittedSearch: (text) async {
+        if (textFieldSearchCatalogController.text == '') {
+          return;
+        }
+      },
+      onTapClear: () {
+        if (textFieldSearchCatalogController.text != '') {
+          textFieldSearchCatalogController.text = '';
+        }
+      },
     );
   }
 
@@ -317,7 +255,6 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: defaultPadding,
-
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -416,7 +353,7 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                             builder: (context) => OrderMovementItemScreen(orderMovement: orderMovement),
                           ),
                         );
-                         await _loadListOrdersMovements();
+                        await _loadListOrdersMovements();
                       },
                       child: Text('Додати документ')),
                 ),
@@ -438,33 +375,44 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text('', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Дата', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Дата',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Статус', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Статус',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child:
-                    Text('Організація', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Організація',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Відправник', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Відправник',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Отримувач', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Отримувач',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                 ],
@@ -479,14 +427,14 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
                 flex: 1,
                 child: listOrderMovement.isNotEmpty
                     ? ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listOrderMovement.length,
-                    itemBuilder: (context, index) {
-                      final orderCustomer = listOrderMovement[index];
-                      return rowDataOrderMovement(orderCustomer);
-                    })
+                        padding: EdgeInsets.all(0.0),
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: listOrderMovement.length,
+                        itemBuilder: (context, index) {
+                          final orderCustomer = listOrderMovement[index];
+                          return rowDataOrderMovement(orderCustomer);
+                        })
                     : SizedBox(height: 50, child: Center(child: Text('Список документів порожній!'))),
               )
             ],
@@ -496,9 +444,9 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border(
-                //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                //top: BorderSide(color: Colors.grey.withOpacity(0.3))
-              ),
+                  //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  //top: BorderSide(color: Colors.grey.withOpacity(0.3))
+                  ),
               color: secondaryColor,
             ),
             child: Padding(

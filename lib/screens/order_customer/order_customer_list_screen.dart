@@ -144,7 +144,6 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
   }
 
   _loadListOrdersCustomers() async {
-
     /// Request to server
     ApiResponse response = await getOrdersCustomers(startPeriodDocsString, finishPeriodDocsString);
 
@@ -174,7 +173,6 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
 
   Widget headerPage() {
     return Container(
-      height: 115,
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
@@ -191,7 +189,13 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
-              children: [searchFieldWidget(), Spacer(), profileNameWidget()],
+              children: [
+                searchFieldWidget(),
+                Spacer(),
+                PortalDebtsPartners(),
+                PortalPhonesAddresses(),
+                PortalProfileName()
+              ],
             ),
           ),
 
@@ -200,34 +204,29 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
 
           /// Name of page
           Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Row(
-                children: [
-                  if (!Responsive.isDesktop(context))
-                    GestureDetector(
-                      child: SizedBox(
-                        height: 40,
-                        width: 40,
-                        child: Icon(
-                          Icons.menu,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      onTap: context.read<MenuController>().controlMenu,
-                    ),
-                  SizedBox(
-                    height: 40,
-                    width: 40,
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                if (!Responsive.isDesktop(context))
+                  GestureDetector(
                     child: Icon(
-                      Icons.receipt_long,
+                      Icons.menu,
                       color: Colors.blue,
                     ),
+                    onTap: context.read<MenuController>().controlMenu,
                   ),
-                  Text(namePage,
-                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                  Spacer(),
-                ],
-              )),
+                SizedBox(
+                  width: 40,
+                  child: Icon(
+                    Icons.receipt_long,
+                    color: Colors.blue,
+                  ),
+                ),
+                Text(namePage, style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -283,38 +282,10 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
     );
   }
 
-  Widget profileNameWidget() {
-    return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: SizedBox(
-        height: 24,
-        child: Row(
-          children: [
-            Icon(Icons.person, color: iconColor),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(profileName)),
-            Icon(Icons.keyboard_arrow_down),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget periodDocuments() {
     return Container(
       padding: EdgeInsets.symmetric(
-         horizontal: defaultPadding,
-
+        horizontal: defaultPadding,
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -435,38 +406,51 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text('', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Дата', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Дата',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Статус', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Статус',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child:
-                        Text('Організація', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Організація',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Контрагент', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Контрагент',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Склад', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Склад',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Тип ціни', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Тип ціни',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
@@ -599,5 +583,4 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
       ),
     );
   }
-
 }

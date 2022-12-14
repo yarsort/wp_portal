@@ -8,30 +8,22 @@ import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/doc_order_movement.dart';
 
-// Get base url
-Future<String> _getBaseUrl() async {
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-  final SharedPreferences prefs = await _prefs;
-  var baseURL = prefs.getString('settings_serverExchange') ?? '';
-  return baseURL;
-}
-
 // Get all order customer
 Future<ApiResponse> getOrdersMovements(startPeriodDocs, finishPeriodDocs) async {
   ApiResponse apiResponse = ApiResponse();
 
-  /// Адрес подключения
+  /// Address connection
   String connectionUrl =
-      await _getBaseUrl() + '/orders_movements?startPeriodDocs=$startPeriodDocs&finishPeriodDocs=$finishPeriodDocs';
+      await getBaseUrl() + '/orders_movements' + '?startPeriodDocs=$startPeriodDocs&finishPeriodDocs=$finishPeriodDocs';
 
-  // Authorization
+  /// Authorization
   String basicAuth = await getToken();
   if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
-  // Get data from server
+  /// Get data from server
   try {
     var dio = Dio();
     final response = await dio.get(connectionUrl,
@@ -75,7 +67,7 @@ Future<ApiResponse> getItemsOrderMovementByUID(uidOrderMovement) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения
-  String connectionUrl = await _getBaseUrl() + '/order_movement/' + uidOrderMovement;
+  String connectionUrl = await getBaseUrl() + '/order_movement/' + uidOrderMovement;
 
   /// Authorization
   String basicAuth = await getToken();

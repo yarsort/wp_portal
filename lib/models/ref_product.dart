@@ -16,6 +16,7 @@ class Product {
   String codeUKTZED = '';         // Код УКТЗЕД ліцензійного товару
   String barcode = '';            // Имя ед. изм.
   String numberTaxGroup = '1';    // Номер податкової групи
+  String description = '';        // Опис товару
   String comment = '';            // Коммментарий
   DateTime dateEdit = DateTime.now(); // Дата редактирования
 
@@ -37,6 +38,7 @@ class Product {
     numberTaxGroup = json['numberTaxGroup'] ?? '1';
     codeUKTZED = json['codeUKTZED'] ?? '';
     barcode = json['barcode'] ?? '';
+    description = json['description'] ?? '';
     comment = json['comment'] ?? '';
     dateEdit = DateTime.parse(json['dateEdit'] ?? DateTime.now().toIso8601String());
   }
@@ -58,6 +60,7 @@ class Product {
     data['numberTaxGroup'] = numberTaxGroup;
     data['barcode'] = barcode;
     data['codeUKTZED'] = codeUKTZED;
+    data['description'] = description;
     data['comment'] = comment;
     data['dateEdit'] = dateEdit.toIso8601String();
     return data;

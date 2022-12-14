@@ -140,7 +140,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   Widget headerPage() {
     return Container(
-      height: 57,
+      height: 49,
       decoration: BoxDecoration(
           color: Colors.white,
           border:
@@ -152,49 +152,33 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               offset: const Offset(0, 2), // changes position of shadow
             ),
           ]),
-      child: Column(
-        children: [
-          /// Name of page
-          Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Row(
-                children: [
-                  if (!Responsive.isDesktop(context))
-                    IconButton(
-                      icon: Icon(Icons.menu, color: Colors.blue),
-                      onPressed: context.read<MenuController>().controlMenu,
-                    ),
-                  Text('НАЛАШТУВАННЯ',
-                      style: TextStyle(
-                          color: fontColorDarkGrey,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold)),
-                ],
-              )),
-        ],
-      ),
-    );
-  }
-
-  Widget headerWidget() {
-    return SizedBox(
-      height: 40,
       child: Row(
         children: [
           if (!Responsive.isDesktop(context))
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: context.read<MenuController>().controlMenu,
+            GestureDetector(
+              child: SizedBox(
+                height: 40,
+                width: 40,
+                child: Icon(
+                  Icons.menu,
+                  color: Colors.blue,
+                ),
+              ),
+              onTap: context.read<MenuController>().controlMenu,
             ),
-          if (!Responsive.isMobile(context))
-            Text(
-              "Налаштування",
-              style: Theme.of(context).textTheme.headline6,
+          SizedBox(
+            height: 40,
+            width: 40,
+            child: Icon(
+              Icons.settings,
+              color: Colors.blue,
             ),
-          if (!Responsive.isMobile(context))
-            Spacer(flex: Responsive.isDesktop(context) ? 1 : 1),
-
-          //profileNameWidget(),
+          ),
+          Text('НАЛАШТУВАННЯ',
+              style: TextStyle(
+                  color: fontColorDarkGrey,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold)),
         ],
       ),
     );

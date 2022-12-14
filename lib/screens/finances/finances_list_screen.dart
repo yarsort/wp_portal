@@ -14,8 +14,6 @@ import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 import 'package:wp_b2b/widgets.dart';
 
-import 'components/header.dart';
-
 class FinancesScreen extends StatefulWidget {
   static const routeName = '/finances';
 
@@ -39,25 +37,13 @@ class _FinancesScreenState extends State<FinancesScreen> {
   String finishPeriodDocsString = '';
 
   /// Начало периода отбора
-  DateTime startPeriodDocs =
-  DateTime(DateTime
-      .now()
-      .year, DateTime
-      .now()
-      .month, DateTime
-      .now()
-      .day-6);
+  DateTime startPeriodDocs = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day - 6);
 
   /// Конец периода отбора
-  DateTime finishPeriodDocs = DateTime(DateTime
-      .now()
-      .year,
-      DateTime
-          .now()
-          .month, DateTime
-          .now()
-          .day, 23, 59, 59);
+  DateTime finishPeriodDocs = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 23, 59, 59);
 
+  // Total balance row
+  AccumPartnerDept total = AccumPartnerDept();
 
   /// MAIN
 
@@ -138,20 +124,26 @@ class _FinancesScreenState extends State<FinancesScreen> {
 
   _loadListAccumPartnerDebts() async {
     // Request to server
-    ApiResponse response = await getAccumPartnerDebts('00000000-0000-0000-0000-000000000000');
+    ApiResponse response = await getAccumPartnerFinances('00000000-0000-0000-0000-000000000000');
+
+    // Clear total balance
+    total.balance = 0;
+    total.balanceUah = 0;
 
     // Read response
     if (response.error == null) {
       setState(() {
         for (var item in response.data as List<dynamic>) {
           listAccumPartnerDept.add(item);
+
+          total.balance = total.balance + item.balance;
+          total.balanceUah = total.balanceUah + item.balanceUah;
         }
 
         loadingData = loadingData ? !loadingData : loadingData;
       });
     } else if (response.error == unauthorized) {
-      logout().then((value) =>
-          {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
+      logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
@@ -190,6 +182,65 @@ class _FinancesScreenState extends State<FinancesScreen> {
   /// HEADER
 
   Widget headerPage() {
+    return Container(
+      //height: 100,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              blurRadius: 3,
+              offset: const Offset(0, 2), // changes position of shadow
+            ),
+          ]),
+      child: Column(
+        children: [
+          /// Search
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Row(
+              children: [
+                searchFieldWidget(),
+                Spacer(),
+                PortalDebtsPartners(),
+                PortalPhonesAddresses(),
+                PortalProfileName()
+              ],
+            ),
+          ),
+
+          /// Divider
+          Divider(),
+
+          /// Name of page
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                if (!Responsive.isDesktop(context))
+                  GestureDetector(
+                    child: Icon(
+                      Icons.menu,
+                      color: Colors.blue,
+                    ),
+                    onTap: context.read<MenuController>().controlMenu,
+                  ),
+                SizedBox(
+                  width: 40,
+                  child: Icon(
+                    Icons.receipt_long,
+                    color: Colors.blue,
+                  ),
+                ),
+                Text(namePage, style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
     return Container(
       height: 115,
       decoration: BoxDecoration(
@@ -240,8 +291,7 @@ class _FinancesScreenState extends State<FinancesScreen> {
                       color: Colors.blue,
                     ),
                   ),
-                  Text(namePage,
-                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                  Text(namePage, style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
                   Spacer(),
                 ],
               )),
@@ -317,9 +367,7 @@ class _FinancesScreenState extends State<FinancesScreen> {
         child: Row(
           children: [
             Icon(Icons.person, color: iconColor),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(profileName)),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text(profileName)),
             Icon(Icons.keyboard_arrow_down),
           ],
         ),
@@ -331,7 +379,6 @@ class _FinancesScreenState extends State<FinancesScreen> {
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: defaultPadding,
-
       ),
       decoration: BoxDecoration(
         color: bgColor,
@@ -433,49 +480,65 @@ class _FinancesScreenState extends State<FinancesScreen> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text('', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Дата', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Дата',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child:
-                    Text('Організація', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Організація',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Контрагент', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Контрагент',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Договір', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Договір',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 4,
-                    child: Text('Документ', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Документ',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 1,
-                    child: Text('Баланс (валюта)', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Баланс (валюта)',
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 1,
-                    child: Text('Баланс (грн)', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child:
+                        Text('Баланс (грн)', style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                 ],
               ),
             ),
           ),
+
+          // Total balance
+          if (listAccumPartnerDept.isNotEmpty) rowDataTotalFinance(total),
 
           /// List of documents
           Row(
@@ -484,14 +547,14 @@ class _FinancesScreenState extends State<FinancesScreen> {
                 flex: 1,
                 child: listAccumPartnerDept.isNotEmpty
                     ? ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: listAccumPartnerDept.length,
-                    itemBuilder: (context, index) {
-                      final finance = listAccumPartnerDept[index];
-                      return rowDataFinance(finance);
-                    })
+                        padding: EdgeInsets.all(0.0),
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: listAccumPartnerDept.length,
+                        itemBuilder: (context, index) {
+                          final finance = listAccumPartnerDept[index];
+                          return rowDataFinance(finance);
+                        })
                     : SizedBox(height: 50, child: Center(child: Text('Список документів порожній!'))),
               )
             ],
@@ -501,9 +564,9 @@ class _FinancesScreenState extends State<FinancesScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border(
-                //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                //top: BorderSide(color: Colors.grey.withOpacity(0.3))
-              ),
+                  //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  //top: BorderSide(color: Colors.grey.withOpacity(0.3))
+                  ),
               color: secondaryColor,
             ),
             child: Padding(
@@ -519,6 +582,71 @@ class _FinancesScreenState extends State<FinancesScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget rowDataTotalFinance(AccumPartnerDept accumPartnerDept) {
+    return GestureDetector(
+      onTap: () async {},
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: defaultPadding,
+          vertical: defaultPadding,
+        ),
+        decoration: BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+          ),
+          color: secondaryColor,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, defaultPadding, 0),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: Text(''),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(''),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(''),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(''),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 2,
+                child: Text(''),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 4,
+                child: Text(''),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 1,
+                child: Text(doubleToString(accumPartnerDept.balance!)),
+              ),
+              spaceBetweenColumn(),
+              Expanded(
+                flex: 1,
+                child: Text(doubleToString(accumPartnerDept.balanceUah!)),
+              ),
+              spaceBetweenColumn(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -548,7 +676,8 @@ class _FinancesScreenState extends State<FinancesScreen> {
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
-                child: Text(fullDateToString(accumPartnerDept.date!),
+                child: Text(
+                  fullDateToString(accumPartnerDept.date!),
                 ),
               ),
               spaceBetweenColumn(),
@@ -588,7 +717,6 @@ class _FinancesScreenState extends State<FinancesScreen> {
       ),
     );
   }
-
 
   Widget financesList2() {
     return Container(
@@ -684,45 +812,38 @@ class _FinancesScreenState extends State<FinancesScreen> {
               ),
               Expanded(
                 flex: 2,
-                child: Text(fullDateToString(accumPartnerDept.date),
-                    style: TextStyle(color: fontColorBlack)),
+                child: Text(fullDateToString(accumPartnerDept.date), style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
-                child: Text(accumPartnerDept.nameOrganization,
-                    style: TextStyle(color: fontColorBlack)),
+                child: Text(accumPartnerDept.nameOrganization, style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
-                child: Text(accumPartnerDept.namePartner,
-                    style: TextStyle(color: fontColorBlack)),
+                child: Text(accumPartnerDept.namePartner, style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
-                child: Text(accumPartnerDept.nameContract,
-                    style: TextStyle(color: fontColorBlack)),
+                child: Text(accumPartnerDept.nameContract, style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 4,
-                child: Text(accumPartnerDept.nameDoc,
-                    style: TextStyle(color: fontColorBlack)),
+                child: Text(accumPartnerDept.nameDoc, style: TextStyle(color: fontColorBlack)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
                 child: Text(doubleToString(accumPartnerDept.balance),
-                    style: TextStyle(
-                        color: fontColorBlack, overflow: TextOverflow.fade)),
+                    style: TextStyle(color: fontColorBlack, overflow: TextOverflow.fade)),
               ),
               spaceBetweenColumn(),
               Expanded(
                 flex: 2,
-                child: Text(doubleToString(accumPartnerDept.balanceUah),
-                    style: TextStyle(color: fontColorBlack)),
+                child: Text(doubleToString(accumPartnerDept.balanceUah), style: TextStyle(color: fontColorBlack)),
               ),
             ],
           ),
@@ -734,5 +855,4 @@ class _FinancesScreenState extends State<FinancesScreen> {
       ),
     );
   }
-
 }

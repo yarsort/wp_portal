@@ -48,13 +48,12 @@ class MyApp extends StatelessWidget {
                   return ProductListSelectionScreen();
                 case NotificationListScreen.routeName:
                   return NotificationListScreen();
-
                 case SettingsAdminScreen.routeName:
                   return SettingsAdminScreen();
                 case LoginAdminScreen.routeName:
                   return LoginAdminScreen();
                 default:
-                  return SettingsAdminScreen();
+                  return OrderCustomerScreen();
                   //return LoginScreen();
               }
             },

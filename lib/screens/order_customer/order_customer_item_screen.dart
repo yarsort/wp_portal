@@ -161,9 +161,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   }
 
   _loadPathPictureData() async {
-    final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    final SharedPreferences prefs = await _prefs;
-    pathPicture = prefs.getString('settings_photoServerExchange') ?? '';
+    pathPicture = await getBasePhotoUrl();
   }
 
   _loadProfileData() async {
@@ -531,11 +529,9 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
   Widget headerPage() {
     return Container(
-      height: 115,
       decoration: BoxDecoration(
           color: Colors.white,
-          border:
-              Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
+          border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5),
@@ -549,7 +545,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
-              children: [searchFieldWidget(), Spacer(), profileNameWidget()],
+              children: [searchFieldWidget(), Spacer(), PortalDebtsPartners(), PortalPhonesAddresses(), PortalProfileName()],
             ),
           ),
 
@@ -558,44 +554,83 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
           /// Name of page
           Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Row(
-                children: [
-                  if (!Responsive.isDesktop(context))
-                    GestureDetector(
-                      child: SizedBox(
-                        height: 40,
-                        width: 40,
-                        child: Icon(
-                          Icons.menu,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      onTap: context.read<MenuController>().controlMenu,
-                    ),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                if (!Responsive.isDesktop(context))
                   GestureDetector(
-                    child: SizedBox(
-                      height: 40,
-                      width: 40,
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.blue,
-                      ),
+                    child: Icon(
+                      Icons.menu,
+                      color: Colors.blue,
                     ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
+                    onTap: context.read<MenuController>().controlMenu,
                   ),
-                  Text(
-                      widget.orderCustomer.uid.isNotEmpty
-                          ? "ЗАМОВЛЕННЯ №" + widget.orderCustomer.numberFrom1C
-                          : "СТВОРЕННЯ ЗАМОВЛЕННЯ",
-                      style: TextStyle(
-                          color: fontColorDarkGrey,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold)),
-                ],
-              )),
+                GestureDetector(
+                  child: SizedBox(
+                    width: 40,
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  onTap: () async {
+                    if (widget.orderCustomer.uid != '') {
+                      Navigator.of(context).pop();
+                      return;
+                    }
+
+                    bool valueResult = await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: const Text(
+                                'Відмінити створення замовлення постачальнику?'),
+                            actions: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        Navigator.of(context).pop(true);
+                                      },
+                                      child: Center(
+                                          child: Text('Так'))),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      style: ButtonStyle(
+                                          backgroundColor:
+                                          MaterialStateProperty.all(
+                                              Colors.red)),
+                                      onPressed: () async {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                      child: const Text('Ні'))
+                                ],
+                              ),
+                            ],
+                          );
+                        }) as bool;
+
+                    if (valueResult) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+                Text(
+                    widget.orderCustomer.uid.isNotEmpty
+                        ? "ЗАМОВЛЕННЯ №" + widget.orderCustomer.numberFrom1C
+                        : "СТВОРЕННЯ ЗАМОВЛЕННЯ",
+                    style: TextStyle(
+                        color: fontColorDarkGrey,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -646,34 +681,6 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget profileNameWidget() {
-    return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: SizedBox(
-        height: 24,
-        child: Row(
-          children: [
-            Icon(Icons.person, color: iconColor),
-            Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(profileName)),
-            Icon(Icons.keyboard_arrow_down),
-          ],
         ),
       ),
     );

@@ -110,6 +110,59 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
 
   Widget headerPage() {
     return Container(
+      //height: 100,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              blurRadius: 3,
+              offset: const Offset(0, 2), // changes position of shadow
+            ),
+          ]),
+      child: Column(
+        children: [
+          /// Search
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Row(
+              children: [searchFieldWidget(), Spacer(), PortalPhonesAddresses(), PortalProfileName()],
+            ),
+          ),
+
+          /// Divider
+          Divider(),
+
+          /// Name of page
+          Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                if (!Responsive.isDesktop(context))
+                  GestureDetector(
+                    child: Icon(
+                      Icons.menu,
+                      color: Colors.blue,
+                    ),
+                    onTap: context.read<MenuController>().controlMenu,
+                  ),
+                SizedBox(
+                  width: 40,
+                  child: Icon(
+                    Icons.receipt_long,
+                    color: Colors.blue,
+                  ),
+                ),
+                Text(namePage, style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+    return Container(
       height: 115,
       decoration: BoxDecoration(
           color: Colors.white,

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/constants.dart';
 import 'package:wp_b2b/controllers/MenuController.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
@@ -84,7 +84,11 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
   // Количество элементов в автозагрузке списка
   int _currentMax = 0;
-  int countLoadItems = 35;
+
+  int countLoadItemsDefault = 50;
+  int countLoadItems = 50;
+
+  ScrollController controllerListView = ScrollController();
 
   Warehouse warehouse = Warehouse();
   Price price = Price();
@@ -95,6 +99,11 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   void initState() {
     _loadData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -117,6 +126,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             Expanded(
               flex: 5,
               child: SingleChildScrollView(
+                //physics: PageScrollPhysics(),
                 primary: true,
                 child: Column(
                   children: [
@@ -156,7 +166,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
   _loadData() async {
     await _loadPathPictureData();
-    await _loadProfileData();
     setState(() {});
     await _renewItem();
     await _loadWarehouses();
@@ -165,14 +174,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   }
 
   _loadPathPictureData() async {
-    final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    final SharedPreferences prefs = await _prefs;
-    pathPicture = prefs.getString('settings_photoServerExchange') ?? '';
-  }
-
-  _loadProfileData() async {
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    profileName = pref.getString('settings_profileName') ?? '';
+    pathPicture = await getBasePhotoUrl();
   }
 
   _loadWarehouses() async {
@@ -242,6 +244,8 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   _updateHeader() async {
     textFieldPriceController.text = price.name;
     textFieldWarehouseController.text = warehouse.name;
+    uidPrice = price.uid;
+    uidWarehouse = warehouse.uid;
   }
 
   Future<List<Product>> _getProductsByParent(uidParentProduct) async {
@@ -450,8 +454,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
     /// Залишки товарів
     listProductRest = await _loadAccumProductRestByUIDProducts(listWarehousesUID, listProductsUID);
-
-    setState(() {});
   }
 
   _loadAdditionalProductsToView() async {
@@ -665,7 +667,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
   Widget headerPage() {
     return Container(
-      height: 115,
+      //height: 100,
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
@@ -682,7 +684,13 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
-              children: [searchFieldWidget(), Spacer(), profileNameWidget()],
+              children: [
+                searchFieldWidget(),
+                Spacer(),
+                PortalDebtsPartners(),
+                PortalPhonesAddresses(),
+                PortalProfileName()
+              ],
             ),
           ),
 
@@ -691,46 +699,46 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
           /// Name of page
           Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Row(
-                children: [
-                  /// If this window use like separated windows without document
-                  if (widget.orderCustomer != null || widget.orderMovement != null)
-                    GestureDetector(
-                      child: SizedBox(
-                        height: 40,
-                        width: 40,
-                        child: Icon(
-                          Icons.arrow_back,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-
-                  /// Show icon if not for selection goods to document
-                  if (widget.orderCustomer == null && widget.orderMovement == null)
-                    SizedBox(
-                      height: 40,
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                /// If this window use like separated windows without document
+                if (widget.orderCustomer != null || widget.orderMovement != null)
+                  GestureDetector(
+                    child: SizedBox(
                       width: 40,
                       child: Icon(
-                        Icons.receipt_long,
+                        Icons.arrow_back,
                         color: Colors.blue,
                       ),
                     ),
-                  if (widget.orderCustomer != null && widget.orderMovement == null)
-                    Text('ПІДБІР ТОВАРІВ В ЗАМОВЛЕННЯ ПОКУПЦЯ',
-                        style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                  if (widget.orderCustomer == null && widget.orderMovement != null)
-                    Text('ПІДБІР ТОВАРІВ В ПЕРЕМІЩЕННЯ ТОВАРІВ',
-                        style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                  if (widget.orderCustomer == null && widget.orderMovement == null)
-                    Text('ТОВАРИ ТА ПОСЛУГИ',
-                        style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
-              )),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+
+                /// Show icon if not for selection goods to document
+                if (widget.orderCustomer == null && widget.orderMovement == null)
+                  SizedBox(
+                    width: 40,
+                    child: Icon(
+                      Icons.receipt_long,
+                      color: Colors.blue,
+                    ),
+                  ),
+                if (widget.orderCustomer != null && widget.orderMovement == null)
+                  Text('ПІДБІР ТОВАРІВ В ЗАМОВЛЕННЯ ПОКУПЦЯ',
+                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                if (widget.orderCustomer == null && widget.orderMovement != null)
+                  Text('ПІДБІР ТОВАРІВ В ПЕРЕМІЩЕННЯ ТОВАРІВ',
+                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                if (widget.orderCustomer == null && widget.orderMovement == null)
+                  Text('ТОВАРИ ТА ПОСЛУГИ',
+                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -792,31 +800,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget profileNameWidget() {
-    return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: SizedBox(
-        height: 24,
-        child: Row(
-          children: [
-            Icon(Icons.person, color: iconColor),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text(profileName)),
-            Icon(Icons.keyboard_arrow_down),
-          ],
         ),
       ),
     );
@@ -957,13 +940,19 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                         activeColor: checkboxColor,
                         checkColor: secondaryColor,
                         value: showOnlyWithRests,
-                        onChanged: (value) {
-                          setState(() {
-                            setState(() {
-                              showOnlyWithRests = !showOnlyWithRests;
-                            });
-                            //_renewItem();
-                          });
+                        onChanged: (value) async {
+                          countLoadItems = 1000;
+
+                          showOnlyWithRests = !showOnlyWithRests;
+
+                          if (showOnlyWithRests) {
+                            countLoadItems = 1000;
+                            await _renewItem();
+                          } else {
+                            countLoadItems = countLoadItemsDefault;
+                            await _renewItem();
+                          }
+                          setState(() {});
                         },
                       ),
                       Padding(
@@ -1030,13 +1019,13 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
               color: bgColorHeader,
             ),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(defaultPadding, defaultPadding, defaultPadding * 2, defaultPadding),
+              padding: const EdgeInsets.fromLTRB(6, defaultPadding, defaultPadding, defaultPadding),
               child: Row(
                 children: [
                   Expanded(
                     flex: 2,
                     child: Text('Фото',
-                        textAlign: TextAlign.left,
+                        textAlign: TextAlign.center,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   Expanded(
@@ -1046,7 +1035,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   Expanded(
-                    flex: 2,
+                    flex: 3,
                     child: Text('Артикул',
                         textAlign: TextAlign.left,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
@@ -1054,7 +1043,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                   Expanded(
                     flex: 2,
                     child: Text('Од. вим.',
-                        textAlign: TextAlign.left,
+                        textAlign: TextAlign.center,
                         style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   Expanded(
@@ -1082,6 +1071,14 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                   Expanded(
                     flex: 1,
                     child: Icon(
+                      Icons.arrow_drop_down,
+                      color: fontColorDarkGrey,
+                      size: 20,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Icon(
                       Icons.add_shopping_cart_outlined,
                       color: fontColorDarkGrey,
                       size: 20,
@@ -1099,6 +1096,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                 flex: 1,
                 child: listProductsForListView.isNotEmpty
                     ? ListView.builder(
+                        controller: controllerListView,
                         padding: EdgeInsets.all(0.0),
                         physics: BouncingScrollPhysics(),
                         shrinkWrap: true,
@@ -1219,9 +1217,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             Expanded(
               flex: 2,
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: defaultPadding,
-                ),
+                padding: const EdgeInsets.fromLTRB(8, 0, 0, 0),
                 child: Icon(
                   Icons.folder,
                   color: Colors.blue,
@@ -1229,17 +1225,17 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
               ),
             ),
             Expanded(
-              flex: 20,
+              flex: 21,
               child: Text(item.name),
             ),
-            Expanded(
-              flex: 1,
-              child: Icon(
-                Icons.add_shopping_cart_outlined,
-                color: tileSelectedColor.withOpacity(0.5),
-                size: 20,
-              ),
-            ),
+            // Expanded(
+            //   flex: 1,
+            //   child: Icon(
+            //     Icons.add_shopping_cart_outlined,
+            //     color: tileSelectedColor.withOpacity(0.5),
+            //     size: 20,
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -1304,6 +1300,9 @@ class _ProductItemListViewState extends State<ProductItemListView> {
   List<AccumProductRest> listRestsByWarehouse = [];
 
   bool visibleListCharacteristics = false;
+  bool visibleDescription = false;
+
+  bool loadedPicture = false;
 
   _loadData() async {
     await _getCharacteristics();
@@ -1319,29 +1318,14 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
     // Read response
     if (response.error == null) {
-      setState(() {
-        for (var item in response.data as List<dynamic>) {
-          listProductCharacteristic.add(item);
-        }
-      });
+      for (var item in response.data as List<dynamic>) {
+        listProductCharacteristic.add(item);
+      }
     } else if (response.error == unauthorized) {
       logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
       showErrorMessage('${response.error}', context);
     }
-  }
-
-  _getRestsByWarehouse(productCharacteristic) async {
-    listRestsByWarehouse.clear();
-
-    // Знайдемо загальні залишки
-    var selectedListProductRest =
-        listProductRest.where((element) => element.uidProductCharacteristic == productCharacteristic.uid).toList();
-
-    // Заповнимо список залишків по складу для вибраного виду товару
-    setState(() {
-      listRestsByWarehouse.addAll(selectedListProductRest);
-    });
   }
 
   _addItemToDocument(productCharacteristic, count, price) {
@@ -1370,9 +1354,9 @@ class _ProductItemListViewState extends State<ProductItemListView> {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(
-        //horizontal: defaultPadding,
-        //vertical: defaultPadding,
-      ),
+          //horizontal: defaultPadding,
+          //vertical: defaultPadding,
+          ),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
@@ -1391,7 +1375,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                   flex: 2,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: getItemSmallPictureWithPopup(widget.product),
+                    child: ProductImage(product: widget.product),
                   ),
                 ),
                 Expanded(
@@ -1399,13 +1383,16 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                   child: Text(widget.product.name, textAlign: TextAlign.left),
                 ),
                 Expanded(
-                  flex: 2,
-                  child: Text(widget.product.vendorCode.isNotEmpty ? widget.product.vendorCode : '-',
-                      textAlign: TextAlign.left),
+                  flex: 3,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                    child: Text(widget.product.vendorCode.isNotEmpty ? widget.product.vendorCode : '-',
+                        textAlign: TextAlign.left),
+                  ),
                 ),
                 Expanded(
                   flex: 2,
-                  child: Text(widget.product.nameUnit, textAlign: TextAlign.left),
+                  child: Text(widget.product.nameUnit.trim(), textAlign: TextAlign.center),
                 ),
                 Expanded(
                   flex: 2,
@@ -1422,6 +1409,26 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                 Expanded(
                   flex: 2,
                   child: Text(doubleToString(widget.price * widget.countOnWarehouse), textAlign: TextAlign.left),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: iconColor,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          /// Clear html tags from description
+                          if (!visibleDescription) {
+                            widget.product.description = Bidi.stripHtmlIfNeeded(widget.product.description);
+                          }
+
+                          /// Show form with text description
+                          visibleDescription = !visibleDescription;
+                        });
+                      }),
                 ),
                 Expanded(
                   flex: 1,
@@ -1452,6 +1459,29 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                 ),
               ],
             ),
+
+            /// Опис товару
+            if (visibleDescription)
+              Column(
+                children: [
+                  if (widget.product.description.trim() != '') Divider(thickness: 0.5, height: 8),
+                  Row(
+                    children: [
+                      Expanded(flex: 2, child: Text('')),
+                      Expanded(
+                        flex: 19,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 16, 0, 16),
+                          child: Text(widget.product.description.trim()),
+                        ),
+                      ),
+                      Expanded(flex: 2, child: Text('')),
+                    ],
+                  ),
+                ],
+              ),
+
+            /// Характеристики
             if (listProductCharacteristic.isNotEmpty && visibleListCharacteristics)
               Row(
                 children: [
@@ -1459,7 +1489,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                     flex: 1,
                     child: ListView.builder(
                         padding: EdgeInsets.all(0.0),
-                        physics: BouncingScrollPhysics(),
+                        physics: PageScrollPhysics(),
                         shrinkWrap: true,
                         itemCount: listProductCharacteristic.length,
                         itemBuilder: (context, index) {
@@ -1503,7 +1533,6 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
   Widget getItemSmallPictureWithPopup(item) {
     return FutureBuilder(
-      // Paste your image URL inside the htt.get method as a parameter
       future: http.get(Uri.parse(pathPicture + '/${item.uid}_0.png'), headers: {
         HttpHeaders.accessControlAllowOriginHeader: '*',
       }),
@@ -1732,4 +1761,3 @@ class _ProductItemListViewState extends State<ProductItemListView> {
     );
   }
 }
-

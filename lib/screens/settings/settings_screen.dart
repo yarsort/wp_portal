@@ -93,10 +93,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Row(
         children: [
           if (!Responsive.isDesktop(context))
-            IconButton(
-              icon: Icon(Icons.menu),
-              onPressed: context.read<MenuController>().controlMenu,
+            GestureDetector(
+              child: SizedBox(
+                height: 40,
+                width: 40,
+                child: Icon(
+                  Icons.menu,
+                  color: Colors.blue,
+                ),
+              ),
+              onTap: context.read<MenuController>().controlMenu,
             ),
+          SizedBox(
+            height: 40,
+            width: 40,
+            child: Icon(
+              Icons.settings,
+              color: Colors.blue,
+            ),
+          ),
           if (!Responsive.isMobile(context))
             Text(
               "Налаштування",

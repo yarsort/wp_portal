@@ -16,7 +16,6 @@ import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/models/ref_organization.dart';
 import 'package:wp_b2b/models/ref_warehouse.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
-import 'package:wp_b2b/screens/products/products_list_selection_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
 import 'package:wp_b2b/widgets.dart';
@@ -26,14 +25,12 @@ String pathPicture = '';
 class OrderMovementItemScreen extends StatefulWidget {
   final OrderMovement orderMovement;
 
-  const OrderMovementItemScreen({Key? key, required this.orderMovement})
-      : super(key: key);
+  const OrderMovementItemScreen({Key? key, required this.orderMovement}) : super(key: key);
 
   static const routeName = '/order_customer';
 
   @override
-  State<OrderMovementItemScreen> createState() =>
-      _OrderMovementItemScreenState();
+  State<OrderMovementItemScreen> createState() => _OrderMovementItemScreenState();
 }
 
 class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
@@ -119,7 +116,6 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                         ],
                       ),
                     )
-
                   ],
                 ),
               ),
@@ -144,9 +140,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   }
 
   _loadPathPictureData() async {
-    final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-    final SharedPreferences prefs = await _prefs;
-    pathPicture = prefs.getString('settings_photoServerExchange') ?? '';
+    pathPicture = await getBasePhotoUrl();
   }
 
   _loadProfileData() async {
@@ -299,9 +293,8 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   }
 
   _updateHeader() async {
-    textFieldDateController.text = fullDateToString(widget.orderMovement.date??DateTime.parse(''));
-    textFieldOrganizationController.text =
-    widget.orderMovement.nameOrganization!;
+    textFieldDateController.text = fullDateToString(widget.orderMovement.date ?? DateTime.parse(''));
+    textFieldOrganizationController.text = widget.orderMovement.nameOrganization!;
     textFieldWarehouseSenderController.text = widget.orderMovement.nameWarehouseSender!;
     textFieldWarehouseReceiverController.text = widget.orderMovement.nameWarehouseReceiver!;
   }
@@ -311,8 +304,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
   Widget getItemSmallPicture(item) {
     return FutureBuilder(
       // Paste your image URL inside the htt.get method as a parameter
-      future: http
-          .get(Uri.parse(pathPicture+ '/${item.uid}_0.png'), headers: {
+      future: http.get(Uri.parse(pathPicture + '/${item.uid}_0.png'), headers: {
         HttpHeaders.accessControlAllowOriginHeader: '*',
       }),
       builder: (BuildContext context, AsyncSnapshot<http.Response> snapshot) {
@@ -364,10 +356,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                          width: 300,
-                                          height: 300,
-                                          child: Image.memory(snapshot.data!.bodyBytes)),
+                                      SizedBox(width: 300, height: 300, child: Image.memory(snapshot.data!.bodyBytes)),
                                     ],
                                   ),
                                   const SizedBox(
@@ -377,8 +366,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       ElevatedButton(
-                                          style: ButtonStyle(
-                                              backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
                                           onPressed: () async {
                                             Navigator.of(context).pop(false);
                                           },
@@ -405,7 +393,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
 
   Widget headerPage() {
     return Container(
-      height: 115,
+      //height: 100,
       decoration: BoxDecoration(
           color: Colors.white,
           border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.3))),
@@ -418,12 +406,17 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
           ]),
       child: Column(
         children: [
-
           /// Search
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
             child: Row(
-              children: [searchFieldWidget(), Spacer(), profileNameWidget()],
+              children: [
+                searchFieldWidget(),
+                Spacer(),
+                PortalDebtsPartners(),
+                PortalPhonesAddresses(),
+                PortalProfileName()
+              ],
             ),
           ),
 
@@ -432,40 +425,41 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
 
           /// Name of page
           Padding(
-              padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-              child: Row(
-                children: [
-                  if (!Responsive.isDesktop(context))
-                    GestureDetector(
-                      child: SizedBox(
-                        height: 40,
-                        width: 40,
-                        child: Icon(
-                          Icons.menu,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      onTap: context.read<MenuController>().controlMenu,
-                    ),
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
+            child: Row(
+              children: [
+                if (!Responsive.isDesktop(context))
                   GestureDetector(
                     child: SizedBox(
-                      height: 40,
                       width: 40,
                       child: Icon(
-                        Icons.arrow_back,
+                        Icons.menu,
                         color: Colors.blue,
                       ),
                     ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
+                    onTap: context.read<MenuController>().controlMenu,
                   ),
-                  Text(widget.orderMovement.uid.isNotEmpty
-                      ? "ПЕРЕМІЩЕННЯ ТОВАРІВ №" + widget.orderMovement.numberFrom1C
-                      : "СТВОРЕННЯ ПЕРЕМІЩЕННЯ ТОВАРІВ",
-                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
-              )),
+                GestureDetector(
+                  child: SizedBox(
+                    width: 40,
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                Text(
+                    widget.orderMovement.uid.isNotEmpty
+                        ? "ПЕРЕМІЩЕННЯ ТОВАРІВ №" + widget.orderMovement.numberFrom1C
+                        : "СТВОРЕННЯ ПЕРЕМІЩЕННЯ ТОВАРІВ",
+                    style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
+                //Spacer(),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -521,33 +515,6 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
     );
   }
 
-  Widget profileNameWidget() {
-    return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: SizedBox(
-        height: 24,
-        child: Row(
-          children: [
-            Icon(Icons.person, color: iconColor),
-            Padding(
-                padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(profileName)),
-            Icon(Icons.keyboard_arrow_down),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget textFieldsDocumentDesktop() {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -569,136 +536,147 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                   width: 255,
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Row(
-                        children: [
-                          Spacer(),
-                          Text('Дата:'),
-                          spaceBetweenColumn(),
-                        ],
-                      )),
-                      Expanded(flex: 5, child: SizedBox(
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(fontSize:14),
-                          readOnly: true,
-                          controller: textFieldDateController,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                            fillColor: bgColor,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Дата:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(fontSize: 14),
+                              readOnly: true,
+                              controller: textFieldDateController,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      ))
+                          ))
                     ],
-                  )
-              ),
+                  )),
               spaceBetweenHeaderColumn(),
+
               /// Organization
               Expanded(
                   flex: 1,
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Row(
-                        children: [
-                          Spacer(),
-                          Text('Організація:'),
-                          spaceBetweenColumn(),
-                        ],
-                      )),
-                      Expanded(flex: 5, child: SizedBox(
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(fontSize:14),
-                          readOnly: true,
-                          controller: textFieldOrganizationController,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                            fillColor: bgColor,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                            ),
-                            suffixIcon: PopupMenuButton<Organization>(
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.blue,
-                                size: 30,
+                      Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Організація:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(fontSize: 14),
+                              readOnly: true,
+                              controller: textFieldOrganizationController,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                ),
+                                suffixIcon: PopupMenuButton<Organization>(
+                                  icon: const Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.blue,
+                                    size: 30,
+                                  ),
+                                  onSelected: (Organization value) {
+                                    setState(() {
+                                      widget.orderMovement.uidOrganization = value.uid;
+                                      widget.orderMovement.nameOrganization = value.name;
+                                    });
+                                    _updateHeader();
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return listOrganizations.map<PopupMenuItem<Organization>>((Organization value) {
+                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    }).toList();
+                                  },
+                                ),
                               ),
-                              onSelected: (Organization value) {
-                                setState(() {
-                                  widget.orderMovement.uidOrganization = value.uid;
-                                  widget.orderMovement.nameOrganization = value.name;
-                                });
-                                _updateHeader();
-                              },
-                              itemBuilder: (BuildContext context) {
-                                return listOrganizations.map<PopupMenuItem<Organization>>((Organization value) {
-                                  return PopupMenuItem(child: Text(value.name), value: value);
-                                }).toList();
-                              },
                             ),
-                          ),
-                        ),
-                      ))
+                          ))
                     ],
-                  )
-              ),
+                  )),
               spaceBetweenHeaderColumn(),
+
               /// Sender
               Expanded(
                   flex: 1,
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Row(
-                        children: [
-                          Spacer(),
-                          Text('Відправник:'),
-                          spaceBetweenColumn(),
-                        ],
-                      )),
-                      Expanded(flex: 5, child: SizedBox(
-                          height: 40,
-                          child: TextField(
-                            style: TextStyle(fontSize:14),
-                            readOnly: true,
-                            controller: textFieldWarehouseSenderController,
-                            decoration: InputDecoration(
-                              contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                              fillColor: bgColor,
-                              filled: true,
-                              border: OutlineInputBorder(
-                                borderSide: BorderSide.none,
-                                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                              ),
-                              suffixIcon: PopupMenuButton<Warehouse>(
-                                icon: const Icon(
-                                  Icons.arrow_drop_down,
-                                  color: Colors.blue,
-                                  size: 30,
+                      Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Відправник:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldWarehouseSenderController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                  suffixIcon: PopupMenuButton<Warehouse>(
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Warehouse value) {
+                                      setState(() {
+                                        widget.orderMovement.uidWarehouseSender = value.uid;
+                                        widget.orderMovement.nameWarehouseSender = value.name;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listWarehousesSender.map<PopupMenuItem<Warehouse>>((Warehouse value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
                                 ),
-                                onSelected: (Warehouse value) {
-                                  setState(() {
-                                    widget.orderMovement.uidWarehouseSender = value.uid;
-                                    widget.orderMovement.nameWarehouseSender = value.name;
-                                  });
-                                  _updateHeader();
-                                },
-                                itemBuilder: (BuildContext context) {
-                                  return listWarehousesSender.map<PopupMenuItem<Warehouse>>((Warehouse value) {
-                                    return PopupMenuItem(child: Text(value.name), value: value);
-                                  }).toList();
-                                },
-                              ),
-                            ),
-                          )))
+                              )))
                     ],
-                  )
-              ),
+                  )),
               spaceBetweenHeaderColumn(),
             ],
           ),
@@ -706,66 +684,67 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
           Row(
             children: [
               /// Empty
-              SizedBox(
-                  width: 255,
-                  child: Container()),
+              SizedBox(width: 255, child: Container()),
               spaceBetweenHeaderColumn(),
+
               /// Empty
-              Expanded(
-                  flex: 1,
-                  child: Container()),
+              Expanded(flex: 1, child: Container()),
               spaceBetweenHeaderColumn(),
+
               /// Receiver
               Expanded(
                   flex: 1,
                   child: Row(
                     children: [
-                      Expanded(flex: 2, child: Row(
-                        children: [
-                          Spacer(),
-                          Text('Отримувач:'),
-                          spaceBetweenColumn(),
-                        ],
-                      )),
-                      Expanded(flex: 5, child: SizedBox(
-                        height: 40,
-                        child: TextField(
-                          style: TextStyle(fontSize:14),
-                          readOnly: true,
-                          controller: textFieldWarehouseReceiverController,
-                          decoration: InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                            fillColor: bgColor,
-                            filled: true,
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                            ),
-                            suffixIcon: PopupMenuButton<Warehouse>(
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: Colors.blue,
-                                size: 30,
+                      Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Spacer(),
+                              Text('Отримувач:'),
+                              spaceBetweenColumn(),
+                            ],
+                          )),
+                      Expanded(
+                          flex: 5,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextField(
+                              style: TextStyle(fontSize: 14),
+                              readOnly: true,
+                              controller: textFieldWarehouseReceiverController,
+                              decoration: InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                fillColor: bgColor,
+                                filled: true,
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide.none,
+                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                ),
+                                suffixIcon: PopupMenuButton<Warehouse>(
+                                  icon: const Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Colors.blue,
+                                    size: 30,
+                                  ),
+                                  onSelected: (Warehouse value) {
+                                    setState(() {
+                                      widget.orderMovement.uidWarehouseReceiver = value.uid;
+                                      widget.orderMovement.nameWarehouseReceiver = value.name;
+                                    });
+                                    _updateHeader();
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return listWarehousesReceiver.map<PopupMenuItem<Warehouse>>((Warehouse value) {
+                                      return PopupMenuItem(child: Text(value.name), value: value);
+                                    }).toList();
+                                  },
+                                ),
                               ),
-                              onSelected: (Warehouse value) {
-                                setState(() {
-                                  widget.orderMovement.uidWarehouseReceiver = value.uid;
-                                  widget.orderMovement.nameWarehouseReceiver = value.name;
-                                });
-                                _updateHeader();
-                              },
-                              itemBuilder: (BuildContext context) {
-                                return listWarehousesReceiver.map<PopupMenuItem<Warehouse>>((Warehouse value) {
-                                  return PopupMenuItem(child: Text(value.name), value: value);
-                                }).toList();
-                              },
                             ),
-                          ),
-                        ),
-                      ))
+                          ))
                     ],
-                  )
-              ),
+                  )),
               spaceBetweenHeaderColumn(),
             ],
           ),
@@ -790,6 +769,7 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
             child: Row(
               children: [
                 Text('Список товарів', style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
+
                 /// Space
                 Spacer(),
                 // /// Send to 1C database
@@ -926,44 +906,59 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Text('Фото', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Фото',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 1,
-                    child: Text('N', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('N',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 6,
-                    child: Text('Товар', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Товар',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Варіант', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Варіант',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child:
-                    Text('Кількість', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Кількість',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 3,
-                    child: Text('Од. вим.', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Од. вим.',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Ціна', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Ціна',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
                     flex: 2,
-                    child: Text('Знижка', textAlign: TextAlign.left, style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
+                    child: Text('Знижка',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(fontWeight: FontWeight.bold, color: fontColorDarkGrey)),
                   ),
                   spaceBetweenColumn(),
                   Expanded(
@@ -982,14 +977,14 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
                 flex: 1,
                 child: widget.orderMovement.itemsOrderMovement.isNotEmpty
                     ? ListView.builder(
-                    padding: EdgeInsets.all(0.0),
-                    physics: BouncingScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: widget.orderMovement.itemsOrderMovement.length,
-                    itemBuilder: (context, index) {
-                      final itemsOrderMovement = widget.orderMovement.itemsOrderMovement[index];
-                      return recentOrderMovementDataRow(itemsOrderMovement);
-                    })
+                        padding: EdgeInsets.all(0.0),
+                        physics: BouncingScrollPhysics(),
+                        shrinkWrap: true,
+                        itemCount: widget.orderMovement.itemsOrderMovement.length,
+                        itemBuilder: (context, index) {
+                          final itemsOrderMovement = widget.orderMovement.itemsOrderMovement[index];
+                          return recentOrderMovementDataRow(itemsOrderMovement);
+                        })
                     : SizedBox(height: 50, child: Center(child: Text('Список товарів порожній!'))),
               )
             ],
@@ -999,9 +994,9 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
           Container(
             decoration: BoxDecoration(
               border: Border(
-                //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                //top: BorderSide(color: Colors.grey.withOpacity(0.3))
-              ),
+                  //bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  //top: BorderSide(color: Colors.grey.withOpacity(0.3))
+                  ),
               color: secondaryColor,
             ),
             child: Padding(
@@ -1032,9 +1027,8 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
           children: [
             SizedBox(
               width: 40,
-              child: Text(item.numberRow.toString(),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white)),
+              child:
+                  Text(item.numberRow.toString(), textAlign: TextAlign.center, style: TextStyle(color: Colors.white)),
             ),
             spaceBetweenColumn(),
             SizedBox(
@@ -1050,37 +1044,31 @@ class _OrderMovementItemScreenState extends State<OrderMovementItemScreen> {
             spaceBetweenColumn(),
             Expanded(
               flex: 1,
-              child: Text(item.nameCharacteristic,
-                  style: TextStyle(color: Colors.white)),
+              child: Text(item.nameCharacteristic, style: TextStyle(color: Colors.white)),
             ),
             spaceBetweenColumn(),
             Expanded(
               flex: 1,
-              child:
-                  Text(item.nameUnit, style: TextStyle(color: Colors.white)),
+              child: Text(item.nameUnit, style: TextStyle(color: Colors.white)),
             ),
             spaceBetweenColumn(),
             Expanded(
               flex: 1,
-              child: Text(doubleToString(item.countPrepare),
-                  style: TextStyle(color: Colors.white)),
+              child: Text(doubleToString(item.countPrepare), style: TextStyle(color: Colors.white)),
             ),
             spaceBetweenColumn(),
             Expanded(
               flex: 1,
-              child: Text(doubleToString(item.countSend),
-                  style: TextStyle(color: Colors.white)),
+              child: Text(doubleToString(item.countSend), style: TextStyle(color: Colors.white)),
             ),
             spaceBetweenColumn(),
             Expanded(
               flex: 1,
-              child: Text(doubleToString(item.countReceived),
-                  style: TextStyle(color: Colors.white)),
+              child: Text(doubleToString(item.countReceived), style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
       ),
     );
   }
-
 }
