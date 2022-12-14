@@ -702,21 +702,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
             child: Row(
               children: [
-                // /// If this window use like separated windows without document
-                // if (widget.orderCustomer != null || widget.orderMovement != null)
-                //   GestureDetector(
-                //     child: SizedBox(
-                //       width: 40,
-                //       child: Icon(
-                //         Icons.arrow_back,
-                //         color: Colors.blue,
-                //       ),
-                //     ),
-                //     onTap: () {
-                //       Navigator.of(context).pop();
-                //     },
-                //   ),
-
                 spaceBetweenHeaderColumn(),
                 /// Show icon if not for selection goods to document
                 if (widget.orderCustomer == null && widget.orderMovement == null)
