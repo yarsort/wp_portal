@@ -384,6 +384,7 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                             builder: (context) => OrderCustomerItemScreen(orderCustomer: orderCustomer),
                           ),
                         );
+
                         await _loadListOrdersCustomers();
                       },
                       child: Text('Додати документ')),

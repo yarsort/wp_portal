@@ -702,21 +702,22 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
             child: Row(
               children: [
-                /// If this window use like separated windows without document
-                if (widget.orderCustomer != null || widget.orderMovement != null)
-                  GestureDetector(
-                    child: SizedBox(
-                      width: 40,
-                      child: Icon(
-                        Icons.arrow_back,
-                        color: Colors.blue,
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
+                // /// If this window use like separated windows without document
+                // if (widget.orderCustomer != null || widget.orderMovement != null)
+                //   GestureDetector(
+                //     child: SizedBox(
+                //       width: 40,
+                //       child: Icon(
+                //         Icons.arrow_back,
+                //         color: Colors.blue,
+                //       ),
+                //     ),
+                //     onTap: () {
+                //       Navigator.of(context).pop();
+                //     },
+                //   ),
 
+                spaceBetweenHeaderColumn(),
                 /// Show icon if not for selection goods to document
                 if (widget.orderCustomer == null && widget.orderMovement == null)
                   SizedBox(
@@ -735,7 +736,17 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                 if (widget.orderCustomer == null && widget.orderMovement == null)
                   Text('ТОВАРИ ТА ПОСЛУГИ',
                       style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                //Spacer(),
+                Spacer(),
+                if (widget.orderCustomer != null || widget.orderMovement != null)
+                  SizedBox(
+                    height: 30,
+                    child: ElevatedButton(
+                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                        onPressed: () async {
+                          Navigator.of(context).pop();
+                        },
+                        child: Text('Закрити каталог'))),
+                spaceBetweenHeaderColumn(),
               ],
             ),
           ),

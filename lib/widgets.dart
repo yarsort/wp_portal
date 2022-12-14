@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -491,7 +490,7 @@ class _PortalSearchState extends State<PortalSearch> {
                 ),
                 child: Icon(
                   Icons.delete,
-                  color: Colors.red,
+                  color: Colors.grey,
                 ),
               ),
             ),
