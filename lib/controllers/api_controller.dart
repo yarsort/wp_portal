@@ -2,7 +2,6 @@
 // Errors
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wp_b2b/models/ref_contact.dart';
-import 'package:wp_b2b/system.dart';
 
 const serverError = 'Помилка отримання даних. Сервер не доступний!';
 const serverAuthError = 'Помилка авторизації. Сервер не доступний!';

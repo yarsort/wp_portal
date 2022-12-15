@@ -9,9 +9,10 @@ import 'package:wp_b2b/models/accum_product_prices.dart';
 import 'package:wp_b2b/models/accum_product_rests.dart';
 import 'package:wp_b2b/models/api_response.dart';
 import 'package:wp_b2b/models/ref_product.dart';
+import 'package:wp_b2b/models/system_sort.dart';
 
 // Get all products
-Future<ApiResponse> getProductsByParent(uidParentProduct) async {
+Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения: отправка!!!
@@ -28,7 +29,7 @@ Future<ApiResponse> getProductsByParent(uidParentProduct) async {
   try {
 
     var dio = Dio();
-    final response = await dio.get(connectionUrl + '/' + uidParentProduct,
+    final response = await dio.get(connectionUrl + '/' + uidParentProduct + '?sort=${sortDefault.code}',
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',

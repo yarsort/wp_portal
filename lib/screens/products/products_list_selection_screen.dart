@@ -19,6 +19,7 @@ import 'package:wp_b2b/models/doc_order_movement.dart';
 import 'package:wp_b2b/models/ref_price.dart';
 import 'package:wp_b2b/models/ref_product.dart';
 import 'package:wp_b2b/models/ref_warehouse.dart';
+import 'package:wp_b2b/models/system_sort.dart';
 import 'package:wp_b2b/screens/login/login_screen.dart';
 import 'package:wp_b2b/screens/side_menu/side_menu.dart';
 import 'package:wp_b2b/system.dart';
@@ -63,10 +64,15 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   /// Поле ввода: Склад
   TextEditingController textFieldWarehouseController = TextEditingController();
 
+  /// Поле ввода: Сортировка
+  TextEditingController textFieldSortController = TextEditingController();
+
   // Список товарів для вывода на экран
   List<Product> listDataProducts = []; // Список всіх товарів з сервера
   List<Product> listProducts = [];
   List<Product> listProductsForListView = [];
+
+  Sort sortDefault = Sort().getSortDefault();
 
   // Список каталогов для построения иерархии
   List<Product> treeParentItems = [];
@@ -248,11 +254,11 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     uidWarehouse = warehouse.uid;
   }
 
-  Future<List<Product>> _getProductsByParent(uidParentProduct) async {
+  Future<List<Product>> _getProductsByParent(uidParentProduct, sort) async {
     List<Product> listToReturn = [];
 
     // Request to server
-    ApiResponse response = await getProductsByParent(uidParentProduct);
+    ApiResponse response = await getProductsByParent(uidParentProduct, sort);
 
     // Read response
     if (response.error == null) {
@@ -320,7 +326,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     /// Завантаження даних з сервера
     if (showProductHierarchy) {
       // Покажем товары текущего родителя
-      listDataProducts = await _getProductsByParent(parentProduct.uid);
+      listDataProducts = await _getProductsByParent(parentProduct.uid, sortDefault);
     } else {
       String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
       if (searchString.toLowerCase().length >= 3) {
@@ -328,7 +334,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
         listDataProducts = await _getProductsForSearch(searchString);
       } else {
         // Покажем все товары
-        listDataProducts = await _getProductsByParent('00000000-0000-0000-0000-000000000000');
+        listDataProducts = await _getProductsByParent('00000000-0000-0000-0000-000000000000', sortDefault);
       }
     }
 
@@ -848,6 +854,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                                   borderRadius: const BorderRadius.all(Radius.circular(5)),
                                 ),
                                 suffixIcon: PopupMenuButton<Price>(
+                                  padding: EdgeInsets.all(0),
                                   icon: const Icon(
                                     Icons.arrow_drop_down,
                                     color: Colors.blue,
@@ -903,6 +910,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                                   borderRadius: const BorderRadius.all(Radius.circular(5)),
                                 ),
                                 suffixIcon: PopupMenuButton<Warehouse>(
+                                  padding: EdgeInsets.all(0),
                                   icon: const Icon(
                                     Icons.arrow_drop_down,
                                     color: Colors.blue,
@@ -1001,6 +1009,71 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
                 /// Space
                 Spacer(),
+
+                /// Sorting
+                SizedBox(
+                  height: 30,
+                  width: 240,
+                  child: TextField(
+                    style: TextStyle(fontSize: 14),
+                    readOnly: true,
+                    controller: textFieldSortController,
+                    decoration: InputDecoration(
+                      constraints: BoxConstraints(maxHeight: 30),
+                      contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                      fillColor: bgColor,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: const BorderRadius.all(Radius.circular(5)),
+                      ),
+                      suffixIcon: PopupMenuButton<Sort>(
+                        padding: EdgeInsets.all(0),
+                        icon: const Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.blue,
+                          size: 30,
+                        ),
+                        onSelected: (Sort value) {
+                          textFieldSortController.text = value.name;
+                          sortDefault = value;
+                          _renewItem();
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return Sort().getSortProducts().map<PopupMenuItem<Sort>>((Sort value) {
+                            return PopupMenuItem(child: Text(value.name), value: value);
+                          }).toList();
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+
+                spaceBetweenHeaderColumn(),
+
+                /// LIST View
+                SizedBox(
+                  height: 35,
+                  child: IconButton(
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                    constraints: BoxConstraints(maxWidth: 30, maxHeight: 30),
+                    onPressed: () {},
+                    icon: Icon(Icons.list_alt_sharp, color: Colors.blue.withOpacity(0.6),),
+                  ),
+                ),
+
+                spaceBetweenHeaderColumn(),
+
+                /// GRID View
+                SizedBox(
+                  height: 35,
+                  child: IconButton(
+                    padding: EdgeInsets.symmetric(horizontal: 0, vertical: 5),
+                    constraints: BoxConstraints(maxWidth: 30, maxHeight: 30),
+                    onPressed: () {},
+                    icon: Icon(Icons.grid_view, color: Colors.grey.withOpacity(0.6),),
+                  ),
+                )
               ],
             ),
           ),
