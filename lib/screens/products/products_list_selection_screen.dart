@@ -72,7 +72,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   List<Product> listProducts = [];
   List<Product> listProductsForListView = [];
 
-  Sort sortDefault = Sort().getSortDefault();
+  Sort sortDefault = Sort();
 
   // Список каталогов для построения иерархии
   List<Product> treeParentItems = [];
@@ -172,11 +172,17 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
   _loadData() async {
     await _loadPathPictureData();
+    await _loadSort();
     setState(() {});
-    await _renewItem();
     await _loadWarehouses();
     await _loadPrices();
+    await _renewItem();
     await _updateHeader();
+  }
+
+  _loadSort(){
+    sortDefault = Sort().getSortDefault();
+    textFieldSortController.text = sortDefault.name;
   }
 
   _loadPathPictureData() async {
@@ -254,11 +260,11 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     uidWarehouse = warehouse.uid;
   }
 
-  Future<List<Product>> _getProductsByParent(uidParentProduct, sort) async {
+  Future<List<Product>> _getProductsByParent(uidParentProduct, sort, price, warehouse) async {
     List<Product> listToReturn = [];
 
     // Request to server
-    ApiResponse response = await getProductsByParent(uidParentProduct, sort);
+    ApiResponse response = await getProductsByParent(uidParentProduct, sort, price, warehouse);
 
     // Read response
     if (response.error == null) {
@@ -326,7 +332,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     /// Завантаження даних з сервера
     if (showProductHierarchy) {
       // Покажем товары текущего родителя
-      listDataProducts = await _getProductsByParent(parentProduct.uid, sortDefault);
+      listDataProducts = await _getProductsByParent(parentProduct.uid, sortDefault, price, warehouse);
     } else {
       String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
       if (searchString.toLowerCase().length >= 3) {
@@ -334,16 +340,27 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
         listDataProducts = await _getProductsForSearch(searchString);
       } else {
         // Покажем все товары
-        listDataProducts = await _getProductsByParent('00000000-0000-0000-0000-000000000000', sortDefault);
+        listDataProducts = await _getProductsByParent('00000000-0000-0000-0000-000000000000', sortDefault, price, warehouse);
       }
     }
 
     /// Сортировка списка: сначала каталоги, потом элементы
-    listDataProducts.sort((a, b) => a.name.compareTo(b.name));
-    listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
+    //listDataProducts.sort((a, b) => a.name.compareTo(b.name));
+    //listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
 
-    /// Заполним список товарів для отображения на форме
-    for (var newItem in listDataProducts) {
+    /// Отбор каталогов для их отдельной сортировки по наименованию
+    List<Product> listCatalogs = [];
+    for (var item in listDataProducts) {
+      if(item.isGroup == 1) {
+        listCatalogs.add(item);
+      }
+    }
+
+    /// Отсортируем каталоги
+    listCatalogs.sort((a, b) => a.name.compareTo(b.name));
+
+    /// Заполним список каталогов для отображения на форме
+    for (var newItem in listCatalogs) {
       // Пропустим сам каталог, потому что он добавлен первым до заполнения
       if (newItem.uid == parentProduct.uid) {
         continue;
@@ -362,11 +379,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
         if (newItem.isGroup == 1) {
           continue;
         }
-      }
-
-      // Вывод только каталогов
-      if (newItem.isGroup == 0) {
-        continue;
       }
 
       // Добавим товар
@@ -1012,8 +1024,8 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
                 /// Sorting
                 SizedBox(
-                  height: 30,
-                  width: 240,
+                  height: 35,
+                  width: 260,
                   child: TextField(
                     style: TextStyle(fontSize: 14),
                     readOnly: true,
@@ -1027,6 +1039,9 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
                         borderSide: BorderSide.none,
                         borderRadius: const BorderRadius.all(Radius.circular(5)),
                       ),
+                      prefixIcon: Icon(Icons.sort, color: Colors.blue.withOpacity(0.6),),
+                      prefixIconConstraints: BoxConstraints(minWidth: 40),
+                      suffixIconConstraints: BoxConstraints(maxWidth: 30),
                       suffixIcon: PopupMenuButton<Sort>(
                         padding: EdgeInsets.all(0),
                         icon: const Icon(

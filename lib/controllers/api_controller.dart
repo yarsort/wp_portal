@@ -27,7 +27,7 @@ Future<String> getBaseUrl() async {
       return 'http://api-teh.yarsoft.com.ua/baza/hs/portal';
 
     default:
-      return 'http://api-teh.yarsoft.com.ua/baza/hs/portal';
+      return 'http://api-tehno.yarsoft.com.ua:35844/moto/hs/portal';
   }
 }
 

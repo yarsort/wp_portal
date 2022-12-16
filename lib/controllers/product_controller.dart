@@ -1,18 +1,20 @@
-
-import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:wp_b2b/controllers/api_controller.dart';
 import 'package:wp_b2b/controllers/user_controller.dart';
 import 'package:wp_b2b/models/accum_product_prices.dart';
 import 'package:wp_b2b/models/accum_product_rests.dart';
 import 'package:wp_b2b/models/api_response.dart';
+import 'package:wp_b2b/models/ref_price.dart';
 import 'package:wp_b2b/models/ref_product.dart';
+import 'package:wp_b2b/models/ref_warehouse.dart';
 import 'package:wp_b2b/models/system_sort.dart';
 
 // Get all products
-Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault) async {
+Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault, Price price, Warehouse warehouse) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения: отправка!!!
@@ -20,23 +22,28 @@ Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault) asyn
 
   /// Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
-    
+
   /// Get data from server
   try {
-
     var dio = Dio();
-    final response = await dio.get(connectionUrl + '/' + uidParentProduct + '?sort=${sortDefault.code}',
+    final response = await dio.get(
+        connectionUrl +
+            '/' +
+            uidParentProduct +
+                '?sort=${sortDefault.code}'
+                '&uidPrice=${price.uid}'
+                '&uidWarehouse=${warehouse.uid}',
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
         }));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => Product.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -73,7 +80,7 @@ Future<ApiResponse> getProductsForSearch(searchString) async {
 
   /// Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
@@ -92,7 +99,7 @@ Future<ApiResponse> getProductsForSearch(searchString) async {
           HttpHeaders.authorizationHeader: basicAuth,
         }));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => Product.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -129,14 +136,13 @@ Future<ApiResponse> getProductCharacteristic(uidProduct) async {
 
   /// Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
   /// Get data from server
   try {
-
     var dio = Dio();
     final response = await dio.get(connectionUrl + '/' + uidProduct,
         options: Options(headers: {
@@ -145,7 +151,7 @@ Future<ApiResponse> getProductCharacteristic(uidProduct) async {
           HttpHeaders.authorizationHeader: basicAuth,
         }));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => ProductCharacteristic.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -182,31 +188,28 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
 
   /// Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
   /// Get data from server
   try {
-
     Map dataMap = {
-      'uidPrices' : listPricesUID,
-      'uidProducts' : listProductsUID,
+      'uidPrices': listPricesUID,
+      'uidProducts': listProductsUID,
     };
 
     var dio = Dio();
     final response = await dio.post(connectionUrl,
-        options: Options(
-            headers: {
+        options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: basicAuth,
         }),
-        data: jsonEncode(dataMap)
-    );
+        data: jsonEncode(dataMap));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => AccumProductPrice.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
@@ -235,7 +238,8 @@ Future<ApiResponse> getAccumProductPriceByUIDProducts(List<String> listPricesUID
 }
 
 // Get rests of products
-Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehousesUID, List<String> listProductsUID) async {
+Future<ApiResponse> getAccumProductRestByUIDProducts(
+    List<String> listWarehousesUID, List<String> listProductsUID) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения: отправка!!!
@@ -243,17 +247,16 @@ Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehouses
 
   /// Authorization
   String basicAuth = await getToken();
-  if (basicAuth == ''){
+  if (basicAuth == '') {
     apiResponse.error = unauthorized;
     return apiResponse;
   }
 
   /// Get data from server
   try {
-
     Map dataMap = {
-      'uidWarehouses' : listWarehousesUID,
-      'uidProducts' : listProductsUID,
+      'uidWarehouses': listWarehousesUID,
+      'uidProducts': listProductsUID,
     };
 
     var dio = Dio();
@@ -265,7 +268,7 @@ Future<ApiResponse> getAccumProductRestByUIDProducts(List<String> listWarehouses
         }),
         data: jsonEncode(dataMap));
 
-    switch(response.statusCode){
+    switch (response.statusCode) {
       case 200:
         apiResponse.data = response.data['data'].map((p) => AccumProductRest.fromJson(p)).toList();
         // We get list of order customer, so we need to map each item to OrderCustomer model
