@@ -444,7 +444,6 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
 
   _loadPriceAndRests() async {
     if (listProductsUID.isEmpty) {
-      //debugPrint('Немає UIDs для виведення залишківс та цін...');
       return;
     }
 
