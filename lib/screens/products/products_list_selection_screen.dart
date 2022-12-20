@@ -260,11 +260,11 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     uidWarehouse = warehouse.uid;
   }
 
-  Future<List<Product>> _getProductsByParent(uidParentProduct, sort, price, warehouse) async {
+  Future<List<Product>> _getProducts(uidParentProduct, sort, price, warehouse) async {
     List<Product> listToReturn = [];
 
     // Request to server
-    ApiResponse response = await getProductsByParent(uidParentProduct, sort, price, warehouse);
+    ApiResponse response = await getProducts(uidParentProduct, sort, price, warehouse, '');
 
     // Read response
     if (response.error == null) {
@@ -282,11 +282,11 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     return listToReturn;
   }
 
-  Future<List<Product>> _getProductsForSearch(searchString) async {
+  Future<List<Product>> _getProductsForSearch(searchString, sort, price, warehouse) async {
     List<Product> listToReturn = [];
 
     // Request to server
-    ApiResponse response = await getProductsForSearch(searchString);
+    ApiResponse response = await getProducts('00000000-0000-0000-0000-000000000000', sort, price, warehouse, searchString);
 
     // Read response
     if (response.error == null) {
@@ -313,14 +313,14 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     }
 
     /// Очистка данных
-    setState(() {
+    //setState(() {
       listProducts.clear();
       listProductsUID.clear();
 
       /// Получим остатки и цены по найденным товарам
       listProductPrice.clear();
       listProductRest.clear();
-    });
+    //});
 
     ///Первым в список добавим каталог товарів, если он есть
     if (showProductHierarchy) {
@@ -332,21 +332,17 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
     /// Завантаження даних з сервера
     if (showProductHierarchy) {
       // Покажем товары текущего родителя
-      listDataProducts = await _getProductsByParent(parentProduct.uid, sortDefault, price, warehouse);
+      listDataProducts = await _getProducts(parentProduct.uid, sortDefault, price, warehouse);
     } else {
       String searchString = textFieldSearchCatalogController.text.trim().toLowerCase();
       if (searchString.toLowerCase().length >= 3) {
         // Покажем все товары для поиска
-        listDataProducts = await _getProductsForSearch(searchString);
+        listDataProducts = await _getProductsForSearch(searchString, sortDefault, price, warehouse);
       } else {
         // Покажем все товары
-        listDataProducts = await _getProductsByParent('00000000-0000-0000-0000-000000000000', sortDefault, price, warehouse);
+        listDataProducts = await _getProducts('00000000-0000-0000-0000-000000000000', sortDefault, price, warehouse);
       }
     }
-
-    /// Сортировка списка: сначала каталоги, потом элементы
-    //listDataProducts.sort((a, b) => a.name.compareTo(b.name));
-    //listDataProducts.sort((b, a) => a.isGroup.compareTo(b.isGroup));
 
     /// Отбор каталогов для их отдельной сортировки по наименованию
     List<Product> listCatalogs = [];
@@ -700,7 +696,7 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
         children: [
           /// Search
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
             child: Row(
               children: [
                 searchFieldWidget(),
@@ -759,62 +755,78 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   }
 
   Widget searchFieldWidget() {
-    return SizedBox(
-      height: 40,
-      width: 400,
-      child: TextField(
-        controller: textFieldSearchCatalogController,
-        onSubmitted: (text) async {
-          if (textFieldSearchCatalogController.text == '') {
-            showProductHierarchy = true;
-            parentProduct = Product();
-            treeParentItems.clear();
-            await _renewItem();
-            return;
-          }
-
-          // Вимкнемо ієрархічний просмотр
-          if (showProductHierarchy) {
-            showProductHierarchy = false;
-            parentProduct = Product();
-            treeParentItems.clear();
-            //showMessage('Ієрархія товарів вимкнена.', context);
-          }
-          await _renewItem();
-        },
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-          hintText: 'Пошук',
-          hintStyle: TextStyle(color: fontColorGrey),
-          fillColor: bgColor,
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-            child: InkWell(
-              onTap: () async {
-                if (textFieldSearchCatalogController.text == '') {
-                  //await _renewItem();
-                  return;
-                }
-                //await _renewItem();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                ),
-                child: Icon(
-                  Icons.search,
-                  color: iconColor,
-                ),
-              ),
+    return Container(
+      height: 35,
+      width: 300,
+      margin: EdgeInsets.only(left: defaultPadding),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                return;
+              }
+            },
+            child: SizedBox(
+              width: 35,
+              child: Icon(Icons.search, color: iconColor),
             ),
           ),
-        ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 33,
+                width: 225,
+                child: TextField(
+                  controller: textFieldSearchCatalogController,
+                  onSubmitted: (text) async {
+                    if (textFieldSearchCatalogController.text == '') {
+                      showProductHierarchy = true;
+                      parentProduct = Product();
+                      treeParentItems.clear();
+                      await _renewItem();
+                      return;
+                    }
+
+                    // Вимкнемо ієрархічний просмотр
+                    if (showProductHierarchy) {
+                      showProductHierarchy = false;
+                      parentProduct = Product();
+                      treeParentItems.clear();
+                      //showMessage('Ієрархія товарів вимкнена.', context);
+                    }
+                    await _renewItem();
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    hintText: 'Пошук',
+                    hintStyle: TextStyle(color: fontColorGrey),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          InkWell(
+              onTap: () async {
+                if (textFieldSearchCatalogController.text == '') {
+                  return;
+                }
+                textFieldSearchCatalogController.text = '';
+                showProductHierarchy = true;
+                await _renewItem();
+              },
+              child: SizedBox(width: 35, child: Icon(Icons.delete, color: iconColorGrey.withOpacity(0.5)))),
+        ],
       ),
     );
   }

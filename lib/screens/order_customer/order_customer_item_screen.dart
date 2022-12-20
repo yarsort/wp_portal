@@ -400,6 +400,10 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     });
   }
 
+  _printItem() {}
+
+  _downloadItem() {}
+
   /// HEADER
 
   Widget getItemSmallPictureWithPopup(item) {
@@ -517,7 +521,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         children: [
           /// Search
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
             child: Row(
               children: [
                 searchFieldWidget(),
@@ -535,120 +539,212 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
           /// Name of page
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-            child: Row(
-              children: [
-                if (!Responsive.isDesktop(context))
-                  GestureDetector(
-                    child: Icon(
-                      Icons.menu,
-                      color: Colors.blue,
+            child: SizedBox(
+              height: 30,
+              child: Row(
+                children: [
+                  if (!Responsive.isDesktop(context))
+                    GestureDetector(
+                      child: Icon(
+                        Icons.menu,
+                        color: Colors.blue,
+                      ),
+                      onTap: context.read<MenuController>().controlMenu,
                     ),
-                    onTap: context.read<MenuController>().controlMenu,
-                  ),
-                spaceBetweenHeaderColumn(),
-                Text(
-                    widget.orderCustomer.uid.isNotEmpty
-                        ? "ЗАМОВЛЕННЯ №" + widget.orderCustomer.numberFrom1C
-                        : "СТВОРЕННЯ ЗАМОВЛЕННЯ",
-                    style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
-                Spacer(),
-                /// Send to 1C database
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green)),
-                        onPressed: () async {
-                          if (widget.orderCustomer.uid != '') {
-                            showErrorMessage('Редагування документа заборонено!', context);
-                            return;
-                          }
+                  spaceBetweenHeaderColumn(),
+                  Text(
+                      widget.orderCustomer.uid.isNotEmpty
+                          ? "ЗАМОВЛЕННЯ №" + widget.orderCustomer.numberFrom1C
+                          : "СТВОРЕННЯ ЗАМОВЛЕННЯ",
+                      style: TextStyle(color: fontColorDarkGrey, fontSize: 16, fontWeight: FontWeight.bold)),
 
-                          if (widget.orderCustomer.itemsOrderCustomer.length == 0) {
-                            showErrorMessage('Документ порожній! Відправка неможлива.', context);
-                            return;
-                          }
+                  /// Space between name of page and buttons
+                  Spacer(),
 
-                          bool valueResult = await showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: const Text('Відправити документ постачальнику?'),
-                                  actions: <Widget>[
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: Center(child: Text('Відправити'))),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        ElevatedButton(
-                                            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                            child: const Text('Відміна'))
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }) as bool;
+                  /// Download item
+                  IconButtonPortal(
+                      icon: Icons.download,
+                      active: true,
+                      onTap: () async {
+                        if (widget.orderCustomer.uid != '') {
+                          return;
+                        }
 
-                          if (valueResult) {
-                            _postOrderCustomer();
-                          }
-                        },
-                        child: Text('Відправити постачальнику'))),
-                spaceBetweenHeaderColumn(),
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
-                        onPressed: () async {
-                          if (widget.orderCustomer.uid != '') {
-                            Navigator.of(context).pop();
-                            return;
-                          }
+                        bool valueResult = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: const Text('Завантажити документ?'),
+                                actions: <Widget>[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: Center(child: Text('Так'))),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ElevatedButton(
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: const Text('Ні'))
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }) as bool;
 
-                          bool valueResult = await showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: const Text('Відмінити створення замовлення постачальнику?'),
-                                  actions: <Widget>[
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: Center(child: Text('Так'))),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        ElevatedButton(
-                                            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                            child: const Text('Ні'))
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }) as bool;
+                        if (valueResult) {
+                          _downloadItem();
+                        }
+                      }),
+                  spaceBetweenHeaderColumn(),
 
-                          if (valueResult) {
-                            Navigator.of(context).pop();
-                          }
-                        },
-                        child: Text('Закрити документ'))),
-                spaceBetweenHeaderColumn(),
-              ],
+                  /// Print item
+                  IconButtonPortal(
+                      icon: Icons.print,
+                      active: true,
+                      onTap: () async {
+                        if (widget.orderCustomer.uid != '') {
+                          return;
+                        }
+
+                        bool valueResult = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: const Text('Роздрукувати документ?'),
+                                actions: <Widget>[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: Center(child: Text('Так'))),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ElevatedButton(
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: const Text('Ні'))
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }) as bool;
+
+                        if (valueResult) {
+                          _downloadItem();
+                        }
+                      }),
+                  spaceBetweenHeaderColumn(),
+
+                  /// Send to 1C database
+                  ElevatedButton(
+                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.green)),
+                      onPressed: () async {
+                        if (widget.orderCustomer.uid != '') {
+                          showErrorMessage('Редагування документа заборонено!', context);
+                          return;
+                        }
+
+                        if (widget.orderCustomer.itemsOrderCustomer.length == 0) {
+                          showErrorMessage('Документ порожній! Відправка неможлива.', context);
+                          return;
+                        }
+
+                        bool valueResult = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: const Text('Відправити документ постачальнику?'),
+                                actions: <Widget>[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: Center(child: Text('Відправити'))),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ElevatedButton(
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: const Text('Відміна'))
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }) as bool;
+
+                        if (valueResult) {
+                          _postOrderCustomer();
+                        }
+                      },
+                      child: Text('Відправити постачальнику')),
+                  spaceBetweenHeaderColumn(),
+
+                  /// Close item
+                  ElevatedButton(
+                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                      onPressed: () async {
+                        if (widget.orderCustomer.uid != '') {
+                          Navigator.of(context).pop();
+                          return;
+                        }
+
+                        bool valueResult = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                content: const Text('Відмінити створення замовлення постачальнику?'),
+                                actions: <Widget>[
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      ElevatedButton(
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(true);
+                                          },
+                                          child: Center(child: Text('Так'))),
+                                      const SizedBox(
+                                        width: 10,
+                                      ),
+                                      ElevatedButton(
+                                          style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                          onPressed: () async {
+                                            Navigator.of(context).pop(false);
+                                          },
+                                          child: const Text('Ні'))
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }) as bool;
+
+                        if (valueResult) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: Text('Закрити')),
+                  spaceBetweenHeaderColumn(),
+                ],
+              ),
             ),
           ),
         ],
@@ -657,51 +753,63 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
   }
 
   Widget searchFieldWidget() {
-    return SizedBox(
-      height: 40,
-      width: 400,
-      child: TextField(
-        controller: textFieldSearchCatalogController,
-        onSubmitted: (text) async {
-          if (textFieldSearchCatalogController.text == '') {
-            //await _renewItem();
-            return;
-          }
-          //await _renewItem();
-        },
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-          hintText: 'Пошук',
-          hintStyle: TextStyle(color: fontColorGrey),
-          fillColor: bgColor,
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-            child: InkWell(
-              onTap: () async {
-                if (textFieldSearchCatalogController.text == '') {
-                  //await _renewItem();
-                  return;
-                }
-                //await _renewItem();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                ),
-                child: Icon(
-                  Icons.search,
-                  color: iconColor,
-                ),
-              ),
+    return Container(
+      height: 35,
+      width: 300,
+      margin: EdgeInsets.only(left: defaultPadding),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                return;
+              }
+              //await _loadListOrdersCustomers();
+            },
+            child: SizedBox(
+              width: 35,
+              child: Icon(Icons.search, color: iconColor),
             ),
           ),
-        ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 33,
+                width: 225,
+                child: TextField(
+                  controller: textFieldSearchCatalogController,
+                  onSubmitted: (text) async {
+                    if (textFieldSearchCatalogController.text == '') {
+                      return;
+                    }
+                    //await _loadListOrdersCustomers();
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    hintText: 'Пошук',
+                    hintStyle: TextStyle(color: fontColorGrey),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          InkWell(
+              onTap: () async {
+                textFieldSearchCatalogController.text = '';
+                //await _loadListOrdersCustomers();
+              },
+              child: SizedBox(width: 35, child: Icon(Icons.delete, color: iconColorGrey.withOpacity(0.5)))),
+        ],
       ),
     );
   }
@@ -719,309 +827,319 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              /// Date
-              SizedBox(
-                  width: 255,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Дата:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldDateController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                              ),
-                            ),
-                          ))
-                    ],
-                  )),
-              spaceBetweenHeaderColumn(),
-
-              /// Organization
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Організація:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldOrganizationController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                                suffixIcon: PopupMenuButton<Organization>(
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.blue,
-                                    size: 30,
+          SizedBox(
+            height: 35,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// Date
+                SizedBox(
+                    width: 255,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Дата:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldDateController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                                   ),
-                                  onSelected: (Organization value) {
-                                    setState(() {
-                                      widget.orderCustomer.uidOrganization = value.uid;
-                                      widget.orderCustomer.nameOrganization = value.name;
-                                    });
-                                    _updateHeader();
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return listOrganizations.map<PopupMenuItem<Organization>>((Organization value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
-                                    }).toList();
-                                  },
                                 ),
                               ),
-                            ),
-                          ))
-                    ],
-                  )),
-              spaceBetweenHeaderColumn(),
+                            ))
+                      ],
+                    )),
+                spaceBetweenHeaderColumn(),
 
-              /// Partner
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Партнер:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldPartnerController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                                suffixIcon: PopupMenuButton<Partner>(
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.blue,
-                                    size: 30,
+                /// Organization
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Організація:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldOrganizationController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                                   ),
-                                  onSelected: (Partner value) {
-                                    setState(() {
-                                      widget.orderCustomer.uidPartner = value.uid;
-                                      widget.orderCustomer.namePartner = value.name;
-                                    });
-                                    _updateHeader();
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return listPartners.map<PopupMenuItem<Partner>>((Partner value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
-                                    }).toList();
-                                  },
+                                  suffixIcon: PopupMenuButton<Organization>(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Organization value) {
+                                      setState(() {
+                                        widget.orderCustomer.uidOrganization = value.uid;
+                                        widget.orderCustomer.nameOrganization = value.name;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listOrganizations.map<PopupMenuItem<Organization>>((Organization value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          ))
-                    ],
-                  )),
-            ],
+                            ))
+                      ],
+                    )),
+                spaceBetweenHeaderColumn(),
+
+                /// Partner
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Партнер:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldPartnerController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                  suffixIcon: PopupMenuButton<Partner>(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Partner value) {
+                                      setState(() {
+                                        widget.orderCustomer.uidPartner = value.uid;
+                                        widget.orderCustomer.namePartner = value.name;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listPartners.map<PopupMenuItem<Partner>>((Partner value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ))
+                      ],
+                    )),
+              ],
+            ),
           ),
           spaceVertBetweenHeaderColumn(),
-          Row(
-            children: [
-              /// Sum
-              SizedBox(
-                  width: 255,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Сума:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldSumController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                              ),
-                            ),
-                          ))
-                    ],
-                  )),
-              spaceBetweenHeaderColumn(),
-
-              /// Warehouse
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Склад:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldWarehouseController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                                suffixIcon: PopupMenuButton<Warehouse>(
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.blue,
-                                    size: 30,
+          SizedBox(
+            height: 35,
+            child: Row(
+              children: [
+                /// Sum
+                SizedBox(
+                    width: 255,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Сума:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldSumController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                                   ),
-                                  onSelected: (Warehouse value) {
-                                    setState(() {
-                                      widget.orderCustomer.uidWarehouse = value.uid;
-                                      widget.orderCustomer.nameWarehouse = value.name;
-                                    });
-                                    _updateHeader();
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
-                                    }).toList();
-                                  },
                                 ),
                               ),
-                            ),
-                          ))
-                    ],
-                  )),
-              spaceBetweenHeaderColumn(),
+                            ))
+                      ],
+                    )),
+                spaceBetweenHeaderColumn(),
 
-              /// Price
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Тип ціни:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldPriceController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                                suffixIcon: PopupMenuButton<Price>(
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.blue,
-                                    size: 30,
+                /// Warehouse
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Склад:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldWarehouseController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                                   ),
-                                  onSelected: (Price value) {
-                                    setState(() {
-                                      widget.orderCustomer.uidPrice = value.uid;
-                                      widget.orderCustomer.namePrice = value.name;
-                                    });
-                                    _updateHeader();
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return listPrices.map<PopupMenuItem<Price>>((Price value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
-                                    }).toList();
-                                  },
+                                  suffixIcon: PopupMenuButton<Warehouse>(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Warehouse value) {
+                                      setState(() {
+                                        widget.orderCustomer.uidWarehouse = value.uid;
+                                        widget.orderCustomer.nameWarehouse = value.name;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          ))
-                    ],
-                  )),
-            ],
+                            ))
+                      ],
+                    )),
+                spaceBetweenHeaderColumn(),
+
+                /// Price
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Тип ціни:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldPriceController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                  suffixIcon: PopupMenuButton<Price>(
+                                    padding: EdgeInsets.zero,
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Price value) {
+                                      setState(() {
+                                        widget.orderCustomer.uidPrice = value.uid;
+                                        widget.orderCustomer.namePrice = value.name;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listPrices.map<PopupMenuItem<Price>>((Price value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ))
+                      ],
+                    )),
+              ],
+            ),
           ),
         ],
       ),

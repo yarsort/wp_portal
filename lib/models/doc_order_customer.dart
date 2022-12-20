@@ -2,6 +2,7 @@ import 'dart:convert';
 
 class OrderCustomer {
   int id = 0;                   // Инкремент
+  int postingMode = 0;          // 0-Записан, 1-Проведен, 2-Удален
   String status = '';           //
   DateTime? date = DateTime.now(); // Дата создания замовлення
   String uid = '';              // UID для 1С и связи с ТЧ
@@ -36,6 +37,7 @@ class OrderCustomer {
   OrderCustomer({this.date, this.nameOrganization, this.namePartner, this.nameWarehouse, this.namePrice, this.sum});
 
   OrderCustomer.fromJson(Map<String, dynamic> json) {
+    postingMode = int.parse(json["postingMode"]??'0');
     status = json['status'] ?? '';
     date = DateTime.parse(json['date']);
     uid = json['uid'] ?? '';
@@ -69,6 +71,7 @@ class OrderCustomer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    data['postingMode'] = postingMode;
     data['status'] = status;
     data['date'] = date?.toIso8601String();
     data['uid'] = uid;

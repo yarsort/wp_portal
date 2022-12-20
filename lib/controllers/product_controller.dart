@@ -14,11 +14,12 @@ import 'package:wp_b2b/models/ref_warehouse.dart';
 import 'package:wp_b2b/models/system_sort.dart';
 
 // Get all products
-Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault, Price price, Warehouse warehouse) async {
+Future<ApiResponse> getProducts(
+    String uidParentProduct, Sort sortDefault, Price price, Warehouse warehouse, String searchString) async {
   ApiResponse apiResponse = ApiResponse();
 
   /// Адрес подключения: отправка!!!
-  final connectionUrl = await getBaseUrl() + '/products';
+  var connectionUrl = await getBaseUrl() + '/products';
 
   /// Authorization
   String basicAuth = await getToken();
@@ -29,14 +30,20 @@ Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault, Pric
 
   /// Get data from server
   try {
+
+    connectionUrl = connectionUrl +
+        '?sort=${sortDefault.code}'
+        '&uidParentProduct=$uidParentProduct'
+        '&uidPrice=${price.uid}'
+        '&uidWarehouse=${warehouse.uid}';
+
+    if (searchString.trim() != '') {
+      connectionUrl = connectionUrl + '&search=${searchString.trim()}';
+    }
+
     var dio = Dio();
     final response = await dio.get(
-        connectionUrl +
-            '/' +
-            uidParentProduct +
-                '?sort=${sortDefault.code}'
-                '&uidPrice=${price.uid}'
-                '&uidWarehouse=${warehouse.uid}',
+        connectionUrl,
         options: Options(headers: {
           'Access-Control-Allow-Origin': '*',
           HttpHeaders.contentTypeHeader: 'application/json',
@@ -71,63 +78,6 @@ Future<ApiResponse> getProductsByParent(uidParentProduct, Sort sortDefault, Pric
   return apiResponse;
 }
 
-// Get all items for search
-Future<ApiResponse> getProductsForSearch(searchString) async {
-  ApiResponse apiResponse = ApiResponse();
-
-  /// Адрес подключения: отправка!!!
-  final connectionUrl = await getBaseUrl() + '/products_search';
-
-  /// Authorization
-  String basicAuth = await getToken();
-  if (basicAuth == '') {
-    apiResponse.error = unauthorized;
-    return apiResponse;
-  }
-
-  /// Get data from server
-  try {
-    // Екрануваня символів
-    //searchString = jsonEncode(searchString);
-
-    // Запит до сервера
-    var dio = Dio();
-    final response = await dio.get(connectionUrl + '/' + searchString,
-        options: Options(headers: {
-          'Access-Control-Allow-Origin': '*',
-          HttpHeaders.contentTypeHeader: 'application/json',
-          HttpHeaders.authorizationHeader: basicAuth,
-        }));
-
-    switch (response.statusCode) {
-      case 200:
-        apiResponse.data = response.data['data'].map((p) => Product.fromJson(p)).toList();
-        // We get list of order customer, so we need to map each item to OrderCustomer model
-        apiResponse.data as List<dynamic>;
-        break;
-      case 401:
-        apiResponse.error = unauthorized;
-        break;
-      default:
-        apiResponse.error = 'Помилка отримання списку товарів';
-        break;
-    }
-  } on DioError catch (e) {
-    debugPrint(e.toString());
-
-    switch (e.response?.statusCode) {
-      case 401:
-        apiResponse.error = unauthorized;
-        break;
-      default:
-        apiResponse.error = somethingWentWrong;
-        break;
-    }
-  }
-  return apiResponse;
-}
-
-// Get all product characteristics
 Future<ApiResponse> getProductCharacteristic(uidProduct) async {
   ApiResponse apiResponse = ApiResponse();
 

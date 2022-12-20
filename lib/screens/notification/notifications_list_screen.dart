@@ -125,7 +125,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         children: [
           /// Search
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
             child: Row(
               children: [searchFieldWidget(), Spacer(), PortalPhonesAddresses(), PortalProfileName()],
             ),
@@ -178,7 +178,7 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
         children: [
           /// Search
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
             child: Row(
               children: [searchFieldWidget(), Spacer(), profileNameWidget()],
             ),
@@ -223,51 +223,63 @@ class _NotificationListScreenState extends State<NotificationListScreen> {
   }
 
   Widget searchFieldWidget() {
-    return SizedBox(
-      height: 40,
-      width: 400,
-      child: TextField(
-        controller: textFieldSearchCatalogController,
-        onSubmitted: (text) async {
-          if (textFieldSearchCatalogController.text == '') {
-            //await _renewItem();
-            return;
-          }
-          //await _renewItem();
-        },
-        decoration: InputDecoration(
-          contentPadding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-          hintText: 'Пошук',
-          hintStyle: TextStyle(color: fontColorGrey),
-          fillColor: bgColor,
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-          ),
-          prefixIcon: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 5, 0),
-            child: InkWell(
-              onTap: () async {
-                if (textFieldSearchCatalogController.text == '') {
-                  //await _renewItem();
-                  return;
-                }
-                //await _renewItem();
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Icon(
-                  Icons.search,
-                  color: iconColor,
-                ),
-              ),
+    return Container(
+      height: 35,
+      width: 300,
+      margin: EdgeInsets.only(left: defaultPadding),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                return;
+              }
+              //await _loadListOrdersCustomers();
+            },
+            child: SizedBox(
+              width: 35,
+              child: Icon(Icons.search, color: iconColor),
             ),
           ),
-        ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 33,
+                width: 225,
+                child: TextField(
+                  controller: textFieldSearchCatalogController,
+                  onSubmitted: (text) async {
+                    if (textFieldSearchCatalogController.text == '') {
+                      return;
+                    }
+                    //await _loadListOrdersCustomers();
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    hintText: 'Пошук',
+                    hintStyle: TextStyle(color: fontColorGrey),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          InkWell(
+              onTap: () async {
+                textFieldSearchCatalogController.text = '';
+                //await _loadListOrdersCustomers();
+              },
+              child: SizedBox(width: 35, child: Icon(Icons.delete, color: iconColorGrey.withOpacity(0.5)))),
+        ],
       ),
     );
   }

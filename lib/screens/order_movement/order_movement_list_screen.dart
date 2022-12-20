@@ -190,10 +190,10 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
         children: [
           /// Search
           Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            padding: const EdgeInsets.fromLTRB(0, 8, 8, 0),
             child: Row(
               children: [
-                portalSearchWidget(),
+                searchFieldWidget(),
                 Spacer(),
                 PortalDebtsPartners(),
                 PortalPhonesAddresses(),
@@ -235,19 +235,65 @@ class _OrderMovementScreenState extends State<OrderMovementScreen> {
     );
   }
 
-  Widget portalSearchWidget() {
-    return PortalSearch(
-      textFieldSearchController: textFieldSearchCatalogController,
-      onSubmittedSearch: (text) async {
-        if (textFieldSearchCatalogController.text == '') {
-          return;
-        }
-      },
-      onTapClear: () {
-        if (textFieldSearchCatalogController.text != '') {
-          textFieldSearchCatalogController.text = '';
-        }
-      },
+  Widget searchFieldWidget() {
+    return Container(
+      height: 35,
+      width: 300,
+      margin: EdgeInsets.only(left: defaultPadding),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          InkWell(
+            onTap: () async {
+              if (textFieldSearchCatalogController.text == '') {
+                return;
+              }
+              //await _loadListOrdersCustomers();
+            },
+            child: SizedBox(
+              width: 35,
+              child: Icon(Icons.search, color: iconColor),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 33,
+                width: 225,
+                child: TextField(
+                  controller: textFieldSearchCatalogController,
+                  onSubmitted: (text) async {
+                    if (textFieldSearchCatalogController.text == '') {
+                      return;
+                    }
+                    //await _loadListOrdersCustomers();
+                  },
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    hintText: 'Пошук',
+                    hintStyle: TextStyle(color: fontColorGrey),
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          InkWell(
+              onTap: () async {
+                textFieldSearchCatalogController.text = '';
+                //await _loadListOrdersCustomers();
+              },
+              child: SizedBox(width: 35, child: Icon(Icons.delete, color: iconColorGrey.withOpacity(0.5)))),
+        ],
+      ),
     );
   }
 

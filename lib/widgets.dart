@@ -32,6 +32,31 @@ Widget spaceVertBetweenHeaderColumn() {
   return SizedBox(height: 8);
 }
 
+class IconButtonPortal extends StatelessWidget {
+  final IconData icon;
+  final bool active;
+  final Function() onTap;
+
+  const IconButtonPortal({Key? key, required this.icon, required this.onTap, required this.active}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+          height: 35,
+          width: 35,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.withOpacity(0.2)),
+            color: bgColor,
+            borderRadius: const BorderRadius.all(Radius.circular(4)),
+          ),
+          child: Icon(icon, size: 20, color: active ? iconColor : iconColorGrey,),
+        ),
+    );
+  }
+}
+
 ///*****************************
 /// Товары. Фото товара
 ///*****************************
@@ -451,7 +476,7 @@ class _PortalSearchState extends State<PortalSearch> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 35,
       width: 400,
       child: TextField(
         controller: widget.textFieldSearchController,
@@ -528,31 +553,26 @@ class _PortalDebtsPartnersState extends State<PortalDebtsPartners> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: SizedBox(
-        height: 24,
+        height: 35,
+        margin: EdgeInsets.only(left: defaultPadding),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          border: Border.all(color: Colors.white10),
+        ),
         child: Row(
           children: [
-            SizedBox(width: 26, child: Icon(Icons.monetization_on_outlined, color: iconColor)),
+            SizedBox(width: 35, child: Icon(Icons.monetization_on_outlined, color: iconColor)),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
                 child: Text(doubleToString(totalBalance))),
             SizedBox(
-              width: 25,
+              width: 35,
               child: PopupMenuButton<AccumPartnerDept>(
-                iconSize: 25,
                 padding: EdgeInsets.zero,
                 icon: const Icon(
                   Icons.arrow_drop_down,
+                  size: 30,
                   color: iconColor,
                 ),
                 itemBuilder: (BuildContext context) {
@@ -565,8 +585,7 @@ class _PortalDebtsPartnersState extends State<PortalDebtsPartners> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   _loadData() async {
@@ -630,40 +649,35 @@ class _PortalPhonesAddressesState extends State<PortalPhonesAddresses> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 35,
       margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: const BorderRadius.all(Radius.circular(5)),
         border: Border.all(color: Colors.white10),
       ),
-      child: SizedBox(
-        height: 24,
-        child: Row(
-          children: [
-            SizedBox(width: 26, child: Icon(Icons.phone, color: iconColor)),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text('Телефони')),
-            SizedBox(
-              width: 25,
-              child: PopupMenuButton<Contact>(
-                iconSize: 25,
-                padding: EdgeInsets.zero,
-                icon: const Icon(
-                  Icons.arrow_drop_down,
-                  color: iconColor,
-                ),
-                itemBuilder: (BuildContext context) {
-                  return listContacts.map<PopupMenuItem<Contact>>((Contact value) {
-                    return PopupMenuItem(child: Text(value.phone + ' ${value.name}'), value: value);
-                  }).toList();
-                },
+      child: Row(
+        children: [
+          SizedBox(width: 35, child: Icon(Icons.phone, color: iconColor)),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text('Телефони')),
+          SizedBox(
+            width: 35,
+            child: PopupMenuButton<Contact>(
+              iconSize: 25,
+              padding: EdgeInsets.zero,
+              icon: const Icon(
+                Icons.arrow_drop_down,
+                size: 30,
+                color: iconColor,
               ),
+              itemBuilder: (BuildContext context) {
+                return listContacts.map<PopupMenuItem<Contact>>((Contact value) {
+                  return PopupMenuItem(child: Text(value.phone + ' ${value.name}'), value: value);
+                }).toList();
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -698,21 +712,18 @@ class _PortalProfileNameState extends State<PortalProfileName> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 35,
       margin: EdgeInsets.only(left: defaultPadding),
-      padding: EdgeInsets.symmetric(
-        horizontal: defaultPadding,
-        vertical: defaultPadding,
-      ),
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: const BorderRadius.all(Radius.circular(5)),
         border: Border.all(color: Colors.white10),
       ),
       child: SizedBox(
-        height: 24,
+        height: 35,
         child: Row(
           children: [
-            Icon(Icons.person, color: iconColor),
+            SizedBox(width: 30, child: Icon(Icons.person, color: iconColor)),
             Padding(padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2), child: Text(profileName)),
           ],
         ),

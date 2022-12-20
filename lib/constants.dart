@@ -18,6 +18,7 @@ const fontColorGrey = Color(0xFF888888);
 
 const iconColor = Color(0xFF2697FF);
 const iconColorWhite = Color(0xFFFFFFFF);
+const iconColorGrey = Color(0xFF888888);
 const checkboxColor = Color(0xFF2697FF);
 
 int selectedPage = 0;
