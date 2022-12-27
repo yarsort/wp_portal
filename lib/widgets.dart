@@ -565,10 +565,11 @@ class _PortalDebtsPartnersState extends State<PortalDebtsPartners> {
             SizedBox(width: 35, child: Icon(Icons.monetization_on_outlined, color: iconColor)),
             Padding(
                 padding: const EdgeInsets.symmetric(horizontal: defaultPadding / 2),
-                child: Text(doubleToString(totalBalance))),
+                child: Text(doubleToString(totalBalance) + ' грн')),
             SizedBox(
               width: 35,
               child: PopupMenuButton<AccumPartnerDept>(
+                tooltip: 'Показати баланс',
                 padding: EdgeInsets.zero,
                 icon: const Icon(
                   Icons.arrow_drop_down,
@@ -578,7 +579,7 @@ class _PortalDebtsPartnersState extends State<PortalDebtsPartners> {
                 itemBuilder: (BuildContext context) {
                   return listAccumPartnerDept.map<PopupMenuItem<AccumPartnerDept>>((AccumPartnerDept value) {
                     return PopupMenuItem(
-                        child: Text(value.namePartner + ' -  ${doubleToString(value.balanceUah)}'), value: value);
+                        child: Text(value.namePartner + ':  ${doubleToString(value.balanceUah)}'), value: value);
                   }).toList();
                 },
               ),
@@ -663,6 +664,7 @@ class _PortalPhonesAddressesState extends State<PortalPhonesAddresses> {
           SizedBox(
             width: 35,
             child: PopupMenuButton<Contact>(
+              tooltip: 'Показати телефони',
               iconSize: 25,
               padding: EdgeInsets.zero,
               icon: const Icon(

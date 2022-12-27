@@ -31,7 +31,7 @@ class OrderCustomer {
   int sendNoTo1C = 0;  // Булево: "Отправлено в 1С" - для фильтрации в списках
   DateTime dateSendingTo1C = DateTime(1900, 1, 1); // Дата отправки замовлення в 1С из мобильного устройства
   String numberFrom1C = '';
-  int countItems = 0;           // Количество товарів
+  //int countItems = 0;           // Количество товарів
   List<ItemOrderCustomer> itemsOrderCustomer = [];
 
   OrderCustomer({this.date, this.nameOrganization, this.namePartner, this.nameWarehouse, this.namePrice, this.sum});
@@ -59,20 +59,20 @@ class OrderCustomer {
     nameCashbox = json['nameCashbox'] ?? '';
     sum = double.parse(json["sum"]??'0.0');
     comment = json['comment'] ?? '';
-    // dateSending = DateTime.parse(json['dateSending']??'');
-    // datePaying = DateTime.parse(json['datePaying']??'');
     numberFrom1C = json['numberFrom1C'] ?? '';
-    countItems = json['countItems'] ?? 0;
 
-    // itemsOrderCustomer = List<dynamic>.from(json['itemsOrderCustomer'])
-    //     .map((i) => ItemOrderCustomer.fromJson(i))
-    //     .toList();
+    if (json['itemsOrderCustomer'] != null) {
+      itemsOrderCustomer = List<dynamic>.from(json['itemsOrderCustomer'])
+          .map((i) => ItemOrderCustomer.fromJson(i))
+          .toList();
+    }
+
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['postingMode'] = postingMode;
-    data['status'] = status;
+    data['postingMode'] = postingMode.toString();
+    data['status'] = status.toString();
     data['date'] = date?.toIso8601String();
     data['uid'] = uid;
     data['uidOrganization'] = uidOrganization.isNotEmpty?uidOrganization:'00000-0000-0000-0000-000000000000000';
@@ -91,16 +91,15 @@ class OrderCustomer {
     data['nameCurrency'] = nameCurrency;
     data['uidCashbox'] = uidCashbox.isNotEmpty?uidCashbox:'00000-0000-0000-0000-000000000000000';
     data['nameCashbox'] = nameCashbox;
-    data['sum'] = sum;
-    data['comment'] = comment;
+    data['sum'] = sum.toString();
+    data['comment'] = comment.toString();
     data['coordinates'] = coordinates;
     data['dateSending'] = dateSending?.toIso8601String();
     data['datePaying'] = datePaying?.toIso8601String();
-    data['sendYesTo1C'] = sendYesTo1C;
-    data['sendNoTo1C'] = sendNoTo1C;
+    data['sendYesTo1C'] = sendYesTo1C.toString();
+    data['sendNoTo1C'] = sendNoTo1C.toString();
     data['dateSendingTo1C'] = dateSendingTo1C.toIso8601String();
-    data['numberFrom1C'] = numberFrom1C;
-    data['countItems'] = countItems;
+    data['numberFrom1C'] = numberFrom1C.toString();
     data['itemsOrderCustomer'] = itemsOrderCustomer.map((e) => e.toJson()).toList();
     return data;
   }
@@ -113,7 +112,6 @@ class OrderCustomer {
     }
     orderCustomer.sum = allSum;
   }
-
 }
 
 /// ТЧ Товары, Документы.ЗаказПокупателя
@@ -163,7 +161,7 @@ class ItemOrderCustomer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
-    data['numberRow'] = numberRow;
+    data['numberRow'] = numberRow.toString();
     data['uidOrderCustomer'] = uidOrderCustomer;
     data['uid'] = uid;
     data['name'] = name;
@@ -171,10 +169,10 @@ class ItemOrderCustomer {
     data['nameCharacteristic'] = nameCharacteristic;
     data['uidUnit'] = uidUnit;
     data['nameUnit'] = nameUnit;
-    data['count'] = count;
-    data['price'] = price;
-    data['discount'] = discount;
-    data['sum'] = sum;
+    data['count'] = count.toString();
+    data['price'] = price.toString();
+    data['discount'] = discount.toString();
+    data['sum'] = sum.toString();
     return data;
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -347,6 +348,22 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     });
   }
 
+  _saveTempDocumentOrderCustomer() async {
+    var jsonDoc = widget.orderCustomer.toJson();
+    SharedPreferences pref = await SharedPreferences.getInstance();
+
+    if (widget.orderCustomer.itemsOrderCustomer.isNotEmpty) {
+      await pref.setString('tempOrderCustomer', jsonEncode(jsonDoc));
+    } else {
+      _clearTempDocumentOrderCustomer();
+    }
+  }
+
+  _clearTempDocumentOrderCustomer() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    await pref.setString('tempOrderCustomer', '');
+  }
+
   _updateHeader() async {
     textFieldDateController.text = fullDateToString(widget.orderCustomer.date ?? DateTime.parse(''));
     textFieldOrganizationController.text = widget.orderCustomer.nameOrganization ?? '';
@@ -364,7 +381,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
     // Read response
     if (response.error == null) {
-      setState(() {
+
         for (var item in response.data as List<dynamic>) {
           widget.orderCustomer.uid = item.uid;
           widget.orderCustomer.uidOrganization = item.uidOrganization;
@@ -385,10 +402,13 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
         loadingData = loadingData ? !loadingData : loadingData;
 
-        _updateHeader();
+        await _updateHeader();
+
+        await _clearTempDocumentOrderCustomer();
 
         showMessage('Документ відправлено!', context);
-      });
+
+        setState(() {});
     } else if (response.error == unauthorized) {
       logout().then((value) => {Navigator.restorablePushNamed(context, LoginScreen.routeName)});
     } else {
@@ -576,6 +596,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               return AlertDialog(
                                 content: const Text('Завантажити документ?'),
                                 actions: <Widget>[
+                                  Center(child: Text('Функціонал в розробці...')),
+                                  spaceVertBetweenHeaderColumn(),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -620,6 +642,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                               return AlertDialog(
                                 content: const Text('Роздрукувати документ?'),
                                 actions: <Widget>[
+                                  Center(child: Text('Функціонал в розробці...')),
+                                  spaceVertBetweenHeaderColumn(),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -663,7 +687,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           return;
                         }
 
-                        bool valueResult = await showDialog<bool>(
+                        var valueResult = await showDialog(
                             context: context,
                             builder: (context) {
                               return AlertDialog(
@@ -690,10 +714,12 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                   ),
                                 ],
                               );
-                            }) as bool;
+                            });
 
-                        if (valueResult) {
-                          _postOrderCustomer();
+                        if (valueResult != null) {
+                          if (valueResult) {
+                            await _postOrderCustomer();
+                          }
                         }
                       },
                       child: Text('Відправити постачальнику')),
@@ -708,17 +734,18 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                           return;
                         }
 
-                        bool valueResult = await showDialog<bool>(
+                        var valueResult = await showDialog(
                             context: context,
                             builder: (context) {
                               return AlertDialog(
-                                content: const Text('Відмінити створення замовлення постачальнику?'),
+                                content: const Text('Закрити документ? \n\nВведений склад товарів документу збережеться.'),
                                 actions: <Widget>[
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       ElevatedButton(
                                           onPressed: () async {
+                                            await _saveTempDocumentOrderCustomer();
                                             Navigator.of(context).pop(true);
                                           },
                                           child: Center(child: Text('Так'))),
@@ -728,6 +755,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                       ElevatedButton(
                                           style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
                                           onPressed: () async {
+                                            await _saveTempDocumentOrderCustomer();
                                             Navigator.of(context).pop(false);
                                           },
                                           child: const Text('Ні'))
@@ -735,10 +763,12 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                                   ),
                                 ],
                               );
-                            }) as bool;
+                            });
 
-                        if (valueResult) {
-                          Navigator.of(context).pop();
+                        if (valueResult != null) {
+                          if (valueResult) {
+                            Navigator.of(context).pop();
+                          }
                         }
                       },
                       child: Text('Закрити')),
@@ -1159,92 +1189,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// Actions
-          Padding(
-            padding: const EdgeInsets.all(defaultPadding * 1.5),
-            child: Row(
-              children: [
-                Text('Список товарів', style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
-
-                /// Space
-                Spacer(),
-
-                /// Add products
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        onPressed: () async {
-                          if (widget.orderCustomer.uid != '') {
-                            showErrorMessage('Редагування документа заборонено!', context);
-                            return;
-                          }
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ProductListSelectionScreen(orderCustomer: widget.orderCustomer),
-                            ),
-                          );
-
-                          OrderCustomer().allSum(widget.orderCustomer);
-
-                          _updateHeader();
-
-                          setState(() {});
-                        },
-                        child: Text('Додати товар'))),
-
-                /// Space
-                SizedBox(width: defaultPadding),
-
-                /// Clear list
-                SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey)),
-                        onPressed: () async {
-                          if (widget.orderCustomer.uid != '') {
-                            showErrorMessage('Редагування документа заборонено!', context);
-                            return;
-                          }
-                          bool valueResult = await showDialog<bool>(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  content: const Text('Очистити список товарів?'),
-                                  actions: <Widget>[
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        ElevatedButton(
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(true);
-                                            },
-                                            child: Center(child: Text('Очистити'))),
-                                        const SizedBox(
-                                          width: 10,
-                                        ),
-                                        ElevatedButton(
-                                            style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
-                                            onPressed: () async {
-                                              Navigator.of(context).pop(false);
-                                            },
-                                            child: const Text('Відміна'))
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              }) as bool;
-
-                          if (valueResult) {
-                            setState(() {
-                              widget.orderCustomer.itemsOrderCustomer.clear();
-                              OrderCustomer().allSum(widget.orderCustomer);
-                            });
-                          }
-                        },
-                        child: Text('Очистити список'))),
-              ],
-            ),
-          ),
+          actionsOrderCustomerList(),
 
           /// Header
           Container(
@@ -1376,6 +1321,97 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
     );
   }
 
+  Widget actionsOrderCustomerList() {
+    return Padding(
+      padding: const EdgeInsets.all(defaultPadding * 1.5),
+      child: Row(
+        children: [
+          Text('Список товарів', style: TextStyle(color: fontColorDarkGrey, fontSize: 16)),
+
+          /// Space
+          Spacer(),
+
+          /// Add products
+          SizedBox(
+              height: 30,
+              child: ElevatedButton(
+                  onPressed: () async {
+                    if (widget.orderCustomer.uid != '') {
+                      showErrorMessage('Редагування документа заборонено!', context);
+                      return;
+                    }
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductListSelectionScreen(orderCustomer: widget.orderCustomer),
+                      ),
+                    );
+
+                    OrderCustomer().allSum(widget.orderCustomer);
+
+                    await _saveTempDocumentOrderCustomer();
+
+                    _updateHeader();
+
+                    setState(() {});
+                  },
+                  child: Text('Додати товар'))),
+
+          /// Space
+          SizedBox(width: defaultPadding),
+
+          /// Clear list
+          SizedBox(
+              height: 30,
+              child: ElevatedButton(
+                  style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.grey)),
+                  onPressed: () async {
+                    if (widget.orderCustomer.uid != '') {
+                      showErrorMessage('Редагування документа заборонено!', context);
+                      return;
+                    }
+                    bool valueResult = await showDialog<bool>(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: const Text('Очистити список товарів?'),
+                            actions: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  ElevatedButton(
+                                      onPressed: () async {
+                                        Navigator.of(context).pop(true);
+                                      },
+                                      child: Center(child: Text('Очистити'))),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  ElevatedButton(
+                                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.red)),
+                                      onPressed: () async {
+                                        Navigator.of(context).pop(false);
+                                      },
+                                      child: const Text('Відміна'))
+                                ],
+                              ),
+                            ],
+                          );
+                        }) as bool;
+
+                    if (valueResult) {
+                      setState(() {
+                        widget.orderCustomer.itemsOrderCustomer.clear();
+                        OrderCustomer().allSum(widget.orderCustomer);
+                      });
+                    }
+                  },
+                  child: Text('Очистити список'))),
+        ],
+      ),
+    );
+  }
+
   Widget rowDataItemOrderCustomer(ItemOrderCustomer item) {
     return GestureDetector(
       onTap: () async {},
@@ -1469,6 +1505,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
 
                       OrderCustomer().allSum(widget.orderCustomer);
 
+                      await _saveTempDocumentOrderCustomer();
+
                       setState(() {});
                     },
                     icon: Icon(
@@ -1479,7 +1517,7 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
               Expanded(
                 flex: 1,
                 child: IconButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (widget.orderCustomer.uid != '') {
                         showErrorMessage('Редагування документа заборонено!', context);
                         return;
@@ -1487,6 +1525,8 @@ class _OrderCustomerItemScreenState extends State<OrderCustomerItemScreen> {
                       widget.orderCustomer.itemsOrderCustomer.remove(item);
 
                       OrderCustomer().allSum(widget.orderCustomer);
+
+                      await _saveTempDocumentOrderCustomer();
 
                       setState(() {});
                     },

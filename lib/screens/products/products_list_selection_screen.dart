@@ -500,6 +500,10 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
   }
 
   addItemToDocument(product, productCharacteristic, countOnWarehouse, priceOnWarehouse) {
+    if (widget.orderCustomer == null && widget.orderMovement == null) {
+      return;
+    }
+
     // Контроль добавления товара, если на остатке его нет
     // bool deniedAddProductWithoutRest =
     // prefs.getBool('settings_deniedAddProductWithoutRest')!;
@@ -843,168 +847,171 @@ class _ProductListSelectionScreenState extends State<ProductListSelectionScreen>
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              /// Price
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Тип ціни:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldPriceController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                                suffixIcon: PopupMenuButton<Price>(
-                                  padding: EdgeInsets.all(0),
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.blue,
-                                    size: 30,
+          SizedBox(
+            height: 35,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                /// Price
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Тип ціни:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldPriceController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                                   ),
-                                  onSelected: (Price value) {
-                                    setState(() {
-                                      price = value;
-                                    });
-                                    _updateHeader();
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return listPrices.map<PopupMenuItem<Price>>((Price value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
-                                    }).toList();
-                                  },
+                                  suffixIcon: PopupMenuButton<Price>(
+                                    padding: EdgeInsets.all(0),
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Price value) {
+                                      setState(() {
+                                        price = value;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listPrices.map<PopupMenuItem<Price>>((Price value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          ))
-                    ],
-                  )),
-              spaceBetweenHeaderColumn(),
+                            ))
+                      ],
+                    )),
+                spaceBetweenHeaderColumn(),
 
-              /// Warehouse
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          flex: 2,
-                          child: Row(
-                            children: [
-                              Spacer(),
-                              Text('Склад:'),
-                              spaceBetweenColumn(),
-                            ],
-                          )),
-                      Expanded(
-                          flex: 5,
-                          child: SizedBox(
-                            height: 40,
-                            child: TextField(
-                              style: TextStyle(fontSize: 14),
-                              readOnly: true,
-                              controller: textFieldWarehouseController,
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
-                                fillColor: bgColor,
-                                filled: true,
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide.none,
-                                  borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                ),
-                                suffixIcon: PopupMenuButton<Warehouse>(
-                                  padding: EdgeInsets.all(0),
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Colors.blue,
-                                    size: 30,
+                /// Warehouse
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Row(
+                              children: [
+                                Spacer(),
+                                Text('Склад:'),
+                                spaceBetweenColumn(),
+                              ],
+                            )),
+                        Expanded(
+                            flex: 5,
+                            child: SizedBox(
+                              height: 40,
+                              child: TextField(
+                                style: TextStyle(fontSize: 14),
+                                readOnly: true,
+                                controller: textFieldWarehouseController,
+                                decoration: InputDecoration(
+                                  contentPadding: EdgeInsets.fromLTRB(10, 24, 10, 0),
+                                  fillColor: bgColor,
+                                  filled: true,
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide.none,
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
                                   ),
-                                  onSelected: (Warehouse value) {
-                                    setState(() {
-                                      warehouse = value;
-                                    });
-                                    _updateHeader();
-                                  },
-                                  itemBuilder: (BuildContext context) {
-                                    return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
-                                      return PopupMenuItem(child: Text(value.name), value: value);
-                                    }).toList();
-                                  },
+                                  suffixIcon: PopupMenuButton<Warehouse>(
+                                    padding: EdgeInsets.all(0),
+                                    icon: const Icon(
+                                      Icons.arrow_drop_down,
+                                      color: Colors.blue,
+                                      size: 30,
+                                    ),
+                                    onSelected: (Warehouse value) {
+                                      setState(() {
+                                        warehouse = value;
+                                      });
+                                      _updateHeader();
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return listWarehouses.map<PopupMenuItem<Warehouse>>((Warehouse value) {
+                                        return PopupMenuItem(child: Text(value.name), value: value);
+                                      }).toList();
+                                    },
+                                  ),
                                 ),
                               ),
-                            ),
-                          ))
-                    ],
-                  )),
-              spaceBetweenHeaderColumn(),
+                            ))
+                      ],
+                    )),
+                spaceBetweenHeaderColumn(),
 
-              /// Checkboxes
-              Expanded(
-                  flex: 1,
-                  child: Row(
-                    children: [
-                      Checkbox(
-                        activeColor: checkboxColor,
-                        checkColor: secondaryColor,
-                        value: showOnlyWithRests,
-                        onChanged: (value) async {
-                          countLoadItems = 1000;
-
-                          showOnlyWithRests = !showOnlyWithRests;
-
-                          if (showOnlyWithRests) {
+                /// Checkboxes
+                Expanded(
+                    flex: 1,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          activeColor: checkboxColor,
+                          checkColor: secondaryColor,
+                          value: showOnlyWithRests,
+                          onChanged: (value) async {
                             countLoadItems = 1000;
-                            await _renewItem();
-                          } else {
-                            countLoadItems = countLoadItemsDefault;
-                            await _renewItem();
-                          }
-                          setState(() {});
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                        child: Text('В наявності'),
-                      ),
-                      Checkbox(
-                        activeColor: checkboxColor,
-                        checkColor: secondaryColor,
-                        value: showProductHierarchy,
-                        onChanged: (value) {
-                          setState(() {
-                            textFieldSearchCatalogController.text = '';
-                            showProductHierarchy = !showProductHierarchy;
-                            _renewItem();
-                          });
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                        child: Text('Ієрархія'),
-                      ),
-                    ],
-                  )),
-            ],
+
+                            showOnlyWithRests = !showOnlyWithRests;
+
+                            if (showOnlyWithRests) {
+                              countLoadItems = 1000;
+                              await _renewItem();
+                            } else {
+                              countLoadItems = countLoadItemsDefault;
+                              await _renewItem();
+                            }
+                            setState(() {});
+                          },
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                          child: Text('В наявності'),
+                        ),
+                        Checkbox(
+                          activeColor: checkboxColor,
+                          checkColor: secondaryColor,
+                          value: showProductHierarchy,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldSearchCatalogController.text = '';
+                              showProductHierarchy = !showProductHierarchy;
+                              _renewItem();
+                            });
+                          },
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                          child: Text('Ієрархія'),
+                        ),
+                      ],
+                    )),
+              ],
+            ),
           ),
         ],
       ),
@@ -1401,6 +1408,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
 
   _loadData() async {
     await _getCharacteristics();
+    setState(() {});
   }
 
   _getCharacteristics() async {
@@ -1570,7 +1578,7 @@ class _ProductItemListViewState extends State<ProductItemListView> {
                           child: Text(widget.product.description.trim()),
                         ),
                       ),
-                      Expanded(flex: 2, child: Text('')),
+                      Expanded(flex: 2, child: Text('Опису немає')),
                     ],
                   ),
                 ],
@@ -1795,63 +1803,70 @@ class _ProductItemListViewState extends State<ProductItemListView> {
         ),
         color: tileColor,
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: defaultPadding,
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: 50,
+                  child: Text('', textAlign: TextAlign.left)),
+            ),
+          ),
+          Expanded(
+            flex: 9,
+            child: Text(itemCharacteristic.name, textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text('', textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text('', textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text('', textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(doubleToString(countOnWarehouse), textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(doubleToString(price), textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text('', textAlign: TextAlign.left),
+          ),
+          Expanded(
+            flex: 1,
+            child: IconButton(
+                icon: Icon(
+                  Icons.arrow_drop_down,
+                  color: Colors.white,
+                  size: 20,
                 ),
-                child: Text('', textAlign: TextAlign.left),
-              ),
-            ),
-            Expanded(
-              flex: 9,
-              child: Text(itemCharacteristic.name, textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text('', textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text('', textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text('', textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(countOnWarehouse), textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text(doubleToString(price), textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 2,
-              child: Text('', textAlign: TextAlign.left),
-            ),
-            Expanded(
-              flex: 1,
-              child: IconButton(
-                  icon: Icon(
-                    Icons.add_shopping_cart_outlined,
-                    color: iconColor,
-                    size: 20,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _addItemToDocument(itemCharacteristic, count, price);
-                    });
-                  }),
-            ),
-          ],
-        ),
+                onPressed: () {}),
+          ),
+          Expanded(
+            flex: 1,
+            child: IconButton(
+                icon: Icon(
+                  Icons.add_shopping_cart_outlined,
+                  color: iconColor,
+                  size: 20,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _addItemToDocument(itemCharacteristic, count, price);
+                  });
+                }),
+          ),
+        ],
       ),
     );
   }

@@ -218,6 +218,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
                           child: SizedBox(
                             height: 40,
                             child: TextField(
+                              readOnly: true,
                               onChanged: (e) {
                                 _saveSettings();
                               },
@@ -264,6 +265,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
                           child: SizedBox(
                             height: 40,
                             child: TextField(
+                              readOnly: true,
                               onChanged: (e) {
                                 _saveSettings();
                               },
@@ -311,6 +313,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
                         child: SizedBox(
                           height: 40,
                           child: TextField(
+                            readOnly: true,
                             onChanged: (e) {
                               _saveSettings();
                             },
@@ -358,6 +361,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
                         child: SizedBox(
                           height: 40,
                           child: TextField(
+                            readOnly: true,
                             onChanged: (e) {
                               _saveSettings();
                             },

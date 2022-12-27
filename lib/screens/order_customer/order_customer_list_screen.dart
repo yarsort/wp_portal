@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -387,7 +389,25 @@ class _OrderCustomerScreenState extends State<OrderCustomerScreen> {
                   height: 30,
                   child: ElevatedButton(
                       onPressed: () async {
+
+                        /// Create document
                         OrderCustomer orderCustomer = OrderCustomer();
+
+                        /// Restore from memory
+                        SharedPreferences pref = await SharedPreferences.getInstance();
+                        String jsonDoc = pref.getString('tempOrderCustomer')??'';
+                        if (jsonDoc.trim() != '') {
+                          try {
+                            orderCustomer = OrderCustomer.fromJson(json.decode(jsonDoc));
+
+                            showMessage('Документ відновлено...', context);
+                          }
+                          catch (e) {
+                            await pref.setString('tempOrderCustomer', '');
+                          }
+                        }
+
+                        /// Update date of document
                         orderCustomer.date = DateTime.now();
 
                         await Navigator.push(
